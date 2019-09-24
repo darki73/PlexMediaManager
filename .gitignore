@@ -1,0 +1,13 @@
+# Global Ignore
+.idea
+
+# Ignore Contents In These Volumes
+volumes/mariadb/*
+volumes/redis/*
+
+# Keep Certain Files In These Volumes
+!volumes/mariadb/.gitkeep
+!volumes/redis/.gitkeep
+
+# Ignore Manually Created Files
+docker-compose.yml

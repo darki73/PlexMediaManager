@@ -1,0 +1,141 @@
+.italic {
+    font-style: italic!important;
+}
+.roman {
+    font-style: normal!important;
+}
+.uppercase {
+    text-transform: uppercase!important;
+}
+.lowercase {
+    text-transform: lowercase!important;
+}
+.capitalize {
+    text-transform: capitalize!important;
+}
+.normal-case {
+    text-transform: none!important;
+}
+.underline {
+    text-decoration: underline!important;
+}
+.line-through {
+    text-decoration: line-through!important;
+}
+.no-underline {
+    text-decoration: none!important;
+}
+.antialiased {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+.subpixel-antialiased {
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto
+}
+
+.align-text-center > span {
+    position: absolute;
+    top: 40%;
+}
+
+.fs-10 {
+    font-size: 10px!important;
+}
+.fs-12 {
+    font-size: 12px!important;
+}
+.fs-14 {
+    font-size: 14px!important;
+}
+.fs-16 {
+    font-size: 16px!important;
+}
+.fs-18 {
+    font-size: 18px!important;
+}
+.fs-20 {
+    font-size: 20px!important;
+}
+.fs-22 {
+    font-size: 22px!important;
+}
+.fs-24 {
+    font-size: 24px!important;
+}
+.fs-26 {
+    font-size: 26px!important;
+}
+.fs-28 {
+    font-size: 28px!important;
+}
+.fs-30 {
+    font-size: 30px!important;
+}
+.fs-32 {
+    font-size: 32px!important;
+}
+.fs-34 {
+    font-size: 34px!important;
+}
+.fs-36 {
+    font-size: 36px!important;
+}
+.fs-38 {
+    font-size: 38px!important;
+}
+.fs-40 {
+    font-size: 40px!important;
+}
+.fs-42 {
+    font-size: 42px!important;
+}
+.fs-44 {
+    font-size: 44px!important;
+}
+.fs-46 {
+    font-size: 46px!important;
+}
+.fs-48 {
+    font-size: 48px!important;
+}
+.fs-50 {
+    font-size: 50px!important;
+}
+
+.bold {
+    font-weight: bold!important;
+}
+
+.bolder {
+    font-weight: bolder!important;
+}
+
+.link-as-text {
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    color: #1a73e8!important;
+    display: inline-block;
+    font-weight: 600;
+    letter-spacing: .25px;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: inherit;
+    outline: 0;
+    padding: 0;
+    text-align: left;
+    text-decoration: none;
+}
+
+.wordwrap {
+    white-space: pre-wrap;      /* CSS3 */
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap;     /* Opera <7 */
+    white-space: -o-pre-wrap;   /* Opera 7 */
+    word-wrap: break-word;      /* IE */
+}
+
+.red--background {
+    background-color: red!important;
+}

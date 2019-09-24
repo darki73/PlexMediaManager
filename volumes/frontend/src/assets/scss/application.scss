@@ -1,0 +1,15 @@
+@import 'text';
+@import 'borders';
+
+.no-underline {
+    text-decoration: none;
+}
+
+.equal-cards-height {
+    display: flex;
+}
+
+.card-block-title {
+    color: gray;
+    font-size: 12px;
+}
