@@ -18,6 +18,13 @@ abstract class AbstractClient implements TorrentInterface {
     abstract public function download(string $url, string $category) : TorrentInterface;
 
     /**
+     * Get torrent files
+     * @param string $hash
+     * @return array
+     */
+    abstract public function torrentFiles(string $hash) : array;
+
+    /**
      * Initialize Client
      * @return AbstractClient|static|self|$this
      */

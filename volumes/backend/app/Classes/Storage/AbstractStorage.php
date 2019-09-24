@@ -69,11 +69,11 @@ abstract class AbstractStorage {
     /**
      * List all files at specified path
      * @param string $path
-     * @param bool $relative
+     * @param bool $recursive
      * @return array
      */
-    public function listFiles(string $path, bool $relative = false) : array {
-        if ($relative) {
+    public function listFiles(string $path, bool $recursive = false) : array {
+        if ($recursive) {
             return $this->storage()->allFiles($path);
         }
         return $this->storage()->files($path);

@@ -125,6 +125,9 @@ Route::group([
         die();
     });
     Route::get('sync', static function() {
+        $manager = new \App\Classes\DownloadManager;
+        $manager->series()->cleanEmptyDirectories();
+        $manager->movies()->cleanEmptyDirectories();
         dispatch(new \App\Jobs\Sync\Episodes);
         die();
     });

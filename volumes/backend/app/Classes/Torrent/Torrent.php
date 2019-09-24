@@ -31,15 +31,6 @@ class Torrent implements TorrentInterface {
     }
 
     /**
-     * Initialize torrent client
-     * @return Torrent|static|self|$this
-     */
-    protected function initializeClient() : self {
-        $this->client = new $this->clientClass;
-        return $this;
-    }
-
-    /**
      * Download single torrent file
      * @param string $url
      * @param string $category
@@ -51,11 +42,28 @@ class Torrent implements TorrentInterface {
     }
 
     /**
+     * Get torrent client instance
+     * @return AbstractClient
+     */
+    public function client() : AbstractClient {
+        return $this->client;
+    }
+
+    /**
      * @inheritDoc
      * @return array
      */
     public function listTorrents(): array {
         return $this->client->listTorrents();
+    }
+
+    /**
+     * Initialize torrent client
+     * @return Torrent|static|self|$this
+     */
+    protected function initializeClient() : self {
+        $this->client = new $this->clientClass;
+        return $this;
     }
 
 }
