@@ -113,6 +113,9 @@
                         </v-flex>
                     </v-layout>
                 </v-flex>
+                <v-flex xs12 text-center>
+                    <strong>Github Repository:</strong> https://github.com/darki73/PlexMediaManager
+                </v-flex>
             </v-layout>
         </v-flex>
     </v-layout>

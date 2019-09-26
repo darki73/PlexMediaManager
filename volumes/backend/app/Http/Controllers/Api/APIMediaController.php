@@ -37,15 +37,7 @@ class APIMediaController extends APIController {
             return [];
         }
 
-        $list = [];
-
-        foreach ($genres as $genre) {
-            $list[] = [
-                'id'    =>  $genre,
-                'name'  =>  Genre::find($genre)->name
-            ];
-        }
-        return $list;
+        return Genre::findMany($genres, ['id', 'name'])->toArray();
     }
 
     /**
@@ -58,23 +50,16 @@ class APIMediaController extends APIController {
             return [];
         }
 
-        $list = [];
+        return ProductionCompany::findMany($companies)->map(function (ProductionCompany $company, int $index) {
+            $tmp = Arr::except($company->toArray(), [
+                'logo',
+                'created_at',
+                'updated_at'
+            ]);
 
-        foreach ($companies as $company) {
-            $company = ProductionCompany::find($company);
-            if ($company !== null) {
-                $tmp = Arr::except($company->toArray(), [
-                    'logo',
-                    'created_at',
-                    'updated_at'
-                ]);
-
-                $tmp['logo'] = $company->logo ? $this->buildImagePath($company->logo, 'company') : null;
-
-                $list[] = $tmp;
-            }
-        }
-        return $list;
+            $tmp['logo'] = $company->logo ? $this->buildImagePath($company->logo, 'company') : null;
+            return $tmp;
+        })->toArray();
     }
 
     /**
@@ -86,21 +71,7 @@ class APIMediaController extends APIController {
         if ($countries === null) {
             return [];
         }
-
-        $list = [];
-
-        foreach ($countries as $country) {
-            $company = ProductionCountry::find($country);
-            if ($company !== null) {
-                $tmp = Arr::except($company->toArray(), [
-                    'created_at',
-                    'updated_at'
-                ]);
-                $list[] = $tmp;
-            }
-        }
-
-        return $list;
+        return ProductionCountry::findMany($countries, ['id', 'code', 'name'])->toArray();
     }
 
     /**
@@ -113,23 +84,15 @@ class APIMediaController extends APIController {
             return [];
         }
 
-        $list = [];
-
-        foreach ($creators as $creator) {
-            $creator = Creator::find($creator);
-            if ($creator !== null) {
-                $tmp = Arr::except($creator->toArray(), [
-                    'photo',
-                    'created_at',
-                    'updated_at'
-                ]);
-
-                $tmp['photo'] = $creator->photo ? $this->buildImagePath($creator->photo, 'creator') : null;
-
-                $list[] = $tmp;
-            }
-        }
-        return $list;
+        return Creator::findMany($creators)->map(function (Creator $creator, int $index) {
+            $tmp = Arr::except($creator->toArray(), [
+                'photo',
+                'created_at',
+                'updated_at'
+            ]);
+            $tmp['photo'] = $creator->photo ? $this->buildImagePath($creator->photo, 'creator') : null;
+            return $tmp;
+        })->toArray();
     }
 
     /**
@@ -142,23 +105,16 @@ class APIMediaController extends APIController {
             return [];
         }
 
-        $list = [];
+        return Network::findMany($networks)->map(function (Network $network, int $id) {
+            $tmp = Arr::except($network->toArray(), [
+                'logo',
+                'created_at',
+                'updated_at'
+            ]);
 
-        foreach ($networks as $network) {
-            $network = Network::find($network);
-            if ($network !== null) {
-                $tmp = Arr::except($network->toArray(), [
-                    'logo',
-                    'created_at',
-                    'updated_at'
-                ]);
-
-                $tmp['logo'] = $network->logo ? $this->buildImagePath($network->logo, 'network') : null;
-
-                $list[] = $tmp;
-            }
-        }
-        return $list;
+            $tmp['logo'] = $network->logo ? $this->buildImagePath($network->logo, 'network') : null;
+            return $tmp;
+        })->toArray();
     }
 
     /**
