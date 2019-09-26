@@ -38,6 +38,12 @@ class QBitTorrent extends AbstractClient {
     protected $authenticationToken = null;
 
     /**
+     * @inheritDoc
+     * @var string
+     */
+    protected $implementationVersion = '1.0.0';
+
+    /**
      * QBitTorrent constructor.
      */
     public function __construct() {

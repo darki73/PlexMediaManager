@@ -31,6 +31,14 @@ class Torrent implements TorrentInterface {
     }
 
     /**
+     * Get torrent client implementation class
+     * @return string|null
+     */
+    public function getClientClass() : ?string {
+        return $this->clientClass;
+    }
+
+    /**
      * Download single torrent file
      * @param string $url
      * @param string $category

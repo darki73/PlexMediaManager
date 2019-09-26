@@ -9,6 +9,21 @@ use App\Classes\Torrent\Contract\TorrentInterface;
 abstract class AbstractClient implements TorrentInterface {
 
     /**
+     * Client implementation version
+     * Note: these versions might change during the development cycle
+     * @var null|string
+     */
+    protected $implementationVersion = null;
+
+    /**
+     * Get client implementation version
+     * @return string|null
+     */
+    public function getImplementationVersion() : ?string {
+        return $this->implementationVersion;
+    }
+
+    /**
      * Download single torrent file
      * @param string $url
      * @param string $category
