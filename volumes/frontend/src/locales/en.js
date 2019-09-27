@@ -1,7 +1,11 @@
 export default {
     common: {
         total: 'Total',
-        free: 'Free'
+        free: 'Free',
+        refresh: 'Refresh',
+        cancel: 'Cancel',
+        apply: 'Apply',
+        delete: 'Delete'
     },
     dashboard: {
         server: {
@@ -92,6 +96,9 @@ export default {
             }
         },
         requests: {
+            all: {
+                table_header: 'All Requests'
+            },
             headers: {
                 id: 'Request ID',
                 type: 'Type',
@@ -106,6 +113,7 @@ export default {
                 0: 'Series',
                 1: 'Movie'
             },
+            status_label: 'Request Status',
             statuses: {
                 0: 'Created',
                 1: 'Approved',

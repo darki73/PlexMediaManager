@@ -13,3 +13,15 @@
     color: gray;
     font-size: 12px;
 }
+
+
+.theme--dark {
+    .v-sheet {
+        .v-toolbar {
+            background-color: transparent!important;
+        }
+    }
+    .v-data-table {
+        background-color: transparent!important;
+    }
+}

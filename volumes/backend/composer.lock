@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "86e2c9ef69cc4317eb11eb10cb1c567c",
+    "content-hash": "eef509c03010d2113176f2f90e424106",
     "packages": [
         {
             "name": "cakephp/chronos",
@@ -1670,6 +1670,52 @@
                 "random"
             ],
             "time": "2018-07-02T15:55:56+00:00"
+        },
+        {
+            "name": "patrickschur/language-detection",
+            "version": "v3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/patrickschur/language-detection.git",
+                "reference": "95b55109177d5c4bd6b1bec6e8835cd0df36ef5f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/95b55109177d5c4bd6b1bec6e8835cd0df36ef5f",
+                "reference": "95b55109177d5c4bd6b1bec6e8835cd0df36ef5f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LanguageDetection\\": "src/LanguageDetection"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Patrick Schur",
+                    "email": "patrick_schur@outlook.de"
+                }
+            ],
+            "description": "A language detection library for PHP. Detects the language from a given text string.",
+            "homepage": "https://github.com/patrickschur/language-detection",
+            "keywords": [
+                "detect",
+                "detection",
+                "language"
+            ],
+            "time": "2018-09-19T21:45:51+00:00"
         },
         {
             "name": "phpoption/phpoption",

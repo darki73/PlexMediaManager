@@ -6,6 +6,7 @@ use App\Models\Series as SeriesModel;
 use App\Classes\TheMovieDB\TheMovieDB;
 use App\Classes\Media\Processor\Processor;
 use App\Classes\TheMovieDB\Endpoint\Search;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Series
@@ -44,13 +45,11 @@ class Series extends AbstractLongQueueJob {
         }
         $newSeriesCount = SeriesModel::count();
         if($newSeriesCount > $oldSeriesCount) {
+            Cache::forget('series:list');
             SeriesIndexers::withChain([
                 new Episodes
             ])->dispatch();
         }
-//        else {
-//            dispatch(new \App\Jobs\Sync\Episodes);
-//        }
     }
 
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class SeriesController
@@ -34,21 +35,24 @@ class SeriesController extends APIMediaController {
      * @return JsonResponse
      */
     public function list(Request $request) : JsonResponse {
-        return $this->sendResponse('Successfully fetched list of series', $this->seriesCollection->map(function (Series $series, int $key) {
-            return $this->getBaseSeriesInformation($series, [
-                'id',
-                'title',
-                'original_title',
-                'local_title',
-                'original_language',
-                'overview',
-                'backdrop',
-                'poster',
-                'genres',
-                'seasons_count',
-                'runtime'
-            ]);
-        })->toArray());
+        // TODO: Check the caching mechanism later (smells fishy)
+        return $this->sendResponse('Successfully fetched list of series', Cache::rememberForever('series:list', function () {
+            return $this->seriesCollection->map(function (Series $series, int $key) {
+                return $this->getBaseSeriesInformation($series, [
+                    'id',
+                    'title',
+                    'original_title',
+                    'local_title',
+                    'original_language',
+                    'overview',
+                    'backdrop',
+                    'poster',
+                    'genres',
+                    'seasons_count',
+                    'runtime'
+                ]);
+            })->toArray();
+        }));
     }
 
     /**

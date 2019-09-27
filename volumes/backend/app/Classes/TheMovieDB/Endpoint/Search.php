@@ -1,6 +1,8 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use LanguageDetection\Language;
 
 /**
  * Class Search
@@ -137,7 +139,18 @@ class Search extends AbstractEndpoint {
         $this->options['query'] = trim($query);
     }
 
+    /**
+     * Detect the best language for query
+     * @return void
+     */
+    protected function detectLanguage() : void {
+        $languageDetect = (new Language)->detect($this->query)->whitelist('ru', 'en', 'es', 'de');
+        $this->options['language'] = $this->language = array_key_first($languageDetect->bestResults()->close());
+        return;
+    }
+
     public function fetch() : array {
+        $this->detectLanguage();
         if ($this->year !== null) {
             switch ($this->type) {
                 case 'tv':
@@ -175,6 +188,7 @@ class Search extends AbstractEndpoint {
         if (\count($returnArray) === 0) {
             $returnArray = $data['results'][0];
         }
+
         return $returnArray;
     }
 
