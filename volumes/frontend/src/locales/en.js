@@ -109,11 +109,20 @@ export default {
                 created: 'Created On',
                 actions: 'Actions'
             },
+            table: {
+                all: 'All Requests',
+                0: 'Series Requests',
+                1: 'Movies Requests'
+            },
             types: {
                 0: 'Series',
                 1: 'Movie'
             },
             status_label: 'Request Status',
+            delete: {
+                title: 'Deleting Request',
+                message: 'You are about to delete request for `{type}` with title `{name} ({year})` from `{user}`'
+            },
             statuses: {
                 0: 'Created',
                 1: 'Approved',

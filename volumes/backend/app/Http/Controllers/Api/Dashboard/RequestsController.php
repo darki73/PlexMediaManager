@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Classes\TheMovieDB\TheMovieDB;
 use App\Http\Controllers\Api\APIController;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class RequestsController
@@ -57,6 +58,68 @@ class RequestsController extends APIController {
         return $this->sendResponse('Successfully fetched requests for series', $this->mapCollection($this->requestsCollection->reject(function (\App\Models\Request $request, int $index) {
             return $request->request_type === 1;
         })));
+    }
+
+    /**
+     * Update request status
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateRequestStatus(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'id'        => 'required|integer',
+            'status'    => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Invalid parameters have been passed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $id = $request->get('id');
+        $status = $request->get('status');
+
+        $requestModel = \App\Models\Request::find($id);
+
+        if ($requestModel === null) {
+            return $this->sendError('Request with given id was not found', [
+                'id'    =>  $id
+            ]);
+        }
+
+        $requestModel->update([
+            'status'    =>  $status
+        ]);
+
+        return $this->sendResponse('Successfully updated request status');
+    }
+
+    /**
+     * Delete request
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function deleteRequest(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'id'        => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Invalid parameters have been passed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $id = $request->get('id');
+
+        $requestModel = \App\Models\Request::find($id);
+
+        if ($requestModel === null) {
+            return $this->sendError('Request with given id was not found', [
+                'id'    =>  $id
+            ]);
+        }
+
+        $requestModel->forceDelete();
+
+        return $this->sendResponse('Successfully deleted request with id: ' . $id);
     }
 
     /**

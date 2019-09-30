@@ -107,6 +107,8 @@ Route::group([
         'prefix'    =>  'requests'
     ], static function() {
         Route::get('', 'RequestsController@listAllRequests');
+        Route::post('update-status', 'RequestsController@updateRequestStatus');
+        Route::post('delete-request', 'RequestsController@deleteRequest');
         Route::get('/movies', 'RequestsController@listMoviesRequests');
         Route::get('/series', 'RequestsController@listSeriesRequests');
     });
