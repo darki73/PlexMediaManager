@@ -1,8 +1,8 @@
 <?php namespace App\Classes\Jackett\Indexers;
 
 use App\Models\Series;
-use ReflectionException;
 use App\Models\Episode;
+use ReflectionException;
 use Illuminate\Support\Facades\Log;
 use App\Classes\Jackett\Enums\Quality;
 use GuzzleHttp\Exception\ConnectException;
@@ -128,6 +128,29 @@ abstract class AbstractIndexer {
     protected function search(string $searchQuery) : self {
         $this->query = $searchQuery;
         return $this;
+    }
+
+    /**
+     * Create possible names for the torrent file
+     * @param Series $series
+     * @param Episode $episode
+     * @return array
+     */
+    protected function createPossibleTorrentNames(Series $series, Episode $episode) {
+        $seriesNames = [];
+        array_push($seriesNames, $series->title);
+        array_push($seriesNames, create_lostfilm_title($series->local_title));
+        array_push($seriesNames, implode('.', explode(' ', $series->title)));
+        array_push($seriesNames, implode('.', explode(' ', create_lostfilm_title($series->local_title))) . '.');
+        $seriesNames = array_values(array_unique($seriesNames));
+
+        $possibleTorrentNames = [];
+
+        foreach ($seriesNames as $name) {
+            $possibleTorrentNames[] = sprintf('%sS%sE%s', $name, pad($episode->season_number), pad($episode->episode_number));
+        }
+        $possibleTorrentNames = array_merge($seriesNames, $possibleTorrentNames);
+        return $possibleTorrentNames;
     }
 
     /**

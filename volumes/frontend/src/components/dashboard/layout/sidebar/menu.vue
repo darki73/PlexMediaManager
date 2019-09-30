@@ -108,6 +108,17 @@
                                 color: 'red'
                             },
                         ]
+                    },
+                    {
+                        action: 'cloud_download',
+                        title: 'dashboard.menu.torrents.torrents',
+                        items: [
+                            {
+                                title: 'dashboard.menu.torrents.list',
+                                link: '/dashboard/torrents',
+                                icon: 'format_list_bulleted'
+                            }
+                        ]
                     }
                 ]
             };

@@ -7,20 +7,24 @@ const types = {
     FETCH_LOGS_FAILURE: 'FETCH_LOGS_FAILURE',
     FETCH_REQUESTS_ALL_SUCCESS: 'FETCH_REQUESTS_ALL_SUCCESS',
     FETCH_REQUESTS_ALL_FAILURE: 'FETCH_REQUESTS_ALL_FAILURE',
+    FETCH_TORRENTS_SUCCESS: 'FETCH_TORRENTS_SUCCESS',
+    FETCH_TORRENTS_FAILURE: 'FETCH_TORRENTS_FAILURE',
 };
 
 export const state = () => ({
     server: null,
     storage_disks: [],
     logs: [],
-    requests: []
+    requests: [],
+    torrents: []
 });
 
 export const getters = {
     server: state => state.server,
     storage_disks: state => state.storage_disks,
     logs: state => state.logs,
-    requests: state => state.requests
+    requests: state => state.requests,
+    torrents: state => state.torrents
 };
 
 export const mutations = {
@@ -47,6 +51,12 @@ export const mutations = {
     },
     [types.FETCH_REQUESTS_ALL_FAILURE] (state) {
         state.requests = [];
+    },
+    [types.FETCH_TORRENTS_SUCCESS] (state, torrents) {
+        state.torrents = torrents;
+    },
+    [types.FETCH_TORRENTS_FAILURE] (state) {
+        state.torrents = [];
     }
 };
 
@@ -105,6 +115,20 @@ export const actions = {
             commit(types.FETCH_REQUESTS_ALL_SUCCESS, data.data);
         } catch (error) {
             commit(types.FETCH_REQUESTS_ALL_FAILURE);
+        }
+    },
+
+    /**
+     * Fetch list of all active torrents
+     * @param commit
+     * @returns {Promise<void>}
+     */
+    async fetchTorrentsList({ commit }) {
+        try {
+            const { data } = await this.$axios.get('dashboard/torrents/list');
+            commit(types.FETCH_TORRENTS_SUCCESS, data.data);
+        } catch (error) {
+            commit(types.FETCH_TORRENTS_FAILURE);
         }
     }
 

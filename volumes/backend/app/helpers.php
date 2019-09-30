@@ -112,3 +112,10 @@ if (! function_exists('fix_lostfilm_audio_tracks')) {
     }
 
 }
+
+
+if (! function_exists('pad')) {
+    function pad(int $number) : string {
+        return sprintf("%02d", $number);
+    }
+}

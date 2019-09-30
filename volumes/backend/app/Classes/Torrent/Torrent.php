@@ -66,6 +66,45 @@ class Torrent implements TorrentInterface {
     }
 
     /**
+     * List torrents in the format acceptable by the dashboard
+     * @return array
+     */
+    public function listTorrentsForDashboard() : array {
+        return $this->client->listTorrentsForDashboard();
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @return void
+     */
+    public function resumeTorrent(string $hash): void {
+        $this->client->resumeTorrent($hash);
+        return;
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @return void
+     */
+    public function pauseTorrent(string $hash): void {
+        $this->client->pauseTorrent($hash);
+        return;
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @param bool $force
+     * @return void
+     */
+    public function deleteTorrent(string $hash, bool $force = false): void {
+        $this->client->deleteTorrent($hash, $force);
+        return;
+    }
+
+    /**
      * Initialize torrent client
      * @return Torrent|static|self|$this
      */

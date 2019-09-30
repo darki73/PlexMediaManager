@@ -21,4 +21,32 @@ interface TorrentInterface {
      */
     public function listTorrents() : array;
 
+    /**
+     * List torrents in the format acceptable by the dashboard
+     * @return array
+     */
+    public function listTorrentsForDashboard() : array;
+
+    /**
+     * Resume torrent
+     * @param string $hash
+     * @return void
+     */
+    public function resumeTorrent(string $hash) : void;
+
+    /**
+     * Pause Torrent
+     * @param string $hash
+     * @return void
+     */
+    public function pauseTorrent(string $hash) : void;
+
+    /**
+     * Delete torrent
+     * @param string $hash
+     * @param bool $force
+     * @return void
+     */
+    public function deleteTorrent(string $hash, bool $force = false) : void;
+
 }

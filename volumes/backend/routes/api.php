@@ -113,4 +113,16 @@ Route::group([
         Route::get('/series', 'RequestsController@listSeriesRequests');
     });
 
+    /**
+     * Dashboard >> Torrents Group
+     */
+    Route::group([
+        'prefix'        =>  'torrents'
+    ], static function() {
+        Route::get('list', 'TorrentsController@listActiveTorrents');
+        Route::post('resume', 'TorrentsController@resumeTorrent');
+        Route::post('pause', 'TorrentsController@pauseTorrent');
+        Route::post('delete', 'TorrentsController@deleteTorrent');
+    });
+
 });

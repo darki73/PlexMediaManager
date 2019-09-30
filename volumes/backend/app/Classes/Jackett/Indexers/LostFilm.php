@@ -79,6 +79,26 @@ class LostFilm extends AbstractIndexer {
      */
     public static function download(Series $series, Episode $episode, int $quality = Quality::FHD) : bool {
         $self = (new self(new Client));
+        $torrent = new Torrent();
+
+        $possibleTorrentNames = $self->createPossibleTorrentNames($series, $episode);
+        $alreadyDownloading = false;
+
+        foreach ($torrent->listTorrents() as $item) {
+            foreach ($possibleTorrentNames as $name) {
+                if (false !== stripos($item['name'], $name)) {
+                    $alreadyDownloading = true;
+                    break;
+                }
+            }
+            if ($alreadyDownloading) {
+                break;
+            }
+        }
+
+        if ($alreadyDownloading) {
+            return false;
+        }
 
         $search = $self->series(create_lostfilm_title($series->local_title))
             ->season($episode->season_number)

@@ -4,12 +4,11 @@ use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use App\Classes\TheMovieDB\TheMovieDB;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\APIController;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Validator;
 
 /**
  * Class RequestsController

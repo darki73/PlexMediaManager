@@ -68,6 +68,10 @@ export default {
                 all: 'All',
                 series: 'Series',
                 movies: 'Movies'
+            },
+            torrents: {
+                torrents: 'Torrents',
+                list: 'Active Downloads',
             }
         },
         storage: {
@@ -128,6 +132,36 @@ export default {
                 1: 'Approved',
                 2: 'Declined',
                 3: 'Completed'
+            }
+        },
+        torrents: {
+            title: 'Active Torrents',
+            automatic_update: 'Automatic Update',
+            delete: 'Deleting a torrent',
+            delete_files: 'Also delete all downloaded files',
+            statuses: {
+                error: 'Error',
+                pausedUP: 'Downloaded Paused',
+                pausedDL: 'Paused',
+                queuedUP: 'Queued (Seeding)',
+                queuedDL: 'Queued (Downloading)',
+                uploading: 'Seeding',
+                stalledUP: 'Stalled',
+                checkingUP: 'Finishing',
+                checkingDL: 'Finishing',
+                downloading: 'Downloading',
+                stalledDL: 'Stalled',
+                metaDL: 'Starting',
+            },
+            headers: {
+                hash: 'Hash',
+                name: 'Name',
+                progress: 'Progress',
+                speed: 'Speed',
+                category: 'Category',
+                seeds: 'Seeds',
+                state: 'State',
+                actions: 'Actions',
             }
         }
     }

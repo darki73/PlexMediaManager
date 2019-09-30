@@ -1,11 +1,12 @@
 <?php namespace App\Classes\Torrent\Client;
 
-use App\Classes\Torrent\Contract\TorrentInterface;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use GuzzleHttp\Cookie\CookieJar;
 use Goutte\Client as CrawlerClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
+use App\Classes\Torrent\Contract\TorrentInterface;
 
 /**
  * Class QBitTorrent
@@ -88,6 +89,31 @@ class QBitTorrent extends AbstractClient {
     }
 
     /**
+     * List torrents in the format acceptable by the dashboard
+     * @return array
+     * @throws GuzzleException
+     */
+    public function listTorrentsForDashboard() : array {
+        $list = [];
+        foreach ($this->listTorrents() as $torrent) {
+            $list[] = Arr::only($torrent, [
+                'hash',
+                'name',
+                'dlspeed',
+                'upspeed',
+                'size',
+                'num_seeds',
+                'eta',
+                'state',
+                'category',
+                'downloaded',
+                'size'
+            ]);
+        }
+        return $list;
+    }
+
+    /**
      * Get Torrent Information
      * @param string $hash
      * @return array
@@ -137,6 +163,44 @@ class QBitTorrent extends AbstractClient {
     }
 
     /**
+     * @inheritDoc
+     * @param string $hash
+     * @return void
+     * @throws GuzzleException
+     */
+    public function resumeTorrent(string $hash): void {
+        $this->login()->getClientResponse('/command/resume', 'POST', [
+            'hash'  =>  $hash
+        ]);
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @return void
+     * @throws GuzzleException
+     */
+    public function pauseTorrent(string $hash): void {
+        $this->login()->getClientResponse('/command/pause', 'POST', [
+            'hash'  =>  $hash
+        ]);
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @param bool $force
+     * @return void
+     * @throws GuzzleException
+     */
+    public function deleteTorrent(string $hash, bool $force = false): void {
+        $query = $force ? '/command/deletePerm' : '/command/delete';
+        $this->login()->getClientResponse($query, 'POST', [
+            'hashes'    =>  $hash
+        ]);
+    }
+
+    /**
      * Download Single Torrent File
      * @param string $url
      * @param string $category
@@ -176,15 +240,17 @@ class QBitTorrent extends AbstractClient {
      * Get Client Response
      * @param string $url
      * @param string $method
+     * @param array $parameters
      * @return string
      * @throws GuzzleException
      */
-    protected function getClientResponse(string $url, string $method = 'GET') : string {
+    protected function getClientResponse(string $url, string $method = 'GET', array $parameters = []) : string {
         if ($this->authenticationToken !== null) {
             return $this->client->request($method, $url, [
                 'cookies'   =>  CookieJar::fromArray([
                     'SID'   =>  $this->authenticationToken
-                ], str_replace(['http://', 'https://'], '', env('QBIT_URL')))
+                ], str_replace(['http://', 'https://'], '', env('QBIT_URL'))),
+                'form_params'   =>  $parameters
             ])->getBody()->getContents();
         }
         return $this->client->request($method, $url)->getBody()->getContents();
