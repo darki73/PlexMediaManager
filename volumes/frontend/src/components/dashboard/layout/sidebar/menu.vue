@@ -117,6 +117,16 @@
                                 title: 'dashboard.menu.torrents.list',
                                 link: '/dashboard/torrents',
                                 icon: 'format_list_bulleted'
+                            },
+                            {
+                                title: 'dashboard.menu.torrents.categories',
+                                link: '/dashboard/torrents/categories',
+                                icon: 'category'
+                            },
+                            {
+                                title: 'dashboard.menu.torrents.add_torrent',
+                                link: '/dashboard/torrents/create',
+                                icon: 'add'
                             }
                         ]
                     }

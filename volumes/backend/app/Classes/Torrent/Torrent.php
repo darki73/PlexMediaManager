@@ -105,6 +105,16 @@ class Torrent implements TorrentInterface {
     }
 
     /**
+     * @inheritDoc
+     * @param string $categoryName
+     * @return void
+     */
+    public function createCategory(string $categoryName) : void {
+        $this->client->createCategory($categoryName);
+        return;
+    }
+
+    /**
      * Initialize torrent client
      * @return Torrent|static|self|$this
      */

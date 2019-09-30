@@ -16,7 +16,7 @@ export const state = () => ({
     storage_disks: [],
     logs: [],
     requests: [],
-    torrents: []
+    torrents: [],
 });
 
 export const getters = {

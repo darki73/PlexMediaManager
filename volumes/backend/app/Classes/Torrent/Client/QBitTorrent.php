@@ -201,6 +201,18 @@ class QBitTorrent extends AbstractClient {
     }
 
     /**
+     * @inheritDoc
+     * @param string $categoryName
+     * @return void
+     * @throws GuzzleException
+     */
+    public function createCategory(string $categoryName) : void {
+        $this->login()->getClientResponse('/command/addCategory', 'POST', [
+            'category'  =>  $categoryName
+        ]);
+    }
+
+    /**
      * Download Single Torrent File
      * @param string $url
      * @param string $category

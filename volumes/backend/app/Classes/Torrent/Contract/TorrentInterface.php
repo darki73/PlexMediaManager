@@ -49,4 +49,11 @@ interface TorrentInterface {
      */
     public function deleteTorrent(string $hash, bool $force = false) : void;
 
+    /**
+     * Create new category
+     * @param string $categoryName
+     * @return void
+     */
+    public function createCategory(string $categoryName) : void;
+
 }

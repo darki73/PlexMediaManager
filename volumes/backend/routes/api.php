@@ -123,6 +123,7 @@ Route::group([
         Route::post('resume', 'TorrentsController@resumeTorrent');
         Route::post('pause', 'TorrentsController@pauseTorrent');
         Route::post('delete', 'TorrentsController@deleteTorrent');
+        Route::post('create-category', 'TorrentsController@createCategory');
     });
 
 });

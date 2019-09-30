@@ -72,6 +72,8 @@ export default {
             torrents: {
                 torrents: 'Torrents',
                 list: 'Active Downloads',
+                categories: 'Categories',
+                add_torrent: 'Add Torrent'
             }
         },
         storage: {
@@ -139,6 +141,8 @@ export default {
             automatic_update: 'Automatic Update',
             delete: 'Deleting a torrent',
             delete_files: 'Also delete all downloaded files',
+            create_category: 'Create Category',
+            torrent_categories: 'Create categories for Torrent Client',
             statuses: {
                 error: 'Error',
                 pausedUP: 'Downloaded Paused',
@@ -162,6 +166,11 @@ export default {
                 seeds: 'Seeds',
                 state: 'State',
                 actions: 'Actions',
+            },
+            categories: {
+                series: 'Series',
+                movies: 'Movies',
+                music: 'Music'
             }
         }
     }

@@ -93,4 +93,23 @@ class TorrentsController extends APIController {
         return $this->sendResponse('Successfully deleted torrent');
     }
 
+    /**
+     * Create category
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function createCategory(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'category'      =>  'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Missing or invalid parameters received', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $this->torrentClient->createCategory($request->get('category'));
+
+        return $this->sendResponse('Successfully created a category');
+    }
+
 }
