@@ -5,6 +5,7 @@ use Illuminate\Http\Response;
 use App\Classes\Torrent\Torrent;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Api\APIController;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -110,6 +111,46 @@ class TorrentsController extends APIController {
         $this->torrentClient->createCategory($request->get('category'));
 
         return $this->sendResponse('Successfully created a category');
+    }
+
+    /**
+     * Create new torrent and start downloading it
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function createTorrent(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'category'      =>  'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Missing or invalid parameters received', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $files = [];
+
+        /**
+         * @var UploadedFile $file
+         */
+        foreach ($request->file('files') as $file) {
+            $files[] = [
+                'name'              =>  'torrents',
+                'filename'          =>  $file->getClientOriginalName(),
+                'contents'          =>  file_get_contents($file->getRealPath()),
+                'headers'           =>  [
+                    'Content-Type'  =>  'application/x-bittorrent'
+                ]
+            ];
+        }
+
+        $files[] = [
+            'name'      =>  'category',
+            'contents'  =>  $request->get('category')
+        ];
+
+        $this->torrentClient->createTorrent($files);
+
+        return $this->sendResponse('Successfully added torrent(s)');
     }
 
 }

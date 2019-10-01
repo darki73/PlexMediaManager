@@ -171,6 +171,13 @@ export default {
                 series: 'Series',
                 movies: 'Movies',
                 music: 'Music'
+            },
+            create: {
+                title: 'Add Torrent',
+                select_file: 'Torrent File',
+                select_file_placeholder: 'Please select file(s) you want to upload',
+                select_category: 'Torrent Category',
+                select_category_placeholder: 'Please select appropriate category for this torrent',
             }
         }
     }

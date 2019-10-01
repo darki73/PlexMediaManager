@@ -59,13 +59,13 @@
                     {
                         name: this.$t('dashboard.torrents.categories.series'),
                         icon: 'local_movies',
-                        value: 'Series',
+                        value: 'series',
                         creating: false
                     },
                     {
                         name: this.$t('dashboard.torrents.categories.movies'),
                         icon: 'movie',
-                        value: 'Movies',
+                        value: 'movies',
                         creating: false
                     },
                     // {

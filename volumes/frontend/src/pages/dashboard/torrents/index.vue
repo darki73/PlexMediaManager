@@ -292,6 +292,7 @@
                         setTimeout(() => {
                             this.resetDefaultTorrentObject();
                         }, 200);
+                        this.fetchTorrentsList();
                     }, 2000);
                 });
             },

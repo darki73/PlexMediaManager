@@ -115,6 +115,16 @@ class Torrent implements TorrentInterface {
     }
 
     /**
+     * @inheritDoc
+     * @param array $files
+     * @return void
+     */
+    public function createTorrent(array $files): void {
+        $this->client->createTorrent($files);
+        return;
+    }
+
+    /**
      * Initialize torrent client
      * @return Torrent|static|self|$this
      */

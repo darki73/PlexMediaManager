@@ -56,4 +56,11 @@ interface TorrentInterface {
      */
     public function createCategory(string $categoryName) : void;
 
+    /**
+     * Upload torrent files and start the downloading procedure
+     * @param array $files
+     * @return void
+     */
+    public function createTorrent(array $files) : void;
+
 }

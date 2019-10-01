@@ -107,7 +107,7 @@ class LostFilm extends AbstractIndexer {
         $torrent = $search->fetch();
         if ($torrent !== null && isset($torrent['torrent'])) {
             $downloader = new Torrent;
-            $downloader->download($torrent['torrent'], 'Series');
+            $downloader->download($torrent['torrent'], 'series');
             return true;
         }
         return false;

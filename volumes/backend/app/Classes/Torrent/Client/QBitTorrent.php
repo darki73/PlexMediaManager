@@ -207,9 +207,26 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function createCategory(string $categoryName) : void {
-        $this->login()->getClientResponse('/command/addCategory', 'POST', [
-            'category'  =>  $categoryName
+        try {
+            $this->login()->getClientResponse('/command/addCategory', 'POST', [
+                'category'  =>  $categoryName
+            ]);
+        } catch (\Exception $exception) {
+            // do nothing category already exists
+        }
+    }
+
+    /**
+     * Create new torrent
+     * @param array $files
+     * @return void
+     * @throws GuzzleException
+     */
+    public function createTorrent(array $files): void {
+        $this->login()->getClientResponse('/command/upload', 'POST', [
+            'multipart'     =>  $files
         ]);
+        return;
     }
 
     /**
@@ -253,17 +270,34 @@ class QBitTorrent extends AbstractClient {
      * @param string $url
      * @param string $method
      * @param array $parameters
+     * @param array $headers
      * @return string
      * @throws GuzzleException
      */
-    protected function getClientResponse(string $url, string $method = 'GET', array $parameters = []) : string {
+    protected function getClientResponse(string $url, string $method = 'GET', array $parameters = [], array $headers = []) : string {
         if ($this->authenticationToken !== null) {
-            return $this->client->request($method, $url, [
+            $requestParameters = [
                 'cookies'   =>  CookieJar::fromArray([
                     'SID'   =>  $this->authenticationToken
                 ], str_replace(['http://', 'https://'], '', env('QBIT_URL'))),
-                'form_params'   =>  $parameters
-            ])->getBody()->getContents();
+            ];
+
+            if (array_key_exists('multipart', $parameters)) {
+                $requestParameters = array_merge($requestParameters, $parameters);
+            } else {
+                if (\count($parameters) > 0) {
+                    $requestParameters['form_params'] = $parameters;
+                }
+            }
+
+            if (\count($headers) > 0) {
+                $requestParameters['headers'] = $headers;
+            }
+
+            return $this->client
+                ->request($method, $url, $requestParameters)
+                ->getBody()
+                ->getContents();
         }
         return $this->client->request($method, $url)->getBody()->getContents();
     }
