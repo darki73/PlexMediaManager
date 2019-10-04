@@ -1,5 +1,9 @@
+// Import Global Styles
 @import 'text';
 @import 'borders';
+
+// Import Custom Elements
+@import 'elements/ribbon';
 
 .no-underline {
     text-decoration: none;

@@ -1,11 +1,37 @@
 export default {
     common: {
+        all: 'All',
         total: 'Total',
         free: 'Free',
         refresh: 'Refresh',
         cancel: 'Cancel',
         apply: 'Apply',
         delete: 'Delete'
+    },
+    search: {
+        all_providers: 'All',
+        provider_title: 'Search Provider',
+        provider_placeholder: 'Please select search provider',
+        type_title: 'Media Type',
+        type_placeholder: 'Media we are looking for',
+        query_title: 'Search Query',
+        query_placeholder: 'Please start typing for search to begin',
+        filter_title: 'Filter Results',
+        filter_placeholder: 'Please select items you want to show',
+        categories: {
+            all: 'All',
+            movies: 'Movies',
+            series: 'Series',
+            music: 'Music',
+            tv: 'Series',
+            movie: 'Movies'
+        },
+        genres: 'Genres',
+        release_date: 'Release Date',
+        average_rating: 'Rating',
+        order: 'Order',
+        watch: 'Watch',
+        requested: 'Request Pending'
     },
     dashboard: {
         server: {
@@ -74,7 +100,8 @@ export default {
                 list: 'Active Downloads',
                 categories: 'Categories',
                 add_torrent: 'Add Torrent'
-            }
+            },
+            search: 'Search'
         },
         storage: {
             disks: {

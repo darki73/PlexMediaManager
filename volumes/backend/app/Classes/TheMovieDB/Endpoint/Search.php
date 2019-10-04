@@ -144,12 +144,16 @@ class Search extends AbstractEndpoint {
      * @return void
      */
     protected function detectLanguage() : void {
-        $languageDetect = (new Language)->detect($this->query)->whitelist('ru', 'en', 'es', 'de');
+        $languageDetect = (new Language)->detect($this->query)->whitelist(... config('search.languages'));
         $this->options['language'] = $this->language = array_key_first($languageDetect->bestResults()->close());
         return;
     }
 
-    public function fetch() : array {
+    /**
+     * Fetch anything that matched the original query
+     * @return array
+     */
+    public function fetchAll() : array {
         $this->detectLanguage();
         if ($this->year !== null) {
             switch ($this->type) {
@@ -166,13 +170,19 @@ class Search extends AbstractEndpoint {
         ]);
         $this->requestsRemaining = (int) $request->getHeader('X-RateLimit-Limit')[0];
         $data = json_decode($request->getBody()->getContents(), true);
+
+        return $data['results'];
+    }
+
+    public function fetch() : array {
+        $data = $this->fetchAll();
         $returnArray = [];
 
-        if (\count($data['results']) === 1) {
-            return $data['results'][0];
+        if (\count($data) === 1) {
+            return $data[0];
         }
 
-        foreach ($data['results'] as $result) {
+        foreach ($data as $result) {
             $itemName = $result['name'] ?? $result['title'];
             if (false !== strpos($itemName, ':')) {
                 $itemName = str_replace(':', '', $itemName);
@@ -186,7 +196,7 @@ class Search extends AbstractEndpoint {
         }
 
         if (\count($returnArray) === 0) {
-            $returnArray = $data['results'][0];
+            $returnArray = $data[0];
         }
 
         return $returnArray;

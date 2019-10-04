@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import forEach from 'lodash/forEach';
 import siteConfiguration from '~/config/site';
 
 Vue.mixin({
@@ -45,7 +46,16 @@ Vue.mixin({
         },
         toLocalTime(time) {
             return this.$moment.utc(time, 'YYYY-MM-DD HH:mm:ss').local().format('HH:mm:ss');
-        }
+        },
+        generateSrcSet(items) {
+            const sizes = [];
+            forEach(items, (url, size) => {
+                if (size !== 'original') {
+                    sizes.push(`${url} ${size.replace('w', '')}w`);
+                }
+            });
+            return sizes.join(',');
+        },
     },
     created() {
         // Actions to be executed when component is created

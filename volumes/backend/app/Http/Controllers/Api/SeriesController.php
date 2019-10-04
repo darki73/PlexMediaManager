@@ -36,23 +36,7 @@ class SeriesController extends APIMediaController {
      */
     public function list(Request $request) : JsonResponse {
         // TODO: Check the caching mechanism later (smells fishy)
-        return $this->sendResponse('Successfully fetched list of series', Cache::rememberForever('series:list', function () {
-            return $this->seriesCollection->map(function (Series $series, int $key) {
-                return $this->getBaseSeriesInformation($series, [
-                    'id',
-                    'title',
-                    'original_title',
-                    'local_title',
-                    'original_language',
-                    'overview',
-                    'backdrop',
-                    'poster',
-                    'genres',
-                    'seasons_count',
-                    'runtime'
-                ]);
-            })->toArray();
-        }));
+        return $this->sendResponse('Successfully fetched list of series', $this->cacheAllSeries());
     }
 
     /**
@@ -177,6 +161,30 @@ class SeriesController extends APIMediaController {
         }
 
         return $this->sendResponse('Successfully fetched list of missing episodes', $result);
+    }
+
+    /**
+     * Put information about all series to cache
+     * @return array
+     */
+    public function cacheAllSeries() : array {
+        return Cache::rememberForever('series:list', function () {
+            return $this->seriesCollection->map(function (Series $series, int $key) {
+                return $this->getBaseSeriesInformation($series, [
+                    'id',
+                    'title',
+                    'original_title',
+                    'local_title',
+                    'original_language',
+                    'overview',
+                    'backdrop',
+                    'poster',
+                    'genres',
+                    'seasons_count',
+                    'runtime'
+                ]);
+            })->toArray();
+        });
     }
 
     /**

@@ -1,13 +1,6 @@
 <?php namespace App\Classes\TheMovieDB;
 
-use App\Classes\TheMovieDB\Endpoint\{
-    Configuration,
-    Genres,
-    Movies,
-    Networks,
-    Search,
-    Series
-};
+use App\Classes\TheMovieDB\Endpoint\{Configuration, Genres, Movies, Networks, Search, Series};
 
 /**
  * Class TheMovieDB
@@ -106,6 +99,7 @@ class TheMovieDB {
     public function networks() : Networks {
         return $this->networks;
     }
+
 
     /**
      * Initialize TheMovieDB Endpoints

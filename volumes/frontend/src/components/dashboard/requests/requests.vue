@@ -210,7 +210,6 @@
 </template>
 <script>
     import { mapGetters } from 'vuex';
-    import forEach from 'lodash/forEach';
 
     export default {
         name: 'requests-page',
@@ -372,15 +371,6 @@
                     text += ' ...';
                 }
                 return text;
-            },
-            generateSrcSet(items) {
-                const sizes = [];
-                forEach(items, (url, size) => {
-                    if (size !== 'original') {
-                        sizes.push(`${url} ${size.replace('w', '')}w`);
-                    }
-                });
-                return sizes.join(',');
             },
             resetWorkingItem() {
                 this.workingItem = Object.assign({}, this.baseItem);

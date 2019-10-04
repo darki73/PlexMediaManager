@@ -129,7 +129,12 @@
                                 icon: 'add'
                             }
                         ]
-                    }
+                    },
+                    {
+                        action: 'search',
+                        title: 'dashboard.menu.search',
+                        link: '/dashboard/search'
+                    },
                 ]
             };
         },

@@ -36,7 +36,7 @@ class MoviesUpdate extends Command {
      * Execute the console command.
      */
     public function handle() {
-        $this->info('Downloading information for all series...');
+        $this->info('Downloading information for all movies...');
         dispatch(new Movies);
     }
 

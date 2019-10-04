@@ -40,6 +40,14 @@ Route::group([
     Route::get('', 'MovieController@list');
 });
 
+Route::group([
+    'prefix'    =>  'search',
+    'namespace' =>  'Api'
+], static function() {
+    Route::get('remote-providers', 'SearchController@remoteProviders');
+    Route::post('remote', 'SearchController@remoteSearch');
+});
+
 /**
  * Torrent Group
  */
@@ -63,6 +71,13 @@ Route::group([
      */
     Route::get('completed', 'TorrentController@listCompletedTorrents');
 
+});
+
+Route::group([
+    'prefix'    =>  'requests',
+    'namespace' =>  'Api'
+], static function() {
+    Route::post('create', 'RequestsController@createRequest');
 });
 
 /**

@@ -6,6 +6,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class MovieController
@@ -33,14 +34,24 @@ class MovieController extends APIMediaController {
      * @return JsonResponse
      */
     public function list(Request $request) : JsonResponse {
-        return $this->sendResponse('Successfully fetched list of movies', $this->moviesCollection->map(function (Movie $movie, int $index) {
-            return $this->getBaseMovieInformation($movie, [
-                'poster',
-                'backdrop',
-                'created_at',
-                'updated_at'
-            ], true);
-        })->toArray());
+        return $this->sendResponse('Successfully fetched list of movies', $this->cacheAllMovies());
+    }
+
+    /**
+     * Put information about all movies to cache
+     * @return array
+     */
+    public function cacheAllMovies() : array {
+        return Cache::rememberForever('movies:list', function () {
+            return $this->moviesCollection->map(function (Movie $movie, int $index) {
+                return $this->getBaseMovieInformation($movie, [
+                    'poster',
+                    'backdrop',
+                    'created_at',
+                    'updated_at'
+                ], true);
+            })->toArray();
+        });
     }
 
     /**

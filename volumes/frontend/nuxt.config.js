@@ -65,6 +65,7 @@ export default {
     ],
 
     plugins: [
+        '~/utils/index.js',
         '~/plugins/imports.js',
         '~/plugins/third-party/axios.js',
         '~/plugins/third-party/moment.js',

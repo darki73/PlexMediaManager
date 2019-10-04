@@ -25,7 +25,8 @@ return [
     'max_redirects'             =>  env('JACKETT_MAX_REDIRECTS', 5),
 
     'indexers'                  =>  [
-        'lostfilm'              =>  \App\Classes\Jackett\Indexers\LostFilm::class
+        'lostfilm'              =>  \App\Classes\Jackett\Indexers\LostFilm::class,
+        'rutracker'             =>  \App\Classes\Jackett\Indexers\RuTracker::class
     ]
 
 ];

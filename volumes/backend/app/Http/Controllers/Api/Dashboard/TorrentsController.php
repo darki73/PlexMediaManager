@@ -4,9 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Classes\Torrent\Torrent;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Api\APIController;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Api\APIController;
 
 /**
  * Class TorrentsController
