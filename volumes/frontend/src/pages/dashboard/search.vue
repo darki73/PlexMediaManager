@@ -115,7 +115,12 @@
                                                             {{ $t('search.order') }}
                                                         </span>
                                                         <span v-else>
-                                                            {{ $t('search.requested') }}
+                                                            <span v-if="item.request_status !== 2">
+                                                                {{ $t('search.requested') }}
+                                                            </span>
+                                                            <span v-else>
+                                                                {{ $t('search.request_denied') }}
+                                                            </span>
                                                         </span>
                                                     </v-btn>
                                                     <v-btn
@@ -248,9 +253,10 @@
         watch: {
             'form.query' (current, previous) {
                 if (
-                    current === null
+                    (current === null
                     || current === undefined
-                    || current.length < 3
+                    || current.length < 3)
+                    && this.results.length !== 0
                 ) {
                     this.resetPage();
                 }

@@ -126,10 +126,12 @@ class Search {
         if (! array_key_exists('media_type', $item)) {
             $item['media_type'] = $this->mediaType;
         }
+        [$requested, $requestStatus] = $this->checkIfItemRequested($item);
         $item['poster'] = $this->configuration->getRemoteImagePath(ltrim($item['poster_path'], '/'), 'poster');
         $item['genre'] = Genre::findMany($item['genre_ids'], ['id', 'name'])->toArray();
         $item['exists'] = $this->itemExistsLocally($item['id'], $item['media_type']);
-        $item['requested'] = $this->checkIfItemRequested($item);
+        $item['requested'] = $requested;
+        $item['request_status'] = $requestStatus;
         $item['show'] = false;
         unset($item['backdrop_path'], $item['poster_path'], $item['genre_ids']);
         return $item;
@@ -160,12 +162,17 @@ class Search {
     /**
      * Check if item has already been requested
      * @param array $item
-     * @return bool
+     * @return array
      */
-    protected function checkIfItemRequested(array $item) : bool {
+    protected function checkIfItemRequested(array $item) : array {
         $title = isset($item['original_title']) ? $item['original_title'] : $item['original_name'];
         $released = $this->extractYear(isset($item['first_air_date']) ? $item['first_air_date'] : $item['release_date']);
-        return Request::where('title', '=', $title)->where('year', '=', $released)->exists();
+        $model = Request::where('title', '=', $title)->where('year', '=', $released)->first();
+
+        return [
+            $model !== null,
+            $model !== null ? $model->status : -1
+        ];
     }
 
     /**

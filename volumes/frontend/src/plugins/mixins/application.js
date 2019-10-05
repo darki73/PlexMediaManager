@@ -56,6 +56,9 @@ Vue.mixin({
             });
             return sizes.join(',');
         },
+        isObjectActuallyArray(object) {
+            return object.constructor.toString().indexOf('Array') !== -1;
+        }
     },
     created() {
         // Actions to be executed when component is created

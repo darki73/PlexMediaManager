@@ -31,7 +31,8 @@ export default {
         average_rating: 'Rating',
         order: 'Order',
         watch: 'Watch',
-        requested: 'Request Pending'
+        requested: 'Request Pending',
+        request_denied: 'Request Denied'
     },
     dashboard: {
         server: {
@@ -126,7 +127,10 @@ export default {
                 environment: 'Environment',
                 level: 'Level',
                 time: 'Time',
-            }
+            },
+            for_date: 'Logs for: {date}',
+            loading_logs: 'Fetching latest logs...',
+            no_logs: 'There were no logs found'
         },
         requests: {
             all: {
