@@ -92,3 +92,5 @@ sw.*
 
 src/config/*
 !src/config/.gitkeep
+!src/components/dashboard/logs/*
+!src/pages/dashboard/logs/*
