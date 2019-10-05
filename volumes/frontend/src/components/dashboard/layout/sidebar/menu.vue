@@ -135,6 +135,11 @@
                         title: 'dashboard.menu.search',
                         link: '/dashboard/search'
                     },
+                    {
+                        action: 'settings',
+                        title: 'dashboard.menu.settings',
+                        link: '/dashboard/settings'
+                    },
                 ]
             };
         },

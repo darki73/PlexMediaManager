@@ -102,7 +102,8 @@ export default {
                 categories: 'Categories',
                 add_torrent: 'Add Torrent'
             },
-            search: 'Search'
+            search: 'Search',
+            settings: 'Settings'
         },
         storage: {
             disks: {
@@ -209,6 +210,94 @@ export default {
                 select_file_placeholder: 'Please select file(s) you want to upload',
                 select_category: 'Torrent Category',
                 select_category_placeholder: 'Please select appropriate category for this torrent',
+            }
+        },
+        settings: {
+            tabs: {
+                environment: 'Environment',
+                disks: 'Disks',
+                proxy: 'Proxy'
+            },
+            loading_settings: 'Fetching latest application settings...',
+            environment: {
+                name: {
+                    label: 'Application Name',
+                    placeholder: 'Please provide Application Name'
+                },
+                env: {
+                    label: 'Application Environment',
+                    placeholder: 'Please specify current application environment',
+                    local: 'Local',
+                    production: 'Production'
+                },
+                key: {
+                    label: 'Application Key',
+                    placeholder: 'Please specify application key',
+                    hint: 'We do not recommend to change this field manually'
+                },
+                debug: {
+                    label: 'Application Debug',
+                    placeholder: 'Please specify whether or not you want debug enabled',
+                    enabled: 'Enabled',
+                    disabled: 'Disabled'
+                },
+                url: {
+                    label: 'Application URL',
+                    placeholder: 'Please specify application address'
+                }
+            },
+            disks: {
+                drive: 'Disk `{drive}` - {used} / {total} ({percentage}% used)',
+                preferred: {
+                    label: 'Preferred Disk',
+                    placeholder: 'Please select preferred disk',
+                    hint: 'Some application settings might override this selection'
+                },
+                threshold: {
+                    label: 'Free Space Threshold',
+                    placeholder: 'Please select free space threshold',
+                    hint: 'This option will override preferred drive if threshold has been reached'
+                },
+                type: {
+                    label: 'Threshold Type',
+                    placeholder: 'Please select threshold type',
+                    percentage: 'Percentage',
+                    units: 'Units'
+                },
+                units: {
+                    label: 'Threshold Units',
+                    placeholder: 'Please specify the units used to determine threshold',
+                    kb: 'KB',
+                    mb: 'MB',
+                    gb: 'GB',
+                    tb: 'TB',
+                    pb: 'PB'
+                }
+
+            },
+            proxy: {
+                type: {
+                    label: 'Proxy Type',
+                    placeholder: 'Please select appropriate proxy type'
+                },
+                host: {
+                    label: 'Proxy Host',
+                    placeholder: 'Please provide proxy server host'
+                },
+                port: {
+                    label: 'Proxy Port',
+                    placeholder: 'Please provide proxy server port'
+                },
+                username: {
+                    label: 'Proxy Username',
+                    placeholder: 'Please provide username used for authentication',
+                    hint: 'Leave it empty if proxy server does not have authentication enabled'
+                },
+                password: {
+                    label: 'Proxy Password',
+                    placeholder: 'Please provide password used for authentication',
+                    hint: 'Leave it empty if proxy server does not have authentication enabled'
+                }
             }
         }
     }

@@ -142,4 +142,10 @@ Route::group([
         Route::post('create-torrent', 'TorrentsController@createTorrent');
     });
 
+    Route::group([
+        'prefix'        =>  'settings'
+    ], static function() {
+        Route::get('', 'SettingsController@fetchSettings');
+    });
+
 });
