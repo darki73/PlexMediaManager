@@ -1,5 +1,6 @@
 <template>
     <v-layout row wrap>
+        <!-- Users List Card + Table Start -->
         <v-flex xs12>
             <v-card>
                 <v-card-text>
@@ -21,6 +22,15 @@
                                 />
                                 <div class="flex-grow-1"/>
                                 <v-btn
+                                    @click.stop="toggleCreateNewUser"
+                                    color="green"
+                                >
+                                    <v-icon>
+                                        add
+                                    </v-icon>
+                                </v-btn>
+                                <v-btn
+                                    class="ml-2"
                                     @click.stop="refreshUsers"
                                     color="primary"
                                 >
@@ -86,6 +96,7 @@
                 </v-card-text>
             </v-card>
         </v-flex>
+        <!-- Users List Card + Table End -->
 
         <!-- User Editor Dialog Start -->
         <v-dialog
@@ -326,6 +337,9 @@
                     this.refreshUsers();
                     this.cancelDeletionDialog();
                 });
+            },
+            toggleCreateNewUser() {
+
             }
         }
     };

@@ -154,8 +154,24 @@ export default {
             groups: {
                 groups: 'Groups',
                 headers: {
-
+                    id: 'Group ID',
+                    name: 'Name',
+                    guard: 'Guard Name',
+                    permissions: 'Permissions',
                     actions: 'Actions'
+                },
+                permissions_count: '{count} permissions associated with that role',
+                id: {
+                    label: 'Group ID',
+                    placeholder: 'Please provide ID for the group'
+                },
+                group: {
+                    label: 'Group Name',
+                    placeholder: 'Please provide a name for the group'
+                },
+                guard: {
+                    label: 'Group Guard',
+                    placeholder: 'Please select group guard'
                 }
             }
         },
