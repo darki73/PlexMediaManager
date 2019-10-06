@@ -57,7 +57,7 @@ class SettingsController extends APIController {
             }
             if (false === stripos($key, 'app_version')) {
                 $values[$key] = [
-                    'value'     =>  $this->extractBooleanOrString($value),
+                    'value'     =>  env($key, $value),
                     'escape'    =>  $shouldEscape,
                     'sensitive' =>  in_array($key, $sensitiveVariables)
                 ];
@@ -141,7 +141,10 @@ class SettingsController extends APIController {
      * @param string $value
      * @return bool|string
      */
-    private function extractBooleanOrString(string $value) {
+    private function extractBooleanOrString(?string $value) {
+        if ($value === null) {
+            return '';
+        }
         if ($value === 'false') {
             return false;
         } else if ($value === 'true') {

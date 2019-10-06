@@ -44,8 +44,14 @@ Route::group([
     'prefix'    =>  'search',
     'namespace' =>  'Api'
 ], static function() {
-    Route::get('remote-providers', 'SearchController@remoteProviders');
     Route::post('remote', 'SearchController@remoteSearch');
+});
+
+Route::group([
+    'prefix'    =>  'account',
+    'namespace' =>  'Api'
+], static function() {
+    Route::get('user', 'AccountController@user')->middleware('auth:api');
 });
 
 /**
@@ -80,15 +86,54 @@ Route::group([
     Route::post('create', 'RequestsController@createRequest');
 });
 
+
+Route::group([
+    'namespace'     =>  'Api\Dashboard',
+    'prefix'        =>  'dashboard/account'
+], static function() {
+    Route::post('authenticate', 'AccountController@authenticate');
+});
+
 /**
  * Dashboard Group
  */
 Route::group([
-    'prefix'    =>  'dashboard',
-    'namespace' =>  'Api\Dashboard'
+    'prefix'        =>  'dashboard',
+    'namespace'     =>  'Api\Dashboard',
+    'middleware'    =>  [
+        'auth:api',
+        'role:administrator'
+    ],
 ], static function() {
     // Add authentication requirement
     Route::get('server-information', 'MainController@serverInformation');
+
+    /**
+     * Dashboard >> Accounts Group
+     */
+    Route::group([
+        'prefix'    =>  'accounts'
+    ], static function() {
+
+        /**
+         * Dashboard >> Account >> Users Group
+         */
+        Route::group([
+            'prefix'    =>  'users'
+        ], static function() {
+            Route::get('list', 'UsersController@listUsers');
+            Route::post('delete', 'UsersController@deleteUser');
+        });
+
+        /**
+         * Dashboard >> Account >> Groups Group
+         */
+        Route::group([
+            'prefix'    =>  'groups'
+        ], static function() {
+            Route::get('list', 'GroupsController@listGroups');
+        });
+    });
 
     /**
      * Dashboard >> Storage Group
@@ -142,6 +187,9 @@ Route::group([
         Route::post('create-torrent', 'TorrentsController@createTorrent');
     });
 
+    /**
+     * Dashboard >> Settings Group
+     */
     Route::group([
         'prefix'        =>  'settings'
     ], static function() {

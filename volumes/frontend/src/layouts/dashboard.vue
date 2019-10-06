@@ -12,6 +12,7 @@
 
     export default {
         name: 'dashboard-layout',
+        middleware: ['auth', 'administrator'],
         components: {
             'dashboard-layout-header': Header,
             'dashboard-layout-sidebar': Sidebar,

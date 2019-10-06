@@ -6,7 +6,30 @@ export default {
         refresh: 'Refresh',
         cancel: 'Cancel',
         apply: 'Apply',
-        delete: 'Delete'
+        delete: 'Delete',
+        update: 'Update',
+        fields: {
+            email: {
+                label: 'E-Mail',
+                placeholder: 'Please enter your E-Mail address'
+            },
+            password: {
+                label: 'Password',
+                placeholder: 'Please enter your password'
+            }
+        },
+        remember_me: 'Remember Me',
+        log_in: 'Log In',
+        clear_form: 'Clear Form',
+        log_out: 'Log Out'
+    },
+    errors: {
+        api: {
+            account: {
+                invalid_credentials: 'You have provided invalid credentials',
+                not_administrator: 'Your account does not belongs to \'Administrators\' group'
+            }
+        }
     },
     search: {
         all_providers: 'All',
@@ -104,6 +127,37 @@ export default {
             },
             search: 'Search',
             settings: 'Settings'
+        },
+        account: {
+            users: {
+                users: 'Users',
+                headers: {
+                    id: 'ID',
+                    username: 'Username',
+                    email: 'E-Mail',
+                    email_verified_at: 'Verified On',
+                    created_at: 'First Created',
+                    updated_at: 'Last Updated',
+                    avatar: 'Avatar',
+                    role: 'Role',
+                    actions: 'Actions'
+                },
+                update: {
+                    title: 'Updating: {username}'
+                },
+                delete: {
+                    title: 'Deleting: {username}',
+                    message: 'Are you sure you want to delete selected user and all data associated with that user?',
+                    warning: 'This action cannot be reverted, so please, think twice before deleting a user.'
+                }
+            },
+            groups: {
+                groups: 'Groups',
+                headers: {
+
+                    actions: 'Actions'
+                }
+            }
         },
         storage: {
             disks: {

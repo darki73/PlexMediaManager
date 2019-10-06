@@ -16,6 +16,7 @@
         "intervention/image": "^2.5",
         "laravel/framework": "^6.0",
         "laravel/horizon": "^3.3",
+        "laravel/passport": "^7.5",
         "laravel/tinker": "^1.0",
         "laravolt/avatar": "^3.0",
         "mhor/php-mediainfo": "^4.1",

@@ -1,4 +1,8 @@
 const types = {
+    FETCH_ACCOUNTS_USERS_SUCCESS: 'FETCH_ACCOUNTS_USERS_SUCCESS',
+    FETCH_ACCOUNTS_USERS_FAILURE: 'FETCH_ACCOUNTS_USERS_FAILURE',
+    FETCH_ACCOUNTS_GROUPS_SUCCESS: 'FETCH_ACCOUNTS_GROUPS_SUCCESS',
+    FETCH_ACCOUNTS_GROUPS_FAILURE: 'FETCH_ACCOUNTS_GROUPS_FAILURE',
     FETCH_SERVER_INFO_SUCCESS: 'FETCH_SERVER_INFO_SUCCESS',
     FETCH_SERVER_INFO_FAILURE: 'FETCH_SERVER_INFO_FAILURE',
     FETCH_STORAGE_DISKS_LIST_SUCCESS: 'FETCH_STORAGE_DISKS_LIST_SUCCESS',
@@ -13,6 +17,8 @@ const types = {
 
 export const state = () => ({
     server: null,
+    accounts_users: [],
+    accounts_groups: [],
     storage_disks: [],
     logs: [],
     requests: [],
@@ -20,6 +26,8 @@ export const state = () => ({
 });
 
 export const getters = {
+    accounts_users: state => state.accounts_users,
+    accounts_groups: state => state.accounts_groups,
     server: state => state.server,
     storage_disks: state => state.storage_disks,
     logs: state => state.logs,
@@ -28,6 +36,18 @@ export const getters = {
 };
 
 export const mutations = {
+    [types.FETCH_ACCOUNTS_USERS_SUCCESS] (state, users) {
+        state.accounts_users = users;
+    },
+    [types.FETCH_ACCOUNTS_USERS_FAILURE] (state) {
+        state.accounts_users = [];
+    },
+    [types.FETCH_ACCOUNTS_GROUPS_SUCCESS] (state, groups) {
+        state.accounts_groups = groups;
+    },
+    [types.FETCH_ACCOUNTS_GROUPS_FAILURE] (state) {
+        state.accounts_groups = [];
+    },
     [types.FETCH_SERVER_INFO_SUCCESS] (state, info) {
         state.server = info;
     },
@@ -73,6 +93,34 @@ export const actions = {
             commit(types.FETCH_SERVER_INFO_SUCCESS, data.data);
         } catch (error) {
             commit(types.FETCH_SERVER_INFO_FAILURE);
+        }
+    },
+
+    /**
+     * Fetch list of users
+     * @param commit
+     * @returns {Promise<void>}
+     */
+    async fetchAccountsUsers({ commit }) {
+        try {
+            const { data } = await this.$axios.get('dashboard/accounts/users/list');
+            commit(types.FETCH_ACCOUNTS_USERS_SUCCESS, data.data);
+        } catch (error) {
+            commit(types.FETCH_ACCOUNTS_USERS_FAILURE);
+        }
+    },
+
+    /**
+     * Fetch list of groups and their permissions
+     * @param commit
+     * @returns {Promise<void>}
+     */
+    async fetchAccountsGroups({ commit }) {
+        try {
+            const { data } = await this.$axios.get('dashboard/accounts/groups/list');
+            commit(types.FETCH_ACCOUNTS_GROUPS_SUCCESS, data.data);
+        } catch (error) {
+            commit(types.FETCH_ACCOUNTS_GROUPS_FAILURE);
         }
     },
 

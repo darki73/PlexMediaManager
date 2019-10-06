@@ -109,6 +109,7 @@ export default {
             },
             strategy: 'prefix_except_default',
         }],
+        'cookie-universal-nuxt'
     ],
 
     axios: {
@@ -142,7 +143,7 @@ export default {
     router: {
         mode: 'history',
         middleware: [
-
+            'check-auth'
         ]
     }
 }

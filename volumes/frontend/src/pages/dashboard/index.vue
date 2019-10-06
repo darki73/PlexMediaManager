@@ -252,7 +252,8 @@
         data: () => ({}),
         computed: {
             ...mapGetters({
-                serverInformation: 'dashboard/server'
+                serverInformation: 'dashboard/server',
+                user: 'account/user'
             }),
             kernel() {
                 return this.serverInformation.kernel;

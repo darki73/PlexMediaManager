@@ -54,6 +54,11 @@
             show: false,
             content: ''
         }),
+        watch: {
+            value (current, previous) {
+                this.content = current;
+            }
+        },
         mounted() {
             this.content = this.value;
         },

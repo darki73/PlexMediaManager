@@ -1,9 +1,11 @@
 <?php namespace App\Models;
 
+use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 /**
  * Class User
@@ -11,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable implements MustVerifyEmail {
 
-    use Notifiable;
+    use Notifiable, HasApiTokens, HasRoles;
 
     /**
      * @inheritDoc
@@ -21,7 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail {
         'username',
         'email',
         'email_verified_at',
-        'password'
+        'password',
+        'avatar'
     ];
 
     /**
@@ -34,7 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail {
         'email'             =>  'string',
         'email_verified_at' =>  'datetime',
         'password'          =>  'string',
-        'remember_token'    =>  'string'
+        'remember_token'    =>  'string',
+        'avatar'            =>  'string'
     ];
 
     /**
@@ -44,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail {
     protected $hidden = [
         'password',
         'remember_token',
+        'avatar'
     ];
 
     /**
@@ -56,11 +61,42 @@ class User extends Authenticatable implements MustVerifyEmail {
     ];
 
     /**
+     * Get roles associated with user account
+     * @var array
+     */
+    protected $with = [
+        'roles'
+    ];
+
+    /**
+     * @inheritDoc
+     * @var array
+     */
+    protected $appends = [
+        'avatar_url'
+    ];
+
+    /**
      * Get all requests submitted by the user
      * @return HasMany
      */
     public function requests() : HasMany {
         return $this->hasMany(Request::class, 'user_id', 'id');
+    }
+
+    /**
+     * Create avatar url
+     * @return string
+     */
+    public function getAvatarUrlAttribute() : string {
+        return sprintf('https://%s%s', str_replace(['http://', 'https://'], '', env('APP_URL')), \Storage::url(
+            implode(DIRECTORY_SEPARATOR, [
+                'public',
+                'avatars',
+                $this->username,
+                $this->avatar
+            ])
+        ));
     }
 
 }
