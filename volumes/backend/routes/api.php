@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -51,6 +52,7 @@ Route::group([
     'prefix'    =>  'account',
     'namespace' =>  'Api'
 ], static function() {
+    Route::post('authenticate', 'AccountController@authenticate');
     Route::get('user', 'AccountController@user')->middleware('auth:api');
 });
 

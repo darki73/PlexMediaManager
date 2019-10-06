@@ -58,6 +58,9 @@ Vue.mixin({
         },
         isObjectActuallyArray(object) {
             return object.constructor.toString().indexOf('Array') !== -1;
+        },
+        isAdministrator(user) {
+            return user.roles[0].name.indexOf('administrator') !== -1;
         }
     },
     created() {

@@ -84,9 +84,7 @@
     </v-layout>
 </template>
 <script>
-    // TODO: Implement validation of the Email and Password fields
     export default {
-        name: 'dashboard-login',
         layout: 'login',
         data: () => ({
             loading: false,
@@ -128,7 +126,7 @@
             },
             authenticate() {
                 this.loading = true;
-                this.$axios.post('dashboard/account/authenticate', {
+                this.$axios.post('account/authenticate', {
                     email: this.email,
                     password: this.password,
                     remember_me: this.rememberMe
@@ -142,7 +140,7 @@
                     setTimeout(() => {
                         this.loading = false;
                         this.$router.push({
-                            path: '/dashboard'
+                            path: '/'
                         });
                     }, 1500);
                 }).catch(({ response }) => {

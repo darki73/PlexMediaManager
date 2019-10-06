@@ -20,18 +20,27 @@
             color="red lighten-3"
             outlined
             nuxt
-            to="/"
+            to="/dashboard"
+            v-if="authenticated && isAdministrator(user)"
         >
-            {{ $t('dashboard.menu.user') }}
+            {{ $t('user.menu.admin') }}
         </v-btn>
     </v-app-bar>
 </template>
 <script>
+    import { mapGetters } from 'vuex';
+
     export default {
-        name: 'dashboard-layout-header',
+        name: 'layout-header',
         data: () => ({
             minimized: false
         }),
+        computed: {
+            ...mapGetters({
+                authenticated: 'account/authenticated',
+                user: 'account/user'
+            })
+        },
         methods: {
             minimizeDrawer() {
                 this.minimized = !this.minimized;

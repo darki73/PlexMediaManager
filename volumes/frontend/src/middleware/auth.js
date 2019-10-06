@@ -3,7 +3,7 @@ export default async function({
     redirect,
     route
 }) {
-    const redirectPath = route.path.indexOf('dashboard') !== false ? '/dashboard/login' : '/login';
+    const redirectPath = route.path.indexOf('dashboard') !== false ? '/dashboard/login' : '/account/login';
     if (!store.getters['account/authenticated']) {
         return redirect(redirectPath);
     }

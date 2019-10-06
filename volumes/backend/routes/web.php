@@ -18,4 +18,5 @@ Route::get('/', function () {
 });
 
 Route::get('/test', static function() {
+    
 });

@@ -20,6 +20,7 @@ export default {
         },
         remember_me: 'Remember Me',
         log_in: 'Log In',
+        create_account: 'Create Account',
         clear_form: 'Clear Form',
         log_out: 'Log Out'
     },
@@ -126,7 +127,8 @@ export default {
                 add_torrent: 'Add Torrent'
             },
             search: 'Search',
-            settings: 'Settings'
+            settings: 'Settings',
+            user: 'User Panel'
         },
         account: {
             users: {
@@ -367,6 +369,36 @@ export default {
                     label: 'Proxy Password',
                     placeholder: 'Please provide password used for authentication',
                     hint: 'Leave it empty if proxy server does not have authentication enabled'
+                }
+            }
+        }
+    },
+    user: {
+        menu: {
+            admin: 'Administrative Panel',
+            home: 'Home',
+            search: 'Search',
+        },
+        account: {
+            login: {
+
+            },
+            create: {
+                username: {
+                    label: 'Username',
+                    placeholder: 'Please provide desired Username'
+                },
+                email: {
+                    label: 'E-Mail',
+                    placeholder: 'Please provide your E-Mail address'
+                },
+                password: {
+                    label: 'Password',
+                    placeholder: 'Please enter password'
+                },
+                password_confirmation: {
+                    label: 'Password Confirmation',
+                    placeholder: 'Please confirm password'
                 }
             }
         }

@@ -1,4 +1,4 @@
-FROM nginx:1.15.9-alpine
+FROM nginx:1.17.4-alpine
 
 RUN apk update && apk add dos2unix
 

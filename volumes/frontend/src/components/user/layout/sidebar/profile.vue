@@ -1,7 +1,7 @@
 <template>
     <v-list>
         <v-list-item-group>
-            <v-list-item inactive>
+            <v-list-item v-if="authenticated" inactive>
                 <v-list-item-avatar tile>
                     <v-img :src="user.avatar_url"/>
                 </v-list-item-avatar>
@@ -14,7 +14,7 @@
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
-            <v-list-item inactive>
+            <v-list-item v-if="authenticated" inactive>
                 <v-list-item-content>
                     <v-btn
                         :color="minimized ? 'red' : 'primary'"
@@ -34,6 +34,48 @@
                     </v-btn>
                 </v-list-item-content>
             </v-list-item>
+            <v-list-item dense v-if="!authenticated" inactive>
+                <v-list-item-content>
+                    <v-btn
+                        color="primary"
+                        class="normal-case"
+                        nuxt
+                        to="/account/login"
+                        :small="minimized"
+                        :icon="minimized"
+                    >
+                        <span v-show="minimized">
+                            <v-icon>
+                                mdi-login
+                            </v-icon>
+                        </span>
+                        <span v-show="!minimized">
+                            {{ $t('common.log_in') }}
+                        </span>
+                    </v-btn>
+                </v-list-item-content>
+            </v-list-item>
+            <v-list-item dense v-if="!authenticated" inactive>
+                <v-list-item-content>
+                    <v-btn
+                        color="green"
+                        class="normal-case"
+                        nuxt
+                        to="/account/create"
+                        :small="minimized"
+                        :icon="minimized"
+                    >
+                        <span v-show="minimized">
+                            <v-icon>
+                                mdi-account-plus
+                            </v-icon>
+                        </span>
+                        <span v-show="!minimized">
+                            {{ $t('common.create_account') }}
+                        </span>
+                    </v-btn>
+                </v-list-item-content>
+            </v-list-item>
         </v-list-item-group>
     </v-list>
 </template>
@@ -47,6 +89,7 @@
         }),
         computed: {
             ...mapGetters({
+                authenticated: 'account/authenticated',
                 user: 'account/user'
             })
         },
@@ -58,7 +101,7 @@
         methods: {
             logoutUserFromAccount() {
                 this.$router.push({
-                    path: '/dashboard/login'
+                    path: '/'
                 });
                 setTimeout(() => {
                     this.$store.dispatch('account/logout');

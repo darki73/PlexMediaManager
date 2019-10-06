@@ -13,7 +13,7 @@
 </template>
 <script>
     export default {
-        name: 'dashboard-layout-sidebar-logo',
+        name: 'layout-sidebar-logo',
         data: () => ({
             minimized: false
         }),
