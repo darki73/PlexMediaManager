@@ -4,10 +4,14 @@
 # Ignore Contents In These Volumes
 volumes/mariadb/*
 volumes/redis/*
+volumes/traefik/*
 
 # Keep Certain Files In These Volumes
 !volumes/mariadb/.gitkeep
 !volumes/redis/.gitkeep
+!volumes/traefik/.gitkeep
 
 # Ignore Manually Created Files
 docker-compose.yml
+docker-compose.fpm.yml
+docker-compose.roadrunner.yml

@@ -1,10 +1,28 @@
 ARG PHP_VERSION=7.3.10
-ARG FROM_PHP_VERSION="php:${PHP_VERSION}-fpm"
+ARG ROADRUNNER_VERSION=1.4.8
+ARG COMPOSER_VERSION=1.9
 
+ARG FROM_PHP_VERSION="php:${PHP_VERSION}"
+ARG FROM_ROADRUNNER_VERSION="512k/roadrunner:${ROADRUNNER_VERSION}"
+ARG FROM_COMPOSER_VERSION="composer:${COMPOSER_VERSION}"
+
+FROM $FROM_COMPOSER_VERSION AS composer
+FROM $FROM_ROADRUNNER_VERSION AS roadrunner
 FROM $FROM_PHP_VERSION
+
+ENV \
+    COMPOSER_ALLOW_SUPERUSER="1" \
+    COMPOSER_HOME="/tmp/composer" \
+    OWN_SSL_CERT_DIR="/ssl-cert" \
+    OWN_SSL_CERT_LIFETIME=1095
+
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY --from=roadrunner /usr/bin/rr /usr/bin/rr
+
 
 # Update sources list, install latest version of libraries and then install and configure the "zip" package & extension
 RUN set -xe; \
@@ -386,56 +404,34 @@ RUN if [ ${INSTALL_FFMPEG} = true ]; then \
     apt-get -y install ffmpeg \
 ;fi
 
-###########################################################################
-# Check PHP version:
-###########################################################################
+RUN rm -rf /app /home/user ${COMPOSER_HOME} /var/cache/apk/* \
+        && mkdir /app /home/user ${COMPOSER_HOME} \
+        && composer global require 'hirak/prestissimo' --no-interaction --no-suggest --prefer-dist \
+        && ln -s /usr/bin/composer /usr/bin/c
 
-RUN set -xe; php -v
 
-
-# Finalize installation
 COPY ./etc/php/php.ini /usr/local/etc/php/php.ini
-COPY ./etc/php/php-fpm.conf /usr/local/etc/php-fpm.conf
-
-# Install composer
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.9.0
-
-RUN set -xe \
-    && mkdir -p "$COMPOSER_HOME" \
-    # install composer
-    && php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');" \
-    && php -r "if(hash_file('SHA384','/tmp/composer-setup.php')==='a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1'){echo 'Verified';}else{unlink('/tmp/composer-setup.php');}" \
-    && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/bin --filename=composer --version=$COMPOSER_VERSION \
-    && composer --ansi --version --no-interaction \
-    && composer --no-interaction global require 'hirak/prestissimo' \
-    && composer clear-cache \
-    && rm -rf /tmp/composer-setup.php
-
-# Copy entrypoints files
-COPY ./keep-alive.sh /scripts/keep-alive.sh
+COPY ./etc/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY ./app-entrypoint.sh /app-entrypoint.sh
 COPY ./scheduler.sh /scripts/scheduler.sh
-COPY ./fpm-entrypoint.sh /fpm-entrypoint.sh
 
-# Convert files encoding to UNIX and modify permissions for TMP folder
-RUN chown -R 1000:1000 /tmp
-RUN dos2unix /scripts/keep-alive.sh
+RUN dos2unix /app-entrypoint.sh
 RUN dos2unix /scripts/scheduler.sh
-RUN dos2unix /fpm-entrypoint.sh
 
-# Allow entrypoints to be executed
-RUN chmod +x /scripts/keep-alive.sh
-RUN chmod +x /scripts/scheduler.sh
-RUN chmod +x /fpm-entrypoint.sh
-
-USER root
-
-# Clean up
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /var/log/lastlog /var/log/faillog
+#RUN mkdir -p ${OWN_SSL_CERT_DIR} \
+#            && cd ${OWN_SSL_CERT_DIR} \
+#            && openssl genrsa -passout pass:x -out self-signed.key 2048 \
+#            && cp self-signed.key self-signed.key.orig \
+#            && openssl rsa -passin pass:x -in self-signed.key.orig -out self-signed.key \
+#            && openssl req -new -key self-signed.key -out cert.csr \
+#                -subj "/C=RU/ST=RU/L=Somewhere/O=SomeOrg/OU=IT Department/CN=example.com" \
+#            && openssl x509 -req -days ${OWN_SSL_CERT_LIFETIME} -in cert.csr -signkey self-signed.key -out self-signed.crt \
+#            && ls -lh
 
 WORKDIR /app
-ENTRYPOINT []
-CMD []
+
+
+
+# DO NOT OVERRIDE ENTRYPOINT IF YOU CAN AVOID IT! @see <https://github.com/docker/docker.github.io/issues/6142>
+ENTRYPOINT ["/app-entrypoint.sh"]
+CMD ["rr", "serve", "-c", "/app/.rr.yml"]

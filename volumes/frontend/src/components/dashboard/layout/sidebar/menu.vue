@@ -65,6 +65,11 @@
                         ]
                     },
                     {
+                        action: 'location_searching',
+                        title: 'dashboard.menu.indexers',
+                        link: '/dashboard/indexers'
+                    },
+                    {
                         action: 'storage',
                         title: 'dashboard.menu.storage.storage',
                         items: [

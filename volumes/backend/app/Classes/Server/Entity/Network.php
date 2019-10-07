@@ -46,7 +46,7 @@ class Network {
         return [
             'backend'       =>  [
                 'remote_ip' =>  gethostbyname(env('API_DOMAIN')),
-                'local_ip'  =>  $_SERVER['SERVER_ADDR'],
+                'local_ip'  =>  $_SERVER['SERVER_ADDR'] ?? null,
                 'domain'    =>  env('API_DOMAIN')
             ],
             'frontend'      =>  [

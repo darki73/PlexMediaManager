@@ -1,4 +1,7 @@
-FROM nginx:1.17.4-alpine
+ARG NGINX_VERSION=1.17.4
+ARG FROM_NGINX_VERSION="nginx:${NGINX_VERSION}-alpine"
+
+FROM $FROM_NGINX_VERSION
 
 RUN apk update && apk add dos2unix
 

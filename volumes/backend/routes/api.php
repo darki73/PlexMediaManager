@@ -137,6 +137,12 @@ Route::group([
         });
     });
 
+    Route::group([
+        'prefix'        =>  'indexers'
+    ], static function() {
+        Route::get('list', 'IndexersController@list');
+    });
+
     /**
      * Dashboard >> Storage Group
      */

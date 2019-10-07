@@ -1,4 +1,6 @@
-FROM node:12-slim
+ARG NODE_VERSION=12
+ARG FROM_NODE_VERSION="node:${NODE_VERSION}-slim"
+FROM $FROM_NODE_VERSION
 
 # Update Container Dependencies
 RUN apt update && apt upgrade -y && apt install -y nano dos2unix

@@ -100,6 +100,7 @@ export default {
                 groups: 'Groups',
                 users: 'Users'
             },
+            indexers: 'Indexers',
             storage: {
                 storage: 'Storage',
                 disks: 'Disks',
@@ -371,6 +372,9 @@ export default {
                     hint: 'Leave it empty if proxy server does not have authentication enabled'
                 }
             }
+        },
+        indexers: {
+            title: 'Application Indexers'
         }
     },
     user: {

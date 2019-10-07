@@ -2,7 +2,7 @@
 
 application=$(basename "$PWD")
 
-services=("app", "scheduler", "frontend", "nginx", "redis", "database", "queue")
+services=("app", "roadrunner", "scheduler", "frontend", "nginx", "redis", "database", "queue")
 actions=("start", "stop", "restart", "shell", "rebuild")
 
 if [[ ! "${services[@]}" =~ "${1}" ]]; then

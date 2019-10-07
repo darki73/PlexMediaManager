@@ -7,6 +7,12 @@
         "laravel"
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./packages/roadrunner-laravel"
+        }
+    ],
     "require": {
         "php": "^7.2",
         "fabpot/goutte": "^3.2",
@@ -14,7 +20,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "imtigger/laravel-job-status": "^0.2.2",
         "intervention/image": "^2.5",
-        "laravel/framework": "^6.0",
+        "laravel/framework": "^6.1",
         "laravel/horizon": "^3.3",
         "laravel/passport": "^7.5",
         "laravel/tinker": "^1.0",
@@ -24,7 +30,8 @@
         "predis/predis": "^1.1",
         "spatie/laravel-cors": "^1.6",
         "spatie/laravel-permission": "^3.0",
-        "symfony/dom-crawler": "^4.3"
+        "symfony/dom-crawler": "^4.3",
+        "avto-dev/roadrunner-laravel": "*"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
