@@ -374,7 +374,18 @@ export default {
             }
         },
         indexers: {
-            title: 'Application Indexers'
+            title: 'Application Indexers',
+            indexer: 'Indexer: {indexer}',
+            series: 'Series ID: {series}',
+            season: 'Season: {season}',
+            updated: 'Updated: {updated}',
+            headers: {
+                name: 'Indexer',
+                class: 'Class',
+                items: 'Items Count',
+                actions: 'Actions',
+            },
+            view_items: 'View Items'
         }
     },
     user: {

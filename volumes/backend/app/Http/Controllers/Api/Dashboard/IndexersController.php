@@ -1,10 +1,14 @@
 <?php namespace App\Http\Controllers\Api\Dashboard;
 
+use App\Http\Controllers\Api\SeriesController;
 use App\Models\SeriesIndexer;
+use App\Models\SeriesIndexerTorrentLink;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Api\APIController;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 /**
  * Class IndexersController
@@ -19,19 +23,56 @@ class IndexersController extends APIController {
      */
     public function list(Request $request) : JsonResponse {
         $indexersCollection = SeriesIndexer::all();
-        $indexers = [];
+        $groupedIndexers = [];
 
         foreach ($indexersCollection as $indexer) {
-            if (!array_key_exists($indexer->indexer, $indexers)) {
-                $indexers[$indexer->indexer] = [];
+            if (!array_key_exists($indexer->indexer, $groupedIndexers)) {
+                $groupedIndexers[$indexer->indexer] = [];
             }
-
-            // TODO: There should be more processing done, for now just leave it as is
-            $indexers[$indexer->indexer][] = $indexer;
+            $groupedIndexers[$indexer->indexer][] = $indexer;
         }
-         
 
-        return $this->sendResponse('Successfully fetched list of indexers', $indexers);
+        $indexers = [];
+
+        foreach ($groupedIndexers as $indexer => $items) {
+            $indexers[$indexer] = [
+                'name'          =>  $indexer,
+                'class'         =>  config('jackett.indexers.' . $indexer, null),
+                'items_count'   =>  \count($items),
+                'items'         =>  []
+            ];
+
+            $seriesIdToNameRelation = Arr::pluck((new SeriesController)->cacheAllSeries(), 'title', 'id');
+
+            foreach ($items as $item) {
+                $hasTorrent = $item->torrentFiles->count() !== 0;
+                $indexers[$indexer]['items'][] = array_merge([
+                    'id'                =>  $item->series_id,
+                    'title'             =>  $seriesIdToNameRelation[$item->series_id]
+                ], Arr::except($item->toArray(), ['series_id', 'indexer']), [
+                    'has_torrent'       =>  $hasTorrent,
+                    'torrent_files'     =>  !$hasTorrent ? [] : $this->extractTorrentFiles($item->torrentFiles)
+                ]);
+            }
+        }
+
+        return $this->sendResponse('Successfully fetched list of indexers', array_values($indexers));
+    }
+
+    /**
+     * Extract torrent files
+     * @param Collection $torrentFiles
+     * @return array
+     */
+    protected function extractTorrentFiles(Collection $torrentFiles) : array {
+        $files = [];
+        /**
+         * @var SeriesIndexerTorrentLink $file
+         */
+        foreach ($torrentFiles as $file) {
+            $files[$file->season] = Arr::except($file->toArray(), ['series_id']);
+        }
+        return $files;
     }
 
 }

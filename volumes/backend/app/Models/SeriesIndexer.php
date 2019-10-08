@@ -1,8 +1,8 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class SeriesIndexer
@@ -63,6 +63,14 @@ class SeriesIndexer extends Model {
      */
     public function episodes() : HasMany {
         return $this->hasMany(Episode::class, 'series_id', 'series_id');
+    }
+
+    /**
+     * Get torrent file
+     * @return HasMany
+     */
+    public function torrentFiles() : HasMany {
+        return $this->hasMany(SeriesIndexerTorrentLink::class, 'series_id', 'series_id');
     }
 
 }

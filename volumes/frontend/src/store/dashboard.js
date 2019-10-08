@@ -3,6 +3,8 @@ const types = {
     FETCH_ACCOUNTS_USERS_FAILURE: 'FETCH_ACCOUNTS_USERS_FAILURE',
     FETCH_ACCOUNTS_GROUPS_SUCCESS: 'FETCH_ACCOUNTS_GROUPS_SUCCESS',
     FETCH_ACCOUNTS_GROUPS_FAILURE: 'FETCH_ACCOUNTS_GROUPS_FAILURE',
+    FETCH_INDEXERS_SUCCESS: 'FETCH_INDEXERS_SUCCESS',
+    FETCH_INDEXERS_FAILURE: 'FETCH_INDEXERS_FAILURE',
     FETCH_SERVER_INFO_SUCCESS: 'FETCH_SERVER_INFO_SUCCESS',
     FETCH_SERVER_INFO_FAILURE: 'FETCH_SERVER_INFO_FAILURE',
     FETCH_STORAGE_DISKS_LIST_SUCCESS: 'FETCH_STORAGE_DISKS_LIST_SUCCESS',
@@ -19,6 +21,7 @@ export const state = () => ({
     server: null,
     accounts_users: [],
     accounts_groups: [],
+    indexers: [],
     storage_disks: [],
     logs: [],
     requests: [],
@@ -28,6 +31,7 @@ export const state = () => ({
 export const getters = {
     accounts_users: state => state.accounts_users,
     accounts_groups: state => state.accounts_groups,
+    indexers: state => state.indexers,
     server: state => state.server,
     storage_disks: state => state.storage_disks,
     logs: state => state.logs,
@@ -47,6 +51,12 @@ export const mutations = {
     },
     [types.FETCH_ACCOUNTS_GROUPS_FAILURE] (state) {
         state.accounts_groups = [];
+    },
+    [types.FETCH_INDEXERS_SUCCESS] (state, indexers) {
+        state.indexers = indexers;
+    },
+    [types.FETCH_INDEXERS_FAILURE] (state) {
+        state.indexers = [];
     },
     [types.FETCH_SERVER_INFO_SUCCESS] (state, info) {
         state.server = info;
@@ -121,6 +131,20 @@ export const actions = {
             commit(types.FETCH_ACCOUNTS_GROUPS_SUCCESS, data.data);
         } catch (error) {
             commit(types.FETCH_ACCOUNTS_GROUPS_FAILURE);
+        }
+    },
+
+    /**
+     * Fetch list of indexers
+     * @param commit
+     * @returns {Promise<void>}
+     */
+    async fetchIndexers({ commit }) {
+        try {
+            const { data } = await this.$axios.get('dashboard/indexers/list');
+            commit(types.FETCH_INDEXERS_SUCCESS, data.data);
+        } catch (error) {
+            commit(types.FETCH_INDEXERS_FAILURE);
         }
     },
 

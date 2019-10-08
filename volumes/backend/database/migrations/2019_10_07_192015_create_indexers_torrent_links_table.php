@@ -4,17 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateIndexersTorrentLinksTable extends Migration
-{
+class CreateIndexersTorrentLinksTable extends Migration {
+
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
+    public function up() : void {
         Schema::create('indexers_torrent_links', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->unsignedBigInteger('series_id');
+            $table->unsignedInteger('season');
+            $table->longText('torrent_file');
             $table->timestamps();
         });
     }
@@ -24,8 +25,7 @@ class CreateIndexersTorrentLinksTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
+    public function down() : void {
         Schema::dropIfExists('indexers_torrent_links');
     }
 }

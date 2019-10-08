@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 /**
+ * Get general API information
+ */
+Route::get('/', 'Api\APIController@getInformation');
+
+/**
  * Series Group
  */
 Route::group([
