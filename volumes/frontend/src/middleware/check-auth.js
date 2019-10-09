@@ -17,6 +17,24 @@ export default async function({
     }
 
     if (
+        store.getters['account/plex_token'] === null
+        || store.getters['account/plex_token'] === undefined
+    ) {
+        if (process.server) {
+            const cookieToken = app.$cookies.get('plex_token');
+            if (
+                cookieToken !== null
+                && cookieToken !== undefined
+            ) {
+                store.dispatch('account/setPlexToken', {
+                    token: cookieToken,
+                    createCookie: false
+                });
+            }
+        }
+    }
+
+    if (
         store.getters['account/token'] !== null
         && store.getters['account/token'] !== undefined
         && store.getters['account/token_type'] !== null

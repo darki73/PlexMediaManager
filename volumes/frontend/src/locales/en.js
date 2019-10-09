@@ -22,7 +22,12 @@ export default {
         log_in: 'Log In',
         create_account: 'Create Account',
         clear_form: 'Clear Form',
-        log_out: 'Log Out'
+        log_out: 'Log Out',
+        account: 'Account',
+        log_in_with_google: 'Sign in with Google',
+        logged_in_with_google: 'Signed in with Google',
+        log_in_with_plex: 'Sign in with Plex',
+        logged_in_with_plex: 'Signed in with Plex'
     },
     errors: {
         api: {

@@ -14,6 +14,32 @@
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
+
+            <!-- (Authenticated) Account Button Start -->
+            <v-list-item v-if="authenticated" inactive>
+                <v-list-item-content>
+                    <v-btn
+                        :color="minimized ? 'primary' : 'green'"
+                        nuxt
+                        to="/account"
+                        :outlined="!minimized"
+                        :small="minimized"
+                        :icon="minimized"
+                    >
+                        <span v-show="minimized">
+                            <v-icon>
+                                supervisor_account
+                            </v-icon>
+                        </span>
+                        <span v-show="!minimized">
+                            {{ $t('common.account') }}
+                        </span>
+                    </v-btn>
+                </v-list-item-content>
+            </v-list-item>
+            <!-- (Authenticated) Account Button End -->
+
+            <!-- (Authenticated) Log Out Button Start -->
             <v-list-item v-if="authenticated" inactive>
                 <v-list-item-content>
                     <v-btn
@@ -34,6 +60,9 @@
                     </v-btn>
                 </v-list-item-content>
             </v-list-item>
+            <!-- (Authenticated) Log Out Button End -->
+
+            <!-- (Not Authenticated) Log In Button Start -->
             <v-list-item dense v-if="!authenticated" inactive>
                 <v-list-item-content>
                     <v-btn
@@ -55,6 +84,9 @@
                     </v-btn>
                 </v-list-item-content>
             </v-list-item>
+            <!-- (Not Authenticated) Log In Button End -->
+
+            <!-- (Not Authenticated) Create Account Button Start -->
             <v-list-item dense v-if="!authenticated" inactive>
                 <v-list-item-content>
                     <v-btn
@@ -76,6 +108,7 @@
                     </v-btn>
                 </v-list-item-content>
             </v-list-item>
+            <!-- (Not Authenticated) Create Account Button End -->
         </v-list-item-group>
     </v-list>
 </template>

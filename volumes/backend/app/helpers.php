@@ -113,9 +113,34 @@ if (! function_exists('fix_lostfilm_audio_tracks')) {
 
 }
 
-
 if (! function_exists('pad')) {
     function pad(int $number) : string {
         return sprintf("%02d", $number);
     }
+}
+
+if (! function_exists('generateUUIDVersion5')) {
+
+    /**
+     * Generate UUID of Version 5
+     * @param string $string
+     * @param bool $applySalt
+     * @return string
+     */
+    function generateUUIDVersion5(string $string, bool $applySalt = false) : string {
+        if ($applySalt) {
+            $hash = sha1(sprintf('%s:%s', $string, time()), false);
+        } else {
+            $hash = sha1($string, false);
+        }
+        return sprintf(
+            '%s-%s-5%s-%s-%s',
+            substr($hash,  0,  8),
+            substr($hash,  8,  4),
+            substr($hash, 17,  3),
+            substr($hash, 24,  4),
+            substr($hash, 32, 12)
+        );
+    }
+
 }

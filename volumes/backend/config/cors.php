@@ -39,6 +39,7 @@ return [
             'X-Requested-With',
             'Origin',
             'Authorization',
+            'X-Plex-Token'
         ],
 
         'expose_headers' => [

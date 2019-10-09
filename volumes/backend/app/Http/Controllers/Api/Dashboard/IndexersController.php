@@ -1,14 +1,14 @@
 <?php namespace App\Http\Controllers\Api\Dashboard;
 
-use App\Http\Controllers\Api\SeriesController;
-use App\Models\SeriesIndexer;
-use App\Models\SeriesIndexerTorrentLink;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Models\SeriesIndexer;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Api\APIController;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use App\Models\SeriesIndexerTorrentLink;
+use App\Http\Controllers\Api\APIController;
+use App\Http\Controllers\Api\SeriesController;
 
 /**
  * Class IndexersController

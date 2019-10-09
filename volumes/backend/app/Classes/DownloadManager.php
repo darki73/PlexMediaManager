@@ -176,6 +176,7 @@ class DownloadManager {
         $extension = pathinfo($fileName, PATHINFO_EXTENSION);
         $shouldFixAudioChannelsNames = false !== stripos($fileName, '.LostFilm.TV');
 
+
         $rawName = null;
         $rawSeason = null;
         $rawEpisode = null;
@@ -196,13 +197,21 @@ class DownloadManager {
                 throw new \RuntimeException(json_encode(func_get_args()));
             }
 
-            preg_match_all("/(\d+).*$/", $fileName, $matches);
-            if (\count($matches) === 2) {
-                $episode = is_array($matches[1]) ? Arr::first($matches[1]) : $matches[1];
-                $rawEpisode = sprintf('%02d', (int) ltrim($episode, '0'));
+            preg_match('/s(\d+)e(\d+).*$/i', $fileName, $checkForSeasonEpisodeString);
+
+
+            if (\count($checkForSeasonEpisodeString) === 3) {
+                $rawSeason = $checkForSeasonEpisodeString[1];
+                $rawEpisode = $checkForSeasonEpisodeString[2];
             } else {
-                // Havent find anything better than this for debug
-                throw new \RuntimeException(json_encode(func_get_args()));
+                preg_match_all("/(\d+).*$/", $fileName, $matches);
+                if (\count($matches) === 2) {
+                    $episode = is_array($matches[1]) ? Arr::first($matches[1]) : $matches[1];
+                    $rawEpisode = sprintf('%02d', (int) ltrim($episode, '0'));
+                } else {
+                    // Havent find anything better than this for debug
+                    throw new \RuntimeException(json_encode(func_get_args()));
+                }
             }
 
             $seasonAndEpisode = sprintf('s%se%s', $rawSeason, $rawEpisode);
@@ -240,7 +249,7 @@ class DownloadManager {
                 }
             }
         }
-        $possibleName = trim($possibleName);
+        $possibleName = $this->formatPossibleName(trim($possibleName));
         $localName = $this->getSeriesLocalName($possibleName);
         $year = null;
 
@@ -317,9 +326,11 @@ class DownloadManager {
             }
         }
 
+
         foreach ($completedTorrents as $path) {
             $torrentPath = str_replace($this->paths['torrent']['local']['relative'] . DIRECTORY_SEPARATOR, '', $path);
             $parts = explode(DIRECTORY_SEPARATOR, $torrentPath);
+
 
             $seriesName = null;
             $seriesSeason = null;
@@ -437,6 +448,20 @@ class DownloadManager {
             }
         }
         return $shouldSkip;
+    }
+
+    /**
+     * Format possible name
+     * @param string $possibleName
+     * @return string
+     */
+    protected function formatPossibleName(string $possibleName) : string {
+        $yearRangeRegex = '/(19|2[0-9])\d{2}\-(19|2[0-9])\d{2}/';
+        preg_match($yearRangeRegex, $possibleName, $yearRangeMatches);
+        if (\count($yearRangeMatches) > 0) {
+            $possibleName = trim(substr($possibleName, 0, strpos($possibleName, $yearRangeMatches[0])));
+        }
+        return $possibleName;
     }
 
 }

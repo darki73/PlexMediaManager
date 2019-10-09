@@ -54,6 +54,25 @@ return [
             'driver' => 'null',
         ],
 
+        'websockets'    =>  [
+            'driver'            =>  'pusher',
+            'key'               =>  env('WS_APP_KEY'),
+            'secret'            =>  env('WS_APP_SECRET'),
+            'app_id'            =>  env('WS_APP_ID', 1),
+            'options'           =>  [
+                'cluster'       =>  env('WS_APP_CLUSTER', 'local'),
+                'encrypted'     =>  env('WS_APP_SECURE', false),
+                'useTLS'        =>  env('WS_APP_SECURE', false),
+                'host'          =>  env('WS_APP_HOST'),
+                'port'          =>  (env('WS_APP_SECURE') === true) ? 443 : 80,
+                'scheme'        =>  (env('WS_APP_SECURE') === true) ? 'https' : 'http',
+                'curl_options'  =>  [
+                    CURLOPT_SSL_VERIFYHOST  =>  0,
+                    CURLOPT_SSL_VERIFYPEER  =>  0
+                ]
+            ]
+        ],
+
     ],
 
 ];

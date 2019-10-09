@@ -1,5 +1,6 @@
 const types = {
     SET_ACCOUNT_TOKEN: 'SET_ACCOUNT_TOKEN',
+    SET_PLEX_TOKEN: 'SET_PLEX_TOKEN',
     FETCH_USER_SUCCESS: 'FETCH_USER_SUCCESS',
     FETCH_USER_FAILURE: 'FETCH_USER_FAILURE',
     LOGOUT: 'LOGOUT'
@@ -9,6 +10,7 @@ export const state = () => ({
     token: null,
     token_type: null,
     token_expiration: null,
+    plex_token: null,
     user: null
 });
 
@@ -16,6 +18,8 @@ export const getters = {
     token: state => state.token,
     token_type: state => state.token_type,
     token_expiration: state => state.token_expiration,
+    plex_token: state => state.plex_token,
+    plex_authenticated: state => state.plex_token !== null && state.plex_token !== undefined,
     user: state => state.user,
     authenticated: state => state.user !== null && state.user !== undefined && state.token !== null
 };
@@ -56,6 +60,18 @@ export const mutations = {
             });
         }
     },
+    [types.SET_PLEX_TOKEN] (state, {
+        token,
+        createCookie
+    }) {
+        state.plex_token = token;
+        if (createCookie) {
+            this.$cookies.set('plex_token', token, {
+                path: '/',
+                sameSite: true
+            });
+        }
+    },
     [types.FETCH_USER_SUCCESS] (state, user) {
         state.user = user;
     },
@@ -89,6 +105,16 @@ export const actions = {
      */
     async setToken({ commit }, tokenData) {
         commit(types.SET_ACCOUNT_TOKEN, tokenData);
+    },
+
+    /**
+     * Set plex token
+     * @param commit
+     * @param tokenData
+     * @returns {Promise<void>}
+     */
+    async setPlexToken({ commit }, tokenData) {
+        commit(types.SET_PLEX_TOKEN, tokenData);
     },
 
     /**

@@ -59,6 +59,18 @@ Route::group([
 ], static function() {
     Route::post('authenticate', 'AccountController@authenticate');
     Route::get('user', 'AccountController@user')->middleware('auth:api');
+
+    Route::group([
+        'prefix'        =>  'oauth',
+        'namespace'     =>  'OAuth',
+    ], static function() {
+        Route::get('google', 'GoogleController@redirectToProvider');
+        Route::get('google/callback', 'GoogleController@callback');
+
+        Route::get('plex', 'PlexController@redirectToProvider')->middleware('auth:api');
+        Route::post('plex', 'PlexController@finalizeAuthorization')->middleware('auth:api');
+        Route::get('plex/callback', 'PlexController@callback');
+    });
 });
 
 /**

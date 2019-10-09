@@ -14,6 +14,8 @@ if (fs.existsSync(siteConfig)) {
 }
 fs.writeFileSync(siteConfig, JSON.stringify(site, null, 2));
 
+const echoSettings = require('./config/echo')(process.env);
+
 function shouldForceHttps() {
     const force = process.env.FORCE_HTTPS === 'true';
     if (force) {
@@ -81,6 +83,11 @@ export default {
     modules: [
         '@nuxtjs/axios',
         '@nuxtjs/pwa',
+        ['@nuxtjs/laravel-echo', Object.assign({}, {
+            authModule: false,
+            connectOnLogin: false,
+            disconnectOnLogout: false
+        }, echoSettings)],
         ['nuxt-i18n', {
             locales: [
                 {
