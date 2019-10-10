@@ -18,11 +18,18 @@
             'layout-sidebar': Sidebar,
             'layout-content': Content,
         },
+        data: () => ({
+
+        }),
         computed: {
             ...mapGetters({
                 global_authenticated: 'account/authenticated',
                 global_token: 'account/token',
                 global_token_type: 'account/token_type',
+
+                isPlexAuthenticated: 'account/plex_authenticated',
+                selectedPlexServer: 'plex/selected_server',
+                plexLibraries: 'plex/libraries'
             }),
         },
         watch: {
@@ -30,11 +37,25 @@
                 if (current === true && previous === false) {
                     this.updateEchoConfiguration();
                 }
+            },
+            selectedServer() {
+                if (this.isPlexAuthenticated) {
+                    this.$bus.$emit('refreshPlexLibrariesList');
+                }
             }
         },
         mounted() {
             if (this.global_authenticated) {
                 this.updateEchoConfiguration();
+            }
+
+            if (this.isPlexAuthenticated) {
+                if (
+                    this.selectedPlexServer !== null
+                    && this.selectedPlexServer !== undefined
+                ) {
+                    this.$store.dispatch('plex/fetchLibrariesList', this.selectedPlexServer);
+                }
             }
         },
         methods: {

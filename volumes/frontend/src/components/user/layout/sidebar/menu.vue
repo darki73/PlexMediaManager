@@ -31,6 +31,43 @@
                         title: 'user.menu.search',
                         link: '/search'
                     },
+                    {
+                        action: 'move_to_inbox',
+                        title: 'user.menu.requests.requests',
+                        items: [
+                            {
+                                title: 'user.menu.requests.all',
+                                link: '/requests',
+                                icon: 'inbox'
+                            },
+                            {
+                                title: 'user.menu.requests.movies',
+                                link: '/requests/movies',
+                                icon: 'movie'
+                            },
+                            {
+                                title: 'user.menu.requests.series',
+                                link: '/requests/series',
+                                icon: 'local_movies'
+                            }
+                        ]
+                    },
+                    {
+                        action: 'stars',
+                        title: 'user.menu.top.top',
+                        items: [
+                            {
+                                title: 'user.menu.top.movies',
+                                link: '/top/movies',
+                                icon: 'movie'
+                            },
+                            {
+                                title: 'user.menu.top.series',
+                                link: '/top/series',
+                                icon: 'local_movies'
+                            }
+                        ]
+                    },
                 ]
             };
         }

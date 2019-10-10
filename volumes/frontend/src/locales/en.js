@@ -398,6 +398,17 @@ export default {
             admin: 'Administrative Panel',
             home: 'Home',
             search: 'Search',
+            requests: {
+                requests: '[WIP] Requests',
+                all: 'All',
+                movies: 'Movies',
+                series: 'Series'
+            },
+            top: {
+                top: '[WIP] Top Picks',
+                movies: 'Movies',
+                series: 'Series'
+            }
         },
         account: {
             login: {

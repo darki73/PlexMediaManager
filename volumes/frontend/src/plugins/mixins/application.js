@@ -64,7 +64,7 @@ Vue.mixin({
         },
         isAdministrator(user) {
             return user.roles[0].name.indexOf('administrator') !== -1;
-        }
+        },
     },
     created() {
         // Actions to be executed when component is created

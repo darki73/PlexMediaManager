@@ -231,8 +231,8 @@
         computed: {
             ...mapGetters({
                 authenticated: 'account/authenticated',
-                isPlexAuthenticated: 'account/plex_authenticated',
                 user: 'account/user',
+                isPlexAuthenticated: 'account/plex_authenticated',
                 plexServers: 'plex/servers',
                 selectedServer: 'plex/selected_server',
                 plexLibraries: 'plex/libraries'
@@ -266,6 +266,7 @@
                 ) {
                     this.refreshPlexLibrariesList();
                 }
+                this.$bus.$on('refreshPlexLibrariesList', this.refreshPlexLibrariesList);
             }
         },
         methods: {

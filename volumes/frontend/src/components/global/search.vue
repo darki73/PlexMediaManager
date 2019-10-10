@@ -53,57 +53,66 @@
                                     lg4
                                     v-for="(item, index) in filteredResults"
                                     :key="`flex-entry-for-item-with-index-${index}`"
+                                    class="pa-2"
                                 >
                                     <v-card style="background-color: #272727!important;">
-                                        <v-card-text>
+                                        <v-card-text class="pa-0">
                                             <v-layout row wrap>
-                                                <v-flex xs12>
-                                                    <!-- TODO: Make image prettier (wrong height now) -->
+                                                <v-flex xs12 lg4>
                                                     <v-img
+                                                        contain
                                                         :src="item.poster.w92"
                                                         :srcset="generateSrcSet(item.poster)"
                                                         class="grey darken-4"
-                                                        max-height="150"
+                                                        max-height="220"
                                                     />
                                                 </v-flex>
-                                                <v-flex xs12>
+                                                <v-flex xs12 lg8 class="pa-2">
                                                     <v-layout row wrap>
-                                                        <!-- Item Localized Name Start -->
-                                                        <v-flex xs12 class="pb-0 headline">
-                                                            {{ getItemTitle(item) }}
-                                                        </v-flex>
-                                                        <!-- Item Localized Name End -->
-
-                                                        <!-- Item Original Name Start -->
-                                                        <v-flex xs12 class="pt-0 pb-0 italic fs-12 text--grey">
-                                                            {{ getItemOriginalTitle(item) }}
-                                                        </v-flex>
-                                                        <!-- Item Original Name End -->
-
-                                                        <!-- Item Genres Start -->
+                                                        <!-- Item Rating + Title + Date Start -->
                                                         <v-flex xs12>
-                                                            <strong>{{ $t('search.genres') }}:</strong> {{ getItemGenres(item) }}
-                                                        </v-flex>
-                                                        <!-- Item Genres End -->
+                                                            <v-layout row wrap>
+                                                                <!-- Item Rating Start -->
+                                                                <v-flex xs12 lg2 text-center justify-center>
+                                                                    <v-progress-circular
+                                                                        :rotate="-90"
+                                                                        :size="40"
+                                                                        :width="4"
+                                                                        :value="item.vote_average * 10"
+                                                                        :color="getRatingColor(item.vote_average * 10)"
+                                                                    >
+                                                                        {{ item.vote_average * 10  }}
+                                                                    </v-progress-circular>
+                                                                </v-flex>
+                                                                <!-- Item Rating End -->
 
-                                                        <!-- Item First Aired | Release Date Start -->
-                                                        <v-flex xs12>
-                                                            <strong>{{ $t('search.release_date') }}:</strong> {{ getItemReleaseDate(item) }}
-                                                        </v-flex>
-                                                        <!-- Item First Aired | Release Date End -->
+                                                                <!-- Item Title and Release Date Start -->
+                                                                <v-flex xs12 lg10>
+                                                                    <v-layout row wrap>
+                                                                        <!-- Item Title Start -->
+                                                                        <v-flex xs12 class="bold fs-16 pb-0 mb-0">
+                                                                            {{ getItemTitle(item) }}
+                                                                        </v-flex>
+                                                                        <!-- Item Title End -->
 
-                                                        <!-- Item Rating Start -->
-                                                        <v-flex xs12>
-                                                            <strong>{{ $t('search.average_rating') }}:</strong> {{ item.vote_average }} / 10
+                                                                        <!-- Item Release Date Start -->
+                                                                        <v-flex xs12>
+                                                                            {{ $moment(getItemReleaseDate(item)).format('MMMM D, YYYY') }}
+                                                                        </v-flex>
+                                                                        <!-- Item Release Date End -->
+                                                                    </v-layout>
+                                                                </v-flex>
+                                                                <!-- Item Title and Release Date End -->
+                                                            </v-layout>
                                                         </v-flex>
-                                                        <!-- Item Rating End -->
+                                                        <!-- Item Rating + Title + Date End -->
+
+                                                        <v-flex xs12>
+                                                            {{ trimItemOverview(item.overview, 30) }}
+                                                        </v-flex>
                                                     </v-layout>
                                                 </v-flex>
-                                            </v-layout>
-                                        </v-card-text>
-                                        <v-card-actions>
-                                            <v-layout row wrap>
-                                                <v-flex xs10>
+                                                <v-flex xs12>
                                                     <v-btn
                                                         block
                                                         color="primary"
@@ -133,24 +142,8 @@
                                                         {{ $t('search.watch') }}
                                                     </v-btn>
                                                 </v-flex>
-                                                <v-flex xs2 text-right>
-                                                    <v-btn
-                                                        v-if="item.overview.length > 0"
-                                                        icon
-                                                        @click="item.show = !item.show"
-                                                    >
-                                                        <v-icon>{{ item.show ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</v-icon>
-                                                    </v-btn>
-                                                </v-flex>
                                             </v-layout>
-                                        </v-card-actions>
-                                        <v-expand-transition>
-                                            <div v-show="item.show">
-                                                <v-card-text>
-                                                    {{ item.overview }}
-                                                </v-card-text>
-                                            </div>
-                                        </v-expand-transition>
+                                        </v-card-text>
                                     </v-card>
                                 </v-flex>
                             </v-layout>
@@ -378,6 +371,24 @@
                     this.cancelOrderItemDialog();
                     this.sendSearchQuery();
                 });
+            },
+            trimItemOverview(item, count = 35) {
+                const items = item.split(' ');
+                let result = items.slice(0, count).join(' ');
+                if (items.length > count) {
+                    result += '...';
+                }
+                return result;
+            },
+            getRatingColor(rating) {
+                let color = 'green lighten-2';
+
+                if (rating < 70 && rating >= 40) {
+                    color = 'yellow darken-2';
+                } else if (rating < 40) {
+                    color = 'red';
+                }
+                return color;
             }
         }
     };
