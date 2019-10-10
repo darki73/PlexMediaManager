@@ -166,6 +166,14 @@ class Search {
      */
     protected function checkIfItemRequested(array $item) : array {
         $title = isset($item['original_title']) ? $item['original_title'] : $item['original_name'];
+        $releaseDate = isset($item['first_air_date']) ? $item['first_air_date'] : (isset($item['release_date']) ? $item['release_date'] : null);
+        if ($releaseDate === null) {
+            return [
+                false,
+                false
+            ];
+        }
+
         $released = $this->extractYear(isset($item['first_air_date']) ? $item['first_air_date'] : $item['release_date']);
         $model = Request::where('title', '=', $title)->where('year', '=', $released)->first();
 

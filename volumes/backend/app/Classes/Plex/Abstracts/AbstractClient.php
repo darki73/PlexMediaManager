@@ -33,6 +33,18 @@ abstract class AbstractClient {
     protected $appUrl = 'https://app.plex.tv/';
 
     /**
+     * Plex Main Url
+     * @var string
+     */
+    protected $plexUrl = 'https://plex.tv/%s/';
+
+    /**
+     * Plex Resource Name
+     * @var null|string
+     */
+    protected $plexResource = null;
+
+    /**
      * Application Full Name
      * @var string
      */
@@ -57,6 +69,12 @@ abstract class AbstractClient {
     protected $clientIdentifier = null;
 
     /**
+     * Personal Token of each client
+     * @var null|string
+     */
+    protected $plexToken = null;
+
+    /**
      * AbstractClient constructor.
      */
     public function __construct() {
@@ -69,16 +87,24 @@ abstract class AbstractClient {
      */
     protected function setHeadersForPlex() : self {
         $this->clientIdentifier = $this->generateClientIdentificationNumber();
+        $headers = [
+            'Accept'                    =>  'application/json',
+            'X-Plex-Product'            =>  $this->product,
+            'X-Plex-Version'            =>  env('APP_VERSION'),
+            'X-Plex-Platform'           =>  $this->platform,
+            'X-Plex-Device'             =>  $this->device,
+            'X-Plex-Model'              =>  sprintf('%s %s', $this->product, $this->platform),
+            'X-Plex-Client-Identifier'  =>  $this->clientIdentifier
+        ];
+
+        if ($this->plexToken !== null) {
+            $headers['X-Plex-Token'] = $this->plexToken;
+        }
+
         $this->client = new Client([
-            'headers'   =>  [
-                'Accept'                    =>  'application/json',
-                'X-Plex-Product'            =>  $this->product,
-                'X-Plex-Version'            =>  env('APP_VERSION'),
-                'X-Plex-Platform'           =>  $this->platform,
-                'X-Plex-Device'             =>  $this->device,
-                'X-Plex-Model'              =>  sprintf('%s %s', $this->product, $this->platform),
-                'X-Plex-Client-Identifier'  =>  $this->clientIdentifier
-            ]
+            'headers'           =>  $headers,
+            'timeout'           =>  5,
+            'connect_timeout'   =>  10
         ]);
         return $this;
     }
@@ -90,6 +116,26 @@ abstract class AbstractClient {
      */
     protected function resolvePlexApiUri(string $path) : string {
         return sprintf('%s%s', sprintf($this->apiUrl, $this->apiVersion), $path);
+    }
+
+    /**
+     * Resolve link to plex resource
+     * @param string $path
+     * @return string
+     */
+    protected function resolvePlexResource(string $path) : string {
+        return sprintf('%s%s', sprintf($this->plexUrl, $this->plexResource), $path);
+    }
+
+    /**
+     * Set Plex Token header
+     * @param string $token
+     * @return AbstractClient
+     */
+    protected function setPlexToken(string $token) : self {
+        $this->plexToken = $token;
+        $this->setHeadersForPlex();
+        return $this;
     }
 
     /**

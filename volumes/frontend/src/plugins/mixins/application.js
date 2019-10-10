@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import { mapGetters } from 'vuex';
 import forEach from 'lodash/forEach';
 import siteConfiguration from '~/config/site';
 
@@ -11,11 +10,6 @@ Vue.mixin({
     }),
     computed: {
         // Computed methods
-        ...mapGetters({
-            global_authenticated: 'account/authenticated',
-            global_token: 'account/token',
-            global_token_type: 'account/token_type',
-        }),
         cardInCardStyle() {
             return 'background-color: #303c46!important';
         }
@@ -47,6 +41,9 @@ Vue.mixin({
             } while (Math.abs(bytes) >= threshold && u < units.length - 1);
             return bytes.toFixed(1) + ' ' + units[u];
         },
+        timestampToLocalDateTime(timestamp) {
+            return this.$moment.unix(timestamp).local().format('YYYY-MM-DD HH:mm:ss');
+        },
         toLocalDateTime(dateTime) {
             return this.$moment.utc(dateTime, 'YYYY-MM-DD HH:mm:ss').local().format('YYYY-MM-DD HH:mm:ss');
         },
@@ -74,11 +71,7 @@ Vue.mixin({
     },
     mounted() {
         // Actions to be executed when components is mounted
-        if (this.global_authenticated) {
-            const tokenString = `${this.global_token_type} ${this.global_token}`;
-            this.$echo.options.auth.headers.Authorization = tokenString;
-            this.$echo.connector.pusher.config.auth.headers.Authorization = tokenString;
-        }
+
     },
     destroyed() {
         // Actions to be executed when component is destroyed

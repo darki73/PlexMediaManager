@@ -2,6 +2,7 @@ $red-color: #FF0000;
 $yellow-color: #FFFF00;
 $white-color: #FFFFFF;
 $grey-color: #808080;
+$green-color: #00B700;
 
 .red--text {
     color: $red-color!important;
@@ -33,4 +34,12 @@ $grey-color: #808080;
 
 .grey--background {
     background-color: $grey-color!important;
+}
+
+.green--text {
+    color: $green-color!important;
+}
+
+.green--background {
+    background-color: $green-color!important;
 }

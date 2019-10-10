@@ -24,6 +24,11 @@ class PlexController extends OAuthController {
         return $this->sendResponse('Successfully fetched information for Plex Authentication Provider', (new Plex)->authenticate()->buildGoogleOAuthLink(Auth::user()->email));
     }
 
+    /**
+     * Finalize authorization, obtain token and return it to user
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function finalizeAuthorization(Request $request) : JsonResponse {
         $validator = Validator::make($request->toArray(), [
             'id'        =>  'required|integer'

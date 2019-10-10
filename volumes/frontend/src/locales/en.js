@@ -421,6 +421,18 @@ export default {
                     placeholder: 'Please confirm password'
                 }
             }
+        },
+        plex: {
+            servers: {
+                servers: 'Available Servers',
+                fetching: 'Loading information about available servers...',
+                no_servers: 'We were unable to find any servers associated with your account.',
+                local: 'Local Server',
+                remote: 'Remote Server',
+                version: 'Version: {version}',
+                last_updated: 'Last Updated: {date}',
+                ping: 'Server Ping: {ping}'
+            }
         }
     }
 };

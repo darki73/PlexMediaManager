@@ -20,6 +20,9 @@ class Authentication extends AbstractClient {
      */
     protected $authenticationCode = null;
 
+    /**
+     * Authentication constructor.
+     */
     public function __construct() {
         parent::__construct();
         $this->setHeadersForPlex();

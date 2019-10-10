@@ -144,3 +144,41 @@ if (! function_exists('generateUUIDVersion5')) {
     }
 
 }
+
+if (! function_exists('ip_belongs_to_cidr')) {
+
+    /**
+     * Check if given IP address belongs to CIDR
+     * @param string $ip
+     * @param array $ranges
+     * @return bool
+     */
+    function ip_belongs_to_cidr(string $ip, array $ranges) : bool {
+        $foundInRange = false;
+        foreach($ranges as $range) {
+            if(ip_match_to_cidr($ip, $range)) {
+                $foundInRange = true;
+                break;
+            }
+        }
+        return $foundInRange;
+    }
+
+    /**
+     * Match provided IP address to CIDR range
+     * @param string $ip
+     * @param string $range
+     * @return bool
+     */
+    function ip_match_to_cidr(string $ip, string $range) : bool {
+        [$subnet, $bits] = explode('/', $range);
+        $ip = ip2long($ip);
+        $subnet = ip2long($subnet);
+        $mask = -1 << (32 - $bits);
+        $subnet &= $mask;
+        return ($ip & $mask) === $subnet;
+    }
+
+}
+
+

@@ -51,6 +51,7 @@ Route::group([
     'namespace' =>  'Api'
 ], static function() {
     Route::post('remote', 'SearchController@remoteSearch');
+    Route::post('remote-plex', 'SearchController@remoteSearchWithPlex');
 });
 
 Route::group([
@@ -64,12 +65,37 @@ Route::group([
         'prefix'        =>  'oauth',
         'namespace'     =>  'OAuth',
     ], static function() {
-        Route::get('google', 'GoogleController@redirectToProvider');
-        Route::get('google/callback', 'GoogleController@callback');
+//        Route::get('google', 'GoogleController@redirectToProvider');
+//        Route::get('google/callback', 'GoogleController@callback');
 
         Route::get('plex', 'PlexController@redirectToProvider')->middleware('auth:api');
         Route::post('plex', 'PlexController@finalizeAuthorization')->middleware('auth:api');
         Route::get('plex/callback', 'PlexController@callback');
+    });
+});
+
+Route::group([
+    'prefix'    =>  'plex',
+    'namespace' =>  'Api'
+], static function() {
+
+    /**
+     * Plex >> Servers
+     */
+    Route::group([
+        'prefix'    =>  'servers'
+    ], static function() {
+        Route::get('', 'PlexController@listServers');
+        Route::get('/refresh', 'PlexController@listServersRefresh');
+    });
+
+    /**
+     * Plex >> Libraries
+     */
+    Route::group([
+        'prefix'    =>  'libraries'
+    ], static function() {
+        Route::post('', 'PlexController@listSections');
     });
 });
 

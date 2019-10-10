@@ -35,6 +35,21 @@ export default async function({
     }
 
     if (
+        store.getters['plex/selected_server'] === null
+        || store.getters['plex/selected_server'] === undefined
+    ) {
+        if (process.server) {
+            const cookieServer = app.$cookies.get('plex_server');
+            if (
+                cookieServer !== null
+                && cookieServer !== undefined
+            ) {
+                store.dispatch('plex/setSelectedServer', cookieServer);
+            }
+        }
+    }
+
+    if (
         store.getters['account/token'] !== null
         && store.getters['account/token'] !== undefined
         && store.getters['account/token_type'] !== null

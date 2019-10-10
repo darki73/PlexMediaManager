@@ -39,6 +39,18 @@ class APIController extends Controller {
     }
 
     /**
+     * Return response with already processed data
+     * @param array $result
+     * @param int $code
+     * @return JsonResponse
+     */
+    public function sendRaw(array $result, int $code = Response::HTTP_OK) : JsonResponse {
+        return response()->json(array_merge($result, [
+            'requested_on'  =>  time()
+        ]), $code);
+    }
+
+    /**
      * Return successful response
      * @param string $message
      * @param array $result
@@ -71,6 +83,38 @@ class APIController extends Controller {
         }
         $response['requested_on'] = time();
         return response()->json($response, $code);
+    }
+
+    /**
+     * Check if required header is present on request
+     * @param Request $request
+     * @param string $header
+     * @return bool
+     */
+    public function checkIfHeaderIsPresent(Request $request, string $header) : bool {
+        return $request->headers->has(strtolower($header));
+    }
+
+    /**
+     * Get header value from the request
+     * @param Request $request
+     * @param string $header
+     * @return string|null
+     */
+    public function getHeaderValueFromRequest(Request $request, string $header) : ?string {
+        if (! $this->checkIfHeaderIsPresent($request, $header)) {
+            return null;
+        }
+        return $request->headers->get(strtolower($header));
+    }
+
+    /**
+     * Get Plex token from headers
+     * @param Request $request
+     * @return string|null
+     */
+    protected function getPlexToken(Request $request) : ?string {
+        return $this->getHeaderValueFromRequest($request, 'x-plex-token');
     }
 
 }
