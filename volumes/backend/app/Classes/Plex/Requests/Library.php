@@ -142,6 +142,7 @@ class Library extends AbstractClient {
         if ($servers === null || ! is_array($servers)) {
             (new Servers)->list($token, true);
         }
+        sleep(2);
         $this->selectedServer = Arr::first(array_filter($servers, function (array $server) use ($serverID) {
             return $server['id'] === $serverID;
         }));

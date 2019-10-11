@@ -167,14 +167,14 @@ class Search {
     protected function checkIfItemRequested(array $item) : array {
         $title = isset($item['original_title']) ? $item['original_title'] : $item['original_name'];
         $releaseDate = isset($item['first_air_date']) ? $item['first_air_date'] : (isset($item['release_date']) ? $item['release_date'] : null);
-        if ($releaseDate === null) {
+        if ($releaseDate === null || strlen($releaseDate) === 0) {
             return [
                 false,
                 false
             ];
         }
 
-        $released = $this->extractYear(isset($item['first_air_date']) ? $item['first_air_date'] : $item['release_date']);
+        $released = $this->extractYear($releaseDate);
         $model = Request::where('title', '=', $title)->where('year', '=', $released)->first();
 
         return [
@@ -188,7 +188,7 @@ class Search {
      * @param string $released
      * @return int
      */
-    protected function extractYear(string $released) : int {
+    protected function extractYear(string $released) {
         $parts = explode('-', $released);
         $year = null;
         foreach ($parts as $part) {

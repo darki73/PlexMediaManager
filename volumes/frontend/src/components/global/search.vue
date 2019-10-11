@@ -48,6 +48,45 @@
                         </v-flex>
                         <v-flex xs12>
                             <v-layout row wrap>
+                                <!-- Searching Spinner and Text Start -->
+                                <v-flex
+                                    xs12
+                                    text-center
+                                    v-show="searching"
+                                >
+                                    <v-layout row wrap>
+                                        <v-flex xs12>
+                                            <v-progress-circular
+                                                :size="70"
+                                                color="primary"
+                                                indeterminate
+                                            />
+                                        </v-flex>
+                                        <v-flex xs12 class="pt-4">
+                                            {{ $t('search.searching') }}
+                                        </v-flex>
+                                    </v-layout>
+                                </v-flex>
+                                <!-- Searching Spinner and Text End -->
+
+                                <!-- No search results Start -->
+                                <v-flex
+                                    xs12
+                                    v-if="finishedSearching && filteredResults.length === 0"
+                                >
+                                    <v-layout row wrap text-center>
+                                        <v-flex xs12>
+                                            <v-icon size="70">
+                                                mdi-emoticon-sad-outline
+                                            </v-icon>
+                                        </v-flex>
+                                        <v-flex xs12 class="pt-4">
+                                            {{ $t('search.no_results') }}
+                                        </v-flex>
+                                    </v-layout>
+                                </v-flex>
+                                <!-- No search results End -->
+
                                 <v-flex
                                     xs12
                                     lg4
@@ -236,6 +275,7 @@
                 },
 
                 searching: false,
+                finishedSearching: false,
                 results: [],
                 filteredResults: [],
                 selectedFilter: null,
@@ -276,6 +316,13 @@
                             this.filteredResults.push(item);
                         }
                     });
+                }
+            },
+            searching(current, previous) {
+                if (previous === true && current === false) {
+                    this.finishedSearching = true;
+                } else {
+                    this.finishedSearching = false;
                 }
             }
         },

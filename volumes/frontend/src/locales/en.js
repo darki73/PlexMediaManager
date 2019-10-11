@@ -68,7 +68,9 @@ export default {
         order: 'Order',
         watch: 'Watch',
         requested: 'Request Pending',
-        request_denied: 'Request Denied'
+        request_denied: 'Request Denied',
+        searching: 'Fetching items which match your query...',
+        no_results: 'We were unable to find items matching your query'
     },
     dashboard: {
         server: {
