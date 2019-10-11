@@ -1,12 +1,13 @@
 <?php namespace App\Jobs\Update;
 
 use App\Jobs\AbstractLongQueueJob;
+use App\Jobs\Download\SeriesImages;
 use App\Classes\Media\Source\Source;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Series as SeriesModel;
 use App\Classes\TheMovieDB\TheMovieDB;
 use App\Classes\Media\Processor\Processor;
 use App\Classes\TheMovieDB\Endpoint\Search;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Series
@@ -46,10 +47,11 @@ class Series extends AbstractLongQueueJob {
         $newSeriesCount = SeriesModel::count();
         if($newSeriesCount > $oldSeriesCount) {
             Cache::forget('series:list');
-            SeriesIndexers::withChain([
-                new Episodes
-            ])->dispatch();
+            dispatch(new SeriesIndexers);
         }
+        Episodes::withChain([
+            new SeriesImages
+        ])->dispatch();
     }
 
 }

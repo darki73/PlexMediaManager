@@ -27,7 +27,14 @@ export default {
         log_in_with_google: 'Sign in with Google',
         logged_in_with_google: 'Signed in with Google',
         log_in_with_plex: 'Sign in with Plex',
-        logged_in_with_plex: 'Signed in with Plex'
+        logged_in_with_plex: 'Signed in with Plex',
+    },
+    notification: {
+        request: {
+            1: 'Movie',
+            0: 'Series',
+            created: 'User {username} has requested {type} `{title} ({year})` at {date}'
+        }
     },
     errors: {
         api: {

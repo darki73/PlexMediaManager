@@ -51,12 +51,22 @@ class EpisodesDownloadCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        $now = \Carbon\Carbon::now()->format('Y-m-d');
         foreach ($this->seriesIndexers as $indexer) {
             $tracker = $indexer->indexer;
             $class = $this->implementations[$tracker];
 
             $series = $indexer->series;
-            $episodes = $indexer->episodes()->where('downloaded', '=', false)->where('release_date', '!=', null)->get();
+            $episodes = $indexer
+                ->episodes()
+                ->where('downloaded', '=', false)
+                ->where('release_date', '!=', null);
+
+            if ($tracker === 'lostfilm') {
+                $episodes->where('release_date', '<=', $now);
+            }
+
+            $episodes = $episodes->get();
             if ($episodes->count() > 0) {
                 foreach ($episodes as $episode) {
                     $downloading = $class::download($series, $episode);

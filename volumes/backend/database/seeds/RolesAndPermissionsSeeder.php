@@ -62,7 +62,8 @@ class RolesAndPermissionsSeeder extends Seeder {
             // Dashboard >> Settings permissions
             25      =>  'dashboard settings view',
             26      =>  'dashboard settings update',
-            27      =>  'dashboard settings view sensitive'
+            27      =>  'dashboard settings view sensitive',
+
         ];
 
         $roles = [

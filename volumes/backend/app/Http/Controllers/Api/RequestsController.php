@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Api;
 
+use App\Events\Requests\RequestCreated;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -31,12 +32,13 @@ class RequestsController extends APIController {
         }
 
         try {
-            \App\Models\Request::create([
+            $createdRequest = \App\Models\Request::create([
                 'user_id'       =>  $user,
                 'request_type'  =>  $this->getMediaType($request->get('type')),
                 'title'         =>  $request->get('title'),
                 'year'          =>  $this->extractYear($request->get('released'))
             ]);
+            event(new RequestCreated($createdRequest));
         } catch (\Exception $exception) {
             return $this->sendError('Unable to request item', [
                 'code'      =>  $exception->getCode(),

@@ -2,6 +2,7 @@
 
 use App\Models\Series;
 use App\Models\Episode;
+use Illuminate\Support\Facades\Cache;
 use ReflectionException;
 use Illuminate\Support\Facades\Log;
 use App\Classes\Jackett\Enums\Quality;
@@ -110,14 +111,35 @@ abstract class AbstractIndexer {
      */
     public function fetch() : ?array {
         $this->runPreChecks();
-        $requestTime = number_format(round(microtime(true) * 1000), 0, '', '');
-        try {
-            $response = $this->client->get('indexers/all/results?Query=' . urlencode($this->query) . '&Tracker[]=' . $this->tracker . '&_=' . $requestTime);
-        } catch (ConnectException $connectException) {
-            Log::info('[Jackett::AbstractIndexer] Tried to fetch information for ' . $this->query . ' but the timeout of ' . env('JACKETT_TIMEOUT', 10.0) . ' seconds has been exceeded.');
-            return null;
+        $response = Cache::remember($this->buildCacheKey(), now()->addMinutes(8), function() {
+            $requestTime = number_format(round(microtime(true) * 1000), 0, '', '');
+            try {
+                $response = $this->client->get('indexers/all/results?Query=' . urlencode($this->query) . '&Tracker[]=' . $this->tracker . '&_=' . $requestTime);
+                return $response;
+            } catch (ConnectException $connectException) {
+                return null;
+            }
+        });
+        if ($response === null) {
+            return $response;
         }
         return $this->processResponse($response);
+    }
+
+    /**
+     * Build cache key
+     * @return string
+     */
+    protected function buildCacheKey() : string {
+        return sprintf('indexers::%s:%s', $this->tracker, md5($this->query));
+    }
+
+    /**
+     * Check whether or not cache key exists
+     * @return bool
+     */
+    protected function hasCacheKey() : bool {
+        return Cache::has($this->buildCacheKey());
     }
 
     /**
@@ -151,6 +173,23 @@ abstract class AbstractIndexer {
         }
         $possibleTorrentNames = array_merge($seriesNames, $possibleTorrentNames);
         return $possibleTorrentNames;
+    }
+
+    /**
+     * Get next best quality
+     * @param array $qualityArray
+     * @param $quality
+     * @return int
+     */
+    protected function getNextBestQuality(array $qualityArray, $quality) : int {
+        krsort($qualityArray);
+        if (array_key_exists($quality, $qualityArray)) {
+            return $quality;
+        }
+        do {
+            $quality = Quality::getNextQuality($quality);
+        } while (! array_key_exists($quality, $qualityArray));
+        return $quality;
     }
 
     /**

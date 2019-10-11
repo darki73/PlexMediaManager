@@ -36,4 +36,28 @@ class Quality extends AbstractEnum {
      */
     public const UHD = 2160;
 
+    /**
+     * Get next quality
+     * @param int $quality
+     * @return int
+     */
+    public static function getNextQuality(int $quality) : int {
+        switch ($quality) {
+            case Quality::UHD:
+                $quality = Quality::QHD;
+                break;
+            case Quality::QHD:
+                $quality = Quality::FHD;
+                break;
+            case Quality::FHD:
+                $quality = Quality::HD;
+                break;
+            case Quality::HD:
+            default:
+                $quality = Quality::SD;
+                break;
+        }
+        return $quality;
+    }
+
 }

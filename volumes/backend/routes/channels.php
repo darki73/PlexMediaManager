@@ -18,3 +18,6 @@ Broadcast::channel('account.{id}', function(User $user, $id) {
     return (int) $user->id === (int) $id;
 });
 
+Broadcast::channel('account.admins', function(User $user) {
+    return $user->hasRole('administrator');
+});

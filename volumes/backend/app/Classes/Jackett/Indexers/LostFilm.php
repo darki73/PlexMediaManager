@@ -1,13 +1,16 @@
 <?php namespace App\Classes\Jackett\Indexers;
 
-use App\Classes\Jackett\Components\Client;
-use App\Classes\Jackett\Enums\Quality;
-use App\Classes\Torrent\Torrent;
-use App\Models\Episode;
-use App\Models\Series;
-use App\Models\SeriesIndexer;
+use Exception;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
+use App\Models\Series;
+use App\Models\Episode;
+use ReflectionException;
 use Illuminate\Support\Arr;
+use App\Models\SeriesIndexer;
+use App\Classes\Torrent\Torrent;
+use App\Classes\Jackett\Enums\Quality;
+use App\Classes\Jackett\Components\Client;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -44,8 +47,8 @@ class LostFilm extends AbstractIndexer {
      * @inheritDoc
      * @param Collection $seriesCollection
      * @return void
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      */
     public static function index(Collection $seriesCollection): void {
         $self = (new self(new Client));
@@ -75,22 +78,37 @@ class LostFilm extends AbstractIndexer {
      * @param int $quality
      *
      * @return bool
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function download(Series $series, Episode $episode, int $quality = Quality::FHD) : bool {
         $self = (new self(new Client));
         $torrent = new Torrent();
-
-        $possibleTorrentNames = $self->createPossibleTorrentNames($series, $episode);
         $alreadyDownloading = false;
 
+        if (
+            $series->id === 1408
+            && $episode->season_number === 6
+            && $episode->episode_number === 22
+        ) {
+            return false;
+        }
+
         foreach ($torrent->listTorrents() as $item) {
-            foreach ($possibleTorrentNames as $name) {
-                if (false !== stripos($item['name'], $name)) {
-                    $alreadyDownloading = true;
-                    break;
-                }
+            $torrentName = $item['name'];
+            $singleFileName = sprintf('%s %d', create_lostfilm_title($series->local_title), $episode->season_number);
+            $seasonFileName = sprintf('%s.S%sE%s',
+                implode('.', explode(' ', create_lostfilm_title($series->local_title))),
+                pad($episode->season_number),
+                pad($episode->episode_number)
+            );
+            if (
+                false !== stripos($torrentName, $singleFileName)
+                || false !== stripos($torrentName, $seasonFileName)
+            ) {
+                $alreadyDownloading = true;
+                break;
             }
+
             if ($alreadyDownloading) {
                 break;
             }
@@ -104,6 +122,7 @@ class LostFilm extends AbstractIndexer {
             ->season($episode->season_number)
             ->episode($episode->episode_number)
             ->quality($quality);
+
         $torrent = $search->fetch();
         if ($torrent !== null && isset($torrent['torrent'])) {
             $downloader = new Torrent;
@@ -165,35 +184,34 @@ class LostFilm extends AbstractIndexer {
         if (! array_key_exists('Results', $response)) {
             return []; // Just return empty array, no results found anyways
         }
+
         $results = $response['Results'];
+
         $data = $this->processSingleEpisode($results) + $this->processWholeSeason($results);
         ksort($data);
+
         if ($this->seasonNumber !== null) {
             if (array_key_exists($this->seasonNumber, $data)) {
-                if ($this->episodeNumber !== null) {
-                    if (isset($data[$this->seasonNumber]['episodes']) && array_key_exists($this->episodeNumber, $data[$this->seasonNumber]['episodes'])) {
-                        if ($this->quality === null) {
-                            return $data[$this->seasonNumber]['episodes'][$this->episodeNumber];
-                        }
-
-                        if (!array_key_exists($this->quality, $data[$this->seasonNumber]['episodes'][$this->episodeNumber]['quality'])) {
-                            return Arr::last($data[$this->seasonNumber]['episodes'][$this->episodeNumber]['quality']);
-                        }
-                        return $data[$this->seasonNumber]['episodes'][$this->episodeNumber]['quality'][$this->quality];
-                    }
-                    return null;
-                }
                 if ($this->quality === null) {
-                    return $data[$this->seasonNumber];
+                    $this->quality = Quality::FHD;
                 }
 
-                if (!isset($data[$this->seasonNumber]['episodes'])) {
-                    if (!array_key_exists($this->quality, $data[$this->seasonNumber]['quality'])) {
-                        return Arr::last($data[$this->seasonNumber]['quality']);
+                if ($this->episodeNumber !== null) {
+                    if (isset($data[$this->seasonNumber]['episodes'])) {
+                        if (array_key_exists($this->episodeNumber, $data[$this->seasonNumber]['episodes'])) {
+                            $bestAvailableQuality = $this->getNextBestQuality($data[$this->seasonNumber]['episodes'][$this->episodeNumber]['quality'], $this->quality);
+                            return $data[$this->seasonNumber]['episodes'][$this->episodeNumber]['quality'][$bestAvailableQuality];
+                        }
+                        return null;
                     }
-                    return $data[$this->seasonNumber]['quality'][$this->quality];
                 }
-                return $data[$this->seasonNumber];
+
+                if (isset($data[$this->seasonNumber])) {
+                    if (isset($data[$this->seasonNumber]['quality'])) {
+                        $bestAvailableQuality = $this->getNextBestQuality($data[$this->seasonNumber]['quality'], $this->quality);
+                        return $data[$this->seasonNumber]['quality'][$bestAvailableQuality];
+                    }
+                }
             }
             return null;
         }

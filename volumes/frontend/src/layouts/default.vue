@@ -23,9 +23,10 @@
         }),
         computed: {
             ...mapGetters({
-                global_authenticated: 'account/authenticated',
-                global_token: 'account/token',
-                global_token_type: 'account/token_type',
+                authenticated: 'account/authenticated',
+                user: 'account/user',
+                token: 'account/token',
+                token_type: 'account/token_type',
 
                 isPlexAuthenticated: 'account/plex_authenticated',
                 selectedPlexServer: 'plex/selected_server',
@@ -33,7 +34,7 @@
             }),
         },
         watch: {
-            global_authenticated (current, previous) {
+            authenticated (current, previous) {
                 if (current === true && previous === false) {
                     this.updateEchoConfiguration();
                 }
@@ -45,24 +46,45 @@
             }
         },
         mounted() {
-            if (this.global_authenticated) {
-                this.updateEchoConfiguration();
-            }
+            if (this.authenticated) {
+                this
+                    .updateEchoConfiguration()
+                    .joinToPublicEchoChannels()
+                    .joinToPrivateEchoChannels();
 
-            if (this.isPlexAuthenticated) {
-                if (
-                    this.selectedPlexServer !== null
-                    && this.selectedPlexServer !== undefined
-                ) {
-                    this.$store.dispatch('plex/fetchLibrariesList', this.selectedPlexServer);
+                if (this.isPlexAuthenticated) {
+                    if (
+                        this.selectedPlexServer !== null
+                        && this.selectedPlexServer !== undefined
+                    ) {
+                        this.$store.dispatch('plex/fetchLibrariesList', this.selectedPlexServer);
+                    }
                 }
             }
         },
         methods: {
             updateEchoConfiguration() {
-                const tokenString = `${this.global_token_type} ${this.global_token}`;
+                const tokenString = `${this.token_type} ${this.token}`;
                 this.$echo.options.auth.headers.Authorization = tokenString;
                 this.$echo.connector.pusher.config.auth.headers.Authorization = tokenString;
+                return this;
+            },
+            joinToPublicEchoChannels() {
+                return this;
+            },
+            joinToPrivateEchoChannels() {
+                if (this.isAdministrator(this.user)) {
+                    this.$echo.private('account.admins').listen('.requests.new_request', (event) => {
+                        this.$bus.$emit('showNewNotification', this.$t('notification.request.created', {
+                            username: event.request.user.username,
+                            type: this.$t('notification.request.' + event.request.request_type),
+                            title: event.request.title,
+                            year: event.request.year,
+                            date: event.request.created_at
+                        }));
+                    });
+                }
+                return this;
             }
         }
     };
