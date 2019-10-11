@@ -1,18 +1,19 @@
 <template>
-    <v-layout row wrap>
+    <v-layout row wrap v-show="indexerExists">
         <v-flex xs12>
             <v-card>
                 <v-card-text>
                     <v-data-table
                         :headers="headers"
-                        :items="indexers"
+                        :items="indexer.items"
                         :items-per-page="10"
                         :loading="loading"
+                        :search="search"
                     >
                         <template v-slot:top>
                             <v-toolbar flat>
                                 <v-toolbar-title>
-                                    {{ $t('dashboard.indexers.title') }}
+                                    {{ $t('dashboard.indexers.title_indexer', { indexer: $route.params.indexer.ucfirst() }) }}
                                 </v-toolbar-title>
                                 <v-divider
                                     class="mx-4"
@@ -20,6 +21,15 @@
                                     vertical
                                 />
                                 <div class="flex-grow-1"/>
+                                <v-text-field
+                                    v-model="search"
+                                    append-icon="search"
+                                    :label="$t('search.common.label')"
+                                    :placeholder="$t('search.common.placeholder')"
+                                    single-line
+                                    hide-details
+                                    class="mr-3"
+                                />
                                 <v-btn
                                     @click.stop="refreshIndexers"
                                     color="primary"
@@ -37,25 +47,26 @@
                                 :key="`requests-table-row-for-item-with-index-${index}`"
                             >
                                 <td>
-                                    {{ item.name }}
+                                    {{ item.id }}
                                 </td>
                                 <td align="center">
-                                    {{ item.class }}
+                                    {{ item.title }}
                                 </td>
                                 <td align="center">
-                                    {{ item.items_count }}
+                                    {{ item.has_torrent }}
+                                </td>
+                                <td align="center">
+                                    {{ item.created_at }}
+                                </td>
+                                <td align="center">
+                                    {{ item.updated_at }}
                                 </td>
                                 <td align="center">
                                     <v-btn
                                         color="primary"
                                         small
-                                        nuxt
-                                        :to="`/dashboard/indexers/${item.name}`"
                                     >
-                                        {{ $t('dashboard.indexers.view_items') }}
-                                        <v-icon right>
-                                            keyboard_arrow_right
-                                        </v-icon>
+                                        Button
                                     </v-btn>
                                 </td>
                             </tr>
@@ -68,37 +79,60 @@
     </v-layout>
 </template>
 <script>
+    import forEach from 'lodash/forEach';
     import { mapGetters } from 'vuex';
 
     export default {
         layout: 'dashboard',
+        async fetch({ store }) {
+            const getter = store.getters['dashboard/indexer'];
+            if (
+                getter === null
+                || getter === undefined
+                || getter.length === 0
+            ) {
+                await store.dispatch('dashboard/fetchIndexers');
+            }
+        },
         data() {
             return {
-                loading: true,
-
+                search: '',
+                indexerExists: false,
+                loading: false,
+                indexer: {},
                 headers: [
                     {
-                        text: this.$t('dashboard.indexers.headers.name'),
+                        text: this.$t('dashboard.indexers.headers.series_id'),
                         align: 'left',
                         sortable: true,
-                        value: 'name',
+                        value: 'id',
                     },
                     {
-                        text: this.$t('dashboard.indexers.headers.class'),
+                        text: this.$t('dashboard.indexers.headers.series_title'),
                         align: 'center',
-                        value: 'class',
+                        value: 'title',
                     },
                     {
-                        text: this.$t('dashboard.indexers.headers.items'),
+                        text: this.$t('dashboard.indexers.headers.series_has_torrent'),
                         align: 'center',
-                        value: 'items_count',
+                        value: 'has_torrent',
+                    },
+                    {
+                        text: this.$t('dashboard.indexers.headers.series_created_at'),
+                        align: 'center',
+                        value: 'created_at',
+                    },
+                    {
+                        text: this.$t('dashboard.indexers.headers.series_updated_at'),
+                        align: 'center',
+                        value: 'updated_at',
                     },
                     {
                         text: this.$t('dashboard.indexers.headers.actions'),
                         align: 'center',
-                        value: 'name',
+                        value: 'id',
                     },
-                ],
+                ]
             };
         },
         computed: {
@@ -107,31 +141,23 @@
             })
         },
         mounted() {
-            this.resetPage();
-            if (
-                this.indexers === null
-                || this.indexers === undefined
-                || this.indexers.length === 0
-            ) {
-                this.refreshIndexers();
-            } else {
-                this.loading = false;
+            forEach(this.indexers, (indexer) => {
+                if (indexer.name === this.$route.params.indexer.toLowerCase()) {
+                    this.indexerExists = true;
+                    this.indexer = indexer;
+                }
+            });
+            if (!this.indexerExists) {
+                this.$router.push('/dashboard/indexers');
             }
         },
         methods: {
-            resetPage() {
-                this.loading = true;
-            },
             refreshIndexers() {
                 this.loading = true;
                 this.$store.dispatch('dashboard/fetchIndexers').then(() => {
                     this.loading = false;
                 });
             },
-            createSeasonsStringForItem(item) {
-                const seasons = Object.keys(item.torrent_files);
-                return this.$t('dashboard.indexers.season', { season: seasons.join(', ') });
-            }
         }
     };
 </script>

@@ -70,7 +70,11 @@ export default {
         requested: 'Request Pending',
         request_denied: 'Request Denied',
         searching: 'Fetching items which match your query...',
-        no_results: 'We were unable to find items matching your query'
+        no_results: 'We were unable to find items matching your query',
+        common: {
+            label: 'Search',
+            placeholder: 'Please start typing your search query',
+        }
     },
     dashboard: {
         server: {
@@ -389,6 +393,7 @@ export default {
         },
         indexers: {
             title: 'Application Indexers',
+            title_indexer: '{indexer} items',
             indexer: 'Indexer: {indexer}',
             series: 'Series ID: {series}',
             season: 'Season: {season}',
@@ -398,6 +403,11 @@ export default {
                 class: 'Class',
                 items: 'Items Count',
                 actions: 'Actions',
+                series_id: 'Series ID',
+                series_title: 'Series Title',
+                series_has_torrent: 'Has Torrent',
+                series_created_at: 'Created At',
+                series_updated_at: 'Updated At',
             },
             view_items: 'View Items'
         }

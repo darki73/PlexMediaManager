@@ -48,7 +48,8 @@ class IndexersController extends APIController {
                 $hasTorrent = $item->torrentFiles->count() !== 0;
                 $indexers[$indexer]['items'][] = array_merge([
                     'id'                =>  $item->series_id,
-                    'title'             =>  $seriesIdToNameRelation[$item->series_id]
+                    'title'             =>  $seriesIdToNameRelation[$item->series_id],
+                    'seasons'           =>  $item->series->seasons,
                 ], Arr::except($item->toArray(), ['series_id', 'indexer']), [
                     'has_torrent'       =>  $hasTorrent,
                     'torrent_files'     =>  !$hasTorrent ? [] : $this->extractTorrentFiles($item->torrentFiles)
