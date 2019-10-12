@@ -155,7 +155,7 @@
                                                 <v-layout row wrap>
 
                                                     <!-- Season Download Switch Start -->
-                                                    <v-flex xs12>
+                                                    <v-flex xs12 class="pb-0">
                                                         <v-layout row wrap class="pl-4 pr-4" justify-center align-center>
                                                             <v-flex xs10>
                                                                 {{ $t('dashboard.indexers.preview.switch.text') }}
@@ -170,6 +170,16 @@
                                                         </v-layout>
                                                     </v-flex>
                                                     <!-- Season Download Switch End -->
+
+                                                    <!-- Season Torrent File Start -->
+                                                    <v-flex xs12 class="pt-0" v-if="selectedItem.torrent_files.hasOwnProperty(season.season_number)">
+                                                        <v-text-field
+                                                            v-model="selectedItem.torrent_files[season.season_number].torrent_file"
+                                                            :label="$t('dashboard.indexers.preview.torrent.title')"
+                                                            :placeholder="$t('dashboard.indexers.preview.torrent.placeholder')"
+                                                        />
+                                                    </v-flex>
+                                                    <!-- Season Torrent File End -->
 
                                                     <!-- Season Overview Start -->
                                                     <v-flex xs12 text-center class="pb-5">
@@ -192,7 +202,7 @@
                                                             </v-flex>
                                                             <v-flex xs2>
                                                                 <v-btn
-                                                                    v-show="!episode.downloaded"
+                                                                    v-show="canBeDownloaded(episode)"
                                                                     small
                                                                     color="primary"
                                                                     @click.stop="sendDownloadRequest(episode.series_id, episode.season_number, episode.episode_number)"
@@ -418,6 +428,10 @@
                     season_number: seasonNumber,
                     episode_number: episodeNumber
                 });
+            },
+            canBeDownloaded(episode) {
+                const currentTime = this.$moment().format('YYYY-MM-DD');
+                return !episode.downloaded && this.$moment(episode.release_date).isSameOrBefore(currentTime, 'day');
             }
         }
     };

@@ -422,6 +422,10 @@ export default {
                     download: 'Download',
                     downloaded: 'Downloaded',
                 },
+                torrent: {
+                    title: 'Torrent File',
+                    placeholder: 'Please provide a link to torrent file for this season',
+                },
                 switch: {
                     text: 'Exclude this episode from downloads',
                     download: 'This season will be downloaded',
