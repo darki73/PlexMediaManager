@@ -165,9 +165,13 @@ class SeriesController extends APIMediaController {
 
     /**
      * Put information about all series to cache
+     * @param bool $forceRefresh
      * @return array
      */
-    public function cacheAllSeries() : array {
+    public function cacheAllSeries(bool $forceRefresh = false) : array {
+        if ($forceRefresh) {
+            Cache::forget('series:list');
+        }
         return Cache::rememberForever('series:list', function () {
             return $this->seriesCollection->map(function (Series $series, int $key) {
                 return $this->getBaseSeriesInformation($series, [

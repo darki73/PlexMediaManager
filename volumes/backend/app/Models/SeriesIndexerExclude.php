@@ -4,10 +4,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Class SeriesIndexerTorrentLink
+ * Class SeriesIndexerExclude
  * @package App\Models
  */
-class SeriesIndexerTorrentLink extends Model {
+class SeriesIndexerExclude extends Model {
 
     /**
      * @inheritDoc
@@ -25,7 +25,7 @@ class SeriesIndexerTorrentLink extends Model {
      * @inheritDoc
      * @var string
      */
-    protected $table = 'indexers_torrent_links';
+    protected $table = 'series_indexers_excludes';
 
     /**
      * @inheritDoc
@@ -33,8 +33,7 @@ class SeriesIndexerTorrentLink extends Model {
      */
     protected $fillable = [
         'series_id',
-        'season',
-        'torrent_file',
+        'season_number'
     ];
 
     /**
@@ -43,16 +42,7 @@ class SeriesIndexerTorrentLink extends Model {
      */
     protected $casts = [
         'series_id'         =>  'integer',
-        'season'            =>  'integer',
-        'torrent_file'      =>  'string',
-    ];
-
-    /**
-     * @inheritDoc
-     * @var array
-     */
-    protected $hidden = [
-
+        'season_number'     =>  'integer'
     ];
 
     /**
@@ -65,7 +55,7 @@ class SeriesIndexerTorrentLink extends Model {
     ];
 
     /**
-     * Get indexer
+     * Get series indexer from the exclusion list
      * @return BelongsTo
      */
     public function indexer() : BelongsTo {

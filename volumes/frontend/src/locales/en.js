@@ -5,6 +5,7 @@ export default {
         free: 'Free',
         refresh: 'Refresh',
         cancel: 'Cancel',
+        close: 'Close',
         apply: 'Apply',
         delete: 'Delete',
         update: 'Update',
@@ -398,6 +399,7 @@ export default {
             series: 'Series ID: {series}',
             season: 'Season: {season}',
             updated: 'Updated: {updated}',
+            loading_series: 'Please wait while we load series information',
             headers: {
                 name: 'Indexer',
                 class: 'Class',
@@ -409,7 +411,23 @@ export default {
                 series_created_at: 'Created At',
                 series_updated_at: 'Updated At',
             },
-            view_items: 'View Items'
+            view_items: 'View Items',
+            preview: {
+                seasons: '{seasons} season | {seasons} seasons',
+                episodes: '{episodes} episode | {episodes} episodes',
+                released: 'Released on {date}',
+                downloaded: 'Downloaded {downloaded} out of {total} episodes',
+                episode: 'Episode {number} - {title}',
+                status: {
+                    download: 'Download',
+                    downloaded: 'Downloaded',
+                },
+                switch: {
+                    text: 'Exclude this episode from downloads',
+                    download: 'This season will be downloaded',
+                    exclude: 'This season will be excluded from download'
+                }
+            }
         }
     },
     user: {

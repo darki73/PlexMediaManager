@@ -56,6 +56,22 @@ class Season extends Model {
     ];
 
     /**
+     * @inheritDoc
+     * @var array
+     */
+    protected $appends = [
+        'episodes_downloaded'
+    ];
+
+    /**
+     * @inheritDoc
+     * @var array
+     */
+    protected $with = [
+        'episodes'
+    ];
+
+    /**
      * Get series instance from season
      * @return BelongsTo
      */
@@ -69,6 +85,14 @@ class Season extends Model {
      */
     public function episodes() : HasMany {
         return $this->hasMany(Episode::class, 'season_id', 'id');
+    }
+
+    /**
+     * Count downloaded episodes for season
+     * @return int
+     */
+    public function getEpisodesDownloadedAttribute() : int {
+        return Episode::where('series_id', '=', $this->series_id)->where('season_number', '=', $this->season_number)->where('downloaded', '=', true)->count();
     }
 
 }

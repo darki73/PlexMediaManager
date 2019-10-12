@@ -73,4 +73,12 @@ class SeriesIndexer extends Model {
         return $this->hasMany(SeriesIndexerTorrentLink::class, 'series_id', 'series_id');
     }
 
+    /**
+     * Get list of excluded items from the indexing
+     * @return HasMany
+     */
+    public function excludes() : HasMany {
+        return $this->hasMany(SeriesIndexerExclude::class, 'series_id', 'series_id');
+    }
+
 }

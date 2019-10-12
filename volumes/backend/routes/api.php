@@ -184,6 +184,7 @@ Route::group([
         'prefix'        =>  'indexers'
     ], static function() {
         Route::get('list', 'IndexersController@list');
+        Route::post('update-exclusion-list', 'IndexersController@updateExclusionList');
     });
 
     /**
