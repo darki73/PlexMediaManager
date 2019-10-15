@@ -362,21 +362,25 @@
             })
         },
         mounted() {
-            forEach(this.indexers, (indexer) => {
-                if (indexer.name === this.$route.params.indexer.toLowerCase()) {
-                    this.indexerExists = true;
-                    this.indexer = indexer;
-                }
-            });
+            this.updateTheSelectedIndexerValue();
             if (!this.indexerExists) {
                 this.$router.push('/dashboard/indexers');
             }
         },
         methods: {
+            updateTheSelectedIndexerValue() {
+                forEach(this.indexers, (indexer) => {
+                    if (indexer.name === this.$route.params.indexer.toLowerCase()) {
+                        this.indexerExists = true;
+                        this.indexer = indexer;
+                    }
+                });
+            },
             refreshIndexers() {
                 this.loading = true;
                 this.$store.dispatch('dashboard/fetchIndexers').then(() => {
                     this.loading = false;
+                    this.updateTheSelectedIndexerValue();
                 });
             },
             toggleItemDialog(item) {
@@ -401,6 +405,37 @@
                 }, 200);
             },
             updateItem() {
+                this.updateItemTorrentsList().then(() => {
+                    this.updateItemExclusionList();
+                    this.closeItemDialog();
+                    // console.warn('Now we are updating exclusion list');
+                });
+            },
+            async updateItemTorrentsList() {
+                if (this.selectedItem.has_torrent) {
+                    const localTorrentFiles = this.selectedItem.torrent_files;
+                    let originalTorrentFiles = null;
+                    forEach(this.indexer.items, (item) => {
+                        if (item.id === this.selectedItem.id) {
+                            originalTorrentFiles = item.torrent_files;
+                        }
+                    });
+
+                    if (originalTorrentFiles !== null && !isEqual(originalTorrentFiles, localTorrentFiles)) {
+                        return this.$axios.post('dashboard/indexers/update-torrents-list', {
+                            id: this.selectedItem.id,
+                            torrents: localTorrentFiles
+                        }).then(({ data }) => {
+                            setTimeout(() => {
+                                this.refreshIndexers();
+                            }, 200);
+                            return true;
+                        });
+                    }
+                }
+                return false;
+            },
+            updateItemExclusionList() {
                 const localExcludes = this.selectedItem.excludes;
                 let originalExcludes = null;
                 forEach(this.indexer.items, (item) => {
@@ -408,7 +443,7 @@
                         originalExcludes = item.excludes;
                     }
                 });
-                if (!isEqual(originalExcludes, localExcludes)) {
+                if (originalExcludes !== null && !isEqual(originalExcludes, localExcludes)) {
                     this.$axios.post('dashboard/indexers/update-exclusion-list', {
                         id: this.selectedItem.id,
                         excludes: localExcludes
@@ -423,6 +458,7 @@
                 }
             },
             sendDownloadRequest(seriesID, seasonNumber, episodeNumber) {
+                // TODO: Implement manuall download request feature
                 console.warn({
                     series_id: seriesID,
                     season_number: seasonNumber,

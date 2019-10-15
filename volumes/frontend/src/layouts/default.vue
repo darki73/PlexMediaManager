@@ -84,6 +84,12 @@
                         }));
                     });
                 }
+                this.$echo.private(`account.${this.user.id}`).listen('.requests.completed', ({ item }) => {
+                    this.$bus.$emit('showNewNotification', this.$t('notification.request.completed', {
+                        title: item.title,
+                        year: item.year
+                    }));
+                });
                 return this;
             }
         }

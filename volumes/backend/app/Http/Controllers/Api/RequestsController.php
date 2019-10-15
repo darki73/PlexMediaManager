@@ -18,8 +18,7 @@ class RequestsController extends APIController {
      * @return JsonResponse
      */
     public function createRequest(Request $request) : JsonResponse {
-        // TODO: Implement actual user lookup
-        $user = 1;
+        $user = $request->user();
 
         $validator = Validator::make($request->toArray(), [
             'title'     =>  'required|string',

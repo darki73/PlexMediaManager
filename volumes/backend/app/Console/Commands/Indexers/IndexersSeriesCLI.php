@@ -24,10 +24,6 @@ class IndexersSeriesCLI extends Command {
      */
     protected $description = 'Update indexers information for series';
 
-    /**
-     * @var Series[]|Collection|null
-     */
-    protected $seriesCollection = null;
 
     /**
      * Create a new command instance.
@@ -36,7 +32,6 @@ class IndexersSeriesCLI extends Command {
      */
     public function __construct() {
         parent::__construct();
-        $this->seriesCollection = Series::all();
     }
 
     /**
@@ -46,7 +41,7 @@ class IndexersSeriesCLI extends Command {
         $implementations = config('jackett.indexers');
         foreach ($implementations as $tracker => $class) {
             $this->info('Refreshing indexes for: ' . $tracker . ' ...');
-            $class::index($this->seriesCollection);
+            $class::index(Series::all());
         }
     }
 

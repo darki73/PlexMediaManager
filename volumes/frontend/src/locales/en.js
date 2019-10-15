@@ -34,7 +34,8 @@ export default {
         request: {
             1: 'Movie',
             0: 'Series',
-            created: 'User {username} has requested {type} `{title} ({year})` at {date}'
+            created: 'User {username} has requested {type} `{title} ({year})` at {date}',
+            completed: 'Your request for `{title} ({year})` has just been completed, you can watch it now in the Plex.'
         }
     },
     errors: {

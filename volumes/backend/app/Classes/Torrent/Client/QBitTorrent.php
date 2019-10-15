@@ -172,6 +172,7 @@ class QBitTorrent extends AbstractClient {
         $this->login()->getClientResponse('/command/resume', 'POST', [
             'hash'  =>  $hash
         ]);
+        return;
     }
 
     /**
@@ -184,6 +185,27 @@ class QBitTorrent extends AbstractClient {
         $this->login()->getClientResponse('/command/pause', 'POST', [
             'hash'  =>  $hash
         ]);
+        return;
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @param int $fileID
+     * @return void
+     * @throws GuzzleException
+     */
+    public function doNotDownload(string $hash, int $fileID) : void {
+        try {
+            $this->login()->getClientResponse('/command/setFilePrio', 'POST', [
+                'hash'      =>  $hash,
+                'id'        =>  $fileID,
+                'priority'  =>  0
+            ]);
+        } catch (\Exception $exception) {
+            // Do nothing, torrent was not found
+        }
+        return;
     }
 
     /**

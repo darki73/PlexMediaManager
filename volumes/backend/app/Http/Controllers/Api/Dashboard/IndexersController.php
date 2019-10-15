@@ -56,6 +56,11 @@ class IndexersController extends APIController {
         return $this->sendResponse('Successfully fetched list of indexers', array_values($indexers));
     }
 
+    /**
+     * Update exclusion list for the indexer and particular series
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function updateExclusionList(Request $request) : JsonResponse {
         $validator = Validator::make($request->toArray(), [
             'id'        =>  'required|integer',
@@ -63,7 +68,7 @@ class IndexersController extends APIController {
         ]);
 
         if ($validator->fails()) {
-            return $this->sendResponse('Invalid parameters were passed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+            return $this->sendError('Invalid parameters were passed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
         }
 
         $seriesID = $request->get('id');
@@ -92,6 +97,46 @@ class IndexersController extends APIController {
         }
 
         return $this->sendResponse('Successfully updated exclusion list for series', $request->toArray());
+    }
+
+    public function updateTorrentsList(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'id'        =>  'required|integer',
+            'torrents'  =>  'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Invalid parameters were passed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $seriesID = $request->get('id');
+        $torrents = $request->get('torrents');
+
+        try {
+            foreach ($torrents as $torrent) {
+                $season = $torrent['season'];
+                $torrentFile = $torrent['torrent_file'];
+                $model = SeriesIndexerTorrentLink::where('series_id', '=', $seriesID)->where('season', '=', $season)->first();
+                if ($model === null) {
+                    SeriesIndexerTorrentLink::create([
+                        'series_id'     =>  $seriesID,
+                        'season'        =>  $season,
+                        'torrent_file'  =>  $torrentFile
+                    ]);
+                } else if ($model->season === $season && $model->torrent_file !== $torrentFile) {
+                    SeriesIndexerTorrentLink::where('series_id', '=', $seriesID)->where('season', '=', $season)->update([
+                        'torrent_file'  =>  $torrentFile
+                    ]);
+                }
+            }
+        } catch (\Exception $exception) {
+            return $this->sendError('Unable to update torrents list for series', [
+                'code'      =>  $exception->getCode(),
+                'message'   =>  $exception->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->sendResponse('Successfully updated torrents list for the series');
     }
 
     /**

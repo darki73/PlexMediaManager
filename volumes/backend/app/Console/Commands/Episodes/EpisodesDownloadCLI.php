@@ -55,6 +55,7 @@ class EpisodesDownloadCLI extends Command {
         foreach ($this->seriesIndexers as $indexer) {
             $tracker = $indexer->indexer;
             $class = $this->implementations[$tracker];
+            $hasTorrentFiles = $indexer->torrentFiles->count() !== 0;
 
             $series = $indexer->series;
             $episodes = $indexer
@@ -67,11 +68,19 @@ class EpisodesDownloadCLI extends Command {
             }
 
             $episodes = $episodes->get();
+
             if ($episodes->count() > 0) {
-                foreach ($episodes as $episode) {
-                    $downloading = $class::download($series, $episode);
+                if (!$hasTorrentFiles) {
+                    foreach ($episodes as $episode) {
+                        $downloading = $class::download($series, $episode);
+                        if ($downloading) {
+                            $this->info('Starting download procedure for `' . $series->title . '` Season ' . $episode->season_number . ', Episode ' . $episode->episode_number);
+                        }
+                    }
+                } else {
+                    $downloading = $class::downloadMultiple($series, $episodes);
                     if ($downloading) {
-                        $this->info('Starting download procedure for `' . $series->title . '` Season ' . $episode->season_number . ', Episode ' . $episode->episode_number);
+                        $this->info('Starting download procedure for `' . $series->title . '` with `' . $episodes->count() . '` missing episodes');
                     }
                 }
             }

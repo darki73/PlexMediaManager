@@ -63,4 +63,12 @@ interface TorrentInterface {
      */
     public function createTorrent(array $files) : void;
 
+    /**
+     * Remove selected file from the download queue
+     * @param string $hash
+     * @param int $fileID
+     * @return void
+     */
+    public function doNotDownload(string $hash, int $fileID) : void;
+
 }

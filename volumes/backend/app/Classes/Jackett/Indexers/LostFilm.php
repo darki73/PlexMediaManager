@@ -32,18 +32,6 @@ class LostFilm extends AbstractIndexer {
     protected $type = self::SEARCH_SERIES;
 
     /**
-     * Which season we are looking for
-     * @var integer|null
-     */
-    protected $seasonNumber = null;
-
-    /**
-     * Which episode we are looking for
-     * @var integer|null
-     */
-    protected $episodeNumber = null;
-
-    /**
      * @inheritDoc
      * @param Collection $seriesCollection
      * @return void
@@ -84,6 +72,14 @@ class LostFilm extends AbstractIndexer {
         $self = (new self(new Client));
         $torrent = new Torrent();
         $alreadyDownloading = false;
+
+        if (!$self->isSeriesApprovedForDownload($series)) {
+            return false;
+        }
+
+        if ($self->isSeasonExcludedFromDownload($series, $episode)) {
+            return false;
+        }
 
         if (
             $series->id === 1408
@@ -132,38 +128,6 @@ class LostFilm extends AbstractIndexer {
         return false;
     }
 
-    /**
-     * What series we are searching for
-     * @param string $seriesName
-     * @return AbstractIndexer|static|self|$this
-     */
-    public function series(string $seriesName) : AbstractIndexer {
-        return $this->search($seriesName);
-    }
-
-    /**
-     * Filter search results down to a specific season
-     * @param int $seasonNumber
-     * @return LostFilm|static|self|$this
-     */
-    public function season(int $seasonNumber) : self {
-        $this->seasonNumber = $seasonNumber;
-        return $this;
-    }
-
-    /**
-     * Filter search results down to a specific episode
-     * Note: `forSeason(int $seasonNumber)` must be called first
-     * @param int $episodeNumber
-     * @return LostFilm|static|self|$this
-     */
-    public function episode(int $episodeNumber) : self {
-        if ($this->seasonNumber === null) {
-            throw new RuntimeException('You must call `season(int $seasonNumber)` method before calling this method.');
-        }
-        $this->episodeNumber = $episodeNumber;
-        return $this;
-    }
 
     /**
      * @inheritDoc

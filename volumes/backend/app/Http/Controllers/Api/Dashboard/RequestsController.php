@@ -1,5 +1,9 @@
 <?php namespace App\Http\Controllers\Api\Dashboard;
 
+use App\Classes\TheMovieDB\Endpoint\Search;
+use App\Jobs\Download\SeriesImages;
+use App\Jobs\Update\Episodes;
+use App\Jobs\Update\SeriesIndexers;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -84,6 +88,25 @@ class RequestsController extends APIController {
                 'id'    =>  $id
             ]);
         }
+
+        try {
+            $database = new TheMovieDB;
+            $search = $database->search()->for(Search::SEARCH_SERIES, $requestModel->title)->year($requestModel->year);
+            $results = $search->fetch();
+            $item = $database->series()->fetchPrimaryInformation($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
+            $parser = new \App\Classes\TheMovieDB\Processor\Series($item->primaryInformation());
+            \App\Classes\Media\Processor\Processor::series($parser);
+        } catch (\Exception $exception) {
+            return $this->sendError('Unable to load information from the Media API', [
+                'code'      =>  $exception->getCode(),
+                'message'   =>  $exception->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        Episodes::withChain([
+            new SeriesIndexers,
+            new SeriesImages
+        ])->dispatch();
 
         $requestModel->update([
             'status'    =>  $status

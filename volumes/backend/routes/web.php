@@ -1,5 +1,9 @@
 <?php
 
+use App\Events\Requests\RequestCompleted;
+use App\Models\Episode;
+use App\Models\Request;
+use App\Models\Series;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -125,8 +125,11 @@ Route::group([
 });
 
 Route::group([
-    'prefix'    =>  'requests',
-    'namespace' =>  'Api'
+    'prefix'        =>  'requests',
+    'namespace'     =>  'Api',
+    'middleware'    =>  [
+        'auth:api'
+    ]
 ], static function() {
     Route::post('create', 'RequestsController@createRequest');
 });
@@ -185,6 +188,7 @@ Route::group([
     ], static function() {
         Route::get('list', 'IndexersController@list');
         Route::post('update-exclusion-list', 'IndexersController@updateExclusionList');
+        Route::post('update-torrents-list', 'IndexersController@updateTorrentsList');
     });
 
     /**

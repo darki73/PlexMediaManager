@@ -194,6 +194,7 @@ abstract class AbstractType {
                         $fetchedElement = $class->where('id', '=', $element['id'])->first();
                         $localElement = array_filter(Arr::except($fetchedElement->toArray(), [
                             'id',
+                            'episodes',
                             'created_at',
                             'updated_at'
                         ]));

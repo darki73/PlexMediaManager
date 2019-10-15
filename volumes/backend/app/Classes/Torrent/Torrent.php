@@ -106,6 +106,26 @@ class Torrent implements TorrentInterface {
 
     /**
      * @inheritDoc
+     * @param string $hash
+     * @return array
+     */
+    public function torrentFiles(string $hash) : array {
+        return $this->client->torrentFiles($hash);
+    }
+
+    /**
+     * @inheritDoc
+     * @param string $hash
+     * @param int $fileID
+     * @return void
+     */
+    public function doNotDownload(string $hash, int $fileID): void {
+        $this->client->doNotDownload($hash, $fileID);
+        return;
+    }
+
+    /**
+     * @inheritDoc
      * @param string $categoryName
      * @return void
      */

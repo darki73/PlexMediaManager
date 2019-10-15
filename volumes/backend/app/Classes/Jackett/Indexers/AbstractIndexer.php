@@ -1,10 +1,13 @@
 <?php namespace App\Classes\Jackett\Indexers;
 
 use App\Models\Series;
+use App\Models\Request;
 use App\Models\Episode;
-use Illuminate\Support\Facades\Cache;
 use ReflectionException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use App\Models\SeriesIndexerExclude;
+use Illuminate\Support\Facades\Cache;
 use App\Classes\Jackett\Enums\Quality;
 use GuzzleHttp\Exception\ConnectException;
 use App\Classes\Jackett\Components\Client;
@@ -71,6 +74,18 @@ abstract class AbstractIndexer {
     protected $quality = null;
 
     /**
+     * Which season we are looking for
+     * @var integer|null
+     */
+    protected $seasonNumber = null;
+
+    /**
+     * Which episode we are looking for
+     * @var integer|null
+     */
+    protected $episodeNumber = null;
+
+    /**
      * AbstractIndexer constructor.
      * @param Client $client
      */
@@ -127,6 +142,39 @@ abstract class AbstractIndexer {
     }
 
     /**
+     * What series we are searching for
+     * @param string $seriesName
+     * @return AbstractIndexer|static|self|$this
+     */
+    public function series(string $seriesName) : AbstractIndexer {
+        return $this->search($seriesName);
+    }
+
+    /**
+     * Filter search results down to a specific season
+     * @param int $seasonNumber
+     * @return LostFilm|static|self|$this
+     */
+    public function season(int $seasonNumber) : self {
+        $this->seasonNumber = $seasonNumber;
+        return $this;
+    }
+
+    /**
+     * Filter search results down to a specific episode
+     * Note: `forSeason(int $seasonNumber)` must be called first
+     * @param int $episodeNumber
+     * @return LostFilm|static|self|$this
+     */
+    public function episode(int $episodeNumber) : self {
+        if ($this->seasonNumber === null) {
+            throw new RuntimeException('You must call `season(int $seasonNumber)` method before calling this method.');
+        }
+        $this->episodeNumber = $episodeNumber;
+        return $this;
+    }
+
+    /**
      * Build cache key
      * @return string
      */
@@ -150,6 +198,37 @@ abstract class AbstractIndexer {
     protected function search(string $searchQuery) : self {
         $this->query = $searchQuery;
         return $this;
+    }
+
+    /**
+     * Whether or not we should exclude the whole season and its episodes from download
+     * @param Series $series
+     * @param Episode $episode
+     * @return bool
+     */
+    protected function isSeasonExcludedFromDownload(Series $series, Episode $episode) : bool {
+        $shouldSkip = SeriesIndexerExclude::where('series_id', '=', $episode->series_id)->where('season_number', '=', $episode->season_number)->exists();
+        if ($shouldSkip) {
+            app('log')->info(sprintf(
+                '%s Season %d was marked to be excluded from downloading',
+                $series->title,
+                $episode->season_number
+            ));
+        }
+        return $shouldSkip;
+    }
+
+    /**
+     * Check if series wes approved for download
+     * @param Series $series
+     * @return bool
+     */
+    protected function isSeriesApprovedForDownload(Series $series) : bool {
+        $request = Request::where('title', '=', $series->title)->where('year', '=', Arr::first(explode('-', $series->release_date)))->first();
+        if ($request !== null) {
+            return $request->status === 1 || $request->status === 3;
+        }
+        return true;
     }
 
     /**

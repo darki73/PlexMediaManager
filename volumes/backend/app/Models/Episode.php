@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -78,6 +79,24 @@ class Episode extends Model {
      */
     public function season() : BelongsTo {
         return $this->belongsTo(Season::class, 'season_id', 'id');
+    }
+
+    /**
+     * Scope to query only downloaded episodes
+     * @param Builder $builder
+     * @return Builder
+     */
+    public function scopeDownloaded(Builder $builder) : Builder {
+        return $builder->where('downloaded', '=', 1);
+    }
+
+    /**
+     * Scope to query only missing episodes
+     * @param Builder $builder
+     * @return Builder
+     */
+    public function scopeMissing(Builder $builder) : Builder {
+        return $builder->where('downloaded', '=', 0);
     }
 
 }
