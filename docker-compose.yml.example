@@ -1,0 +1,286 @@
+version: '3.6'
+
+networks:
+  internal:
+  traefik_proxy:
+    external: true
+
+volumes:
+  home-dir:
+
+services:
+  #    traefik:
+  #      hostname: traefik
+  #      image: traefik:latest
+  #      container_name: traefik
+  #      restart: always
+  #      domainname: REPLACE_WITH_DOMAIN_NAME
+  #      networks:
+  #        - default
+  #        - traefik_proxy
+  #      ports:
+  #        - 80:80
+  #        - 443:443
+  #      environment:
+  #        - CF_API_EMAIL=REPLACE_WITH_CLOUDFLARE_EMAIL
+  #        - CF_API_KEY=REPLACE_WITH_CLOUDFLARE_API_KEY
+  #      labels:
+  #        # Global Container Configuration
+  #        traefik.enable: true
+  #        traefik.docker.network: traefik_proxy
+  #        traefik.http.services.traefik.loadBalancer.server.port: 8080
+  #
+  #        # HTTP Endpoint Configuration
+  #        traefik.http.routers.traefik.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
+  #        traefik.http.routers.traefik.entrypoints: web
+  #        traefik.http.routers.traefik.middlewares: redirect@docker
+  #
+  #        # HTTP Endpoint Configuration
+  #        traefik.http.routers.traefik-secure.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
+  #        traefik.http.routers.traefik-secure.entrypoints: websecure
+  #        traefik.http.routers.traefik-secure.middlewares: secure@docker, onlyFromLocal@docker, basicAuth@docker
+  #        traefik.http.routers.traefik-secure.tls: true
+  #        traefik.http.routers.traefik-secure.tls.certResolver: dnschallenge
+  #
+  #        # Middleware Configuration
+  #
+  #        # Redirect Middleware
+  #        traefik.http.middlewares.redirect.redirectScheme.scheme: https
+  #        # Secure Middleware
+  #
+  #        traefik.http.middlewares.secure.headers.sslRedirect: true
+  #        traefik.http.middlewares.secure.headers.stsSeconds: 315360000
+  #        traefik.http.middlewares.secure.headers.browserXSSFilter: true
+  #        traefik.http.middlewares.secure.headers.contentTypeNosniff: true
+  #        traefik.http.middlewares.secure.headers.forceSTSHeader: true
+  #        traefik.http.middlewares.secure.headers.sslHost: 'REPLACE_WITH_DOMAIN_NAME'
+  #        traefik.http.middlewares.secure.headers.stsIncludeSubdomains: true
+  #        traefik.http.middlewares.secure.headers.stsPreload: true
+  #        traefik.http.middlewares.secure.headers.frameDeny: true
+  #
+  #        # Basic Authentication Middleware
+  #        # Use `echo $(htpasswd -nb USERNAME PASSWORD) | sed -e s/\\$/\\$\\$/g` command to generate username and password. Default is admin admin
+  #        traefik.http.middlewares.basicAuth.basicAuth.users: admin:$$apr1$$/E.wRpo.$$QRyZh8HtoiH42.kIUcH1M0
+  #
+  #        # Whitelist Middleware
+  #        traefik.http.middlewares.onlyFromLocal.ipWhiteList.sourceRange: 192.168.0.0/16, 172.16.0.0/12, 127.0.0.1/32
+  #
+  #        # Sameorigin Middleware
+  #        traefik.http.middlewares.sameOrigin.headers.customFrameOptionsValue: SAMEORIGIN
+  #      volumes:
+  #        - /var/run/docker.sock:/var/run/docker.sock:ro
+  #        - ./volumes/traefik:/etc/traefik
+
+  &app-service app: &app-service-template
+    image: docker.pkg.github.com/darki73/plexmediamanager/application:latest
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    restart: always
+    volumes:
+      - home-dir:/home/user
+      - ./volumes/backend:/app:rw
+      - .git:/app/.git:ro
+    hostname: *app-service
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+    environment:
+      # Global Configuration
+      MAIN_DOMAIN: &main-domain media.REPLACE_WITH_DOMAIN_NAME
+      API_DOMAIN: &api-domain media-api.REPLACE_WITH_DOMAIN_NAME
+      SCHEDULE_PERIOD: 60
+
+      # PHP-FPM Configuration
+      FPM_PORT: &fpm-port 9000
+      FPM_USER: "${USER_ID:-1000}"
+      FPM_GROUP: "${GROUP_ID:-1000}"
+
+      # Application Configuration
+      APP_URL: *api-domain
+      FRONTEND_URL: *main-domain
+      APP_ENV: &app-env local
+      APP_DEBUG: &app-debug 'true'
+
+      # Storage Configuration
+      BROADCAST_DRIVER: websockets
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+
+      # Database Configuration
+      DB_HOST: database
+      DB_PORT: &db-port 3306
+      DB_DATABASE: &db-name app
+      DB_USERNAME: &db-username forge
+      DB_PASSWORD: &db-password secret
+
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: &redis-port 6379
+    command: /scripts/keep-alive.sh
+    depends_on:
+      - redis
+      - database
+    networks:
+      - internal
+      - traefik_proxy
+
+  &scheduler-service scheduler:
+    <<: *app-service-template
+    restart: always
+    hostname: *scheduler-service
+    command: /scripts/scheduler.sh "php /app/artisan schedule:run"
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+
+  &queue-service queue:
+    <<: *app-service-template
+    restart: always
+    hostname: *queue-service
+    command: php /app/artisan horizon
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+
+  &websockets-service websockets:
+    <<: *app-service-template
+    restart: always
+    hostname: *websockets-service
+    command: php /app/artisan websockets:serve
+    labels:
+      # Global Container Configuration
+      traefik.enable: true
+      traefik.docker.network: traefik_proxy
+      traefik.http.services.media-sockets.loadBalancer.server.port: 6001
+      com.centurylinklabs.watchtower.enable: false
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-sockets.rule: Host(`media-sockets.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-sockets.entrypoints: web
+      traefik.http.routers.media-sockets.middlewares: redirect@docker
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-sockets-secure.rule: Host(`media-sockets.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-sockets-secure.entrypoints: websecure
+      traefik.http.routers.media-sockets-secure.middlewares: secure@docker, onlyFromLocal@docker
+      traefik.http.routers.media-sockets-secure.tls: true
+      traefik.http.routers.media-sockets-secure.tls.certResolver: dnschallenge
+    networks:
+      - traefik_proxy
+      - internal
+
+  &php-fmp-service php-fpm:
+    <<: *app-service-template
+    user: 'root:root'
+    restart: always
+    hostname: *php-fmp-service
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+    ports:
+      - *fpm-port
+    entrypoint: /fpm-entrypoint.sh
+    command: php-fpm --nodaemonize -d "opcache.enable=0" -d "display_startup_errors=On" -d "display_errors=On" -d "error_reporting=E_ALL"
+    networks:
+      - internal
+
+  frontend:
+    image: docker.pkg.github.com/darki73/plexmediamanager/frontend:latest
+    restart: always
+    environment:
+      API_URL: *api-domain
+      APP_URL: *main-domain
+      FORCE_HTTPS: 'true'
+    volumes:
+      - ./volumes/frontend:/app:rw
+      - ./volumes/backend/.env:/.env:ro
+    labels:
+      # Global Container Configuration
+      traefik.enable: true
+      traefik.docker.network: traefik_proxy
+      traefik.http.services.media-frontend.loadBalancer.server.port: 3000
+      com.centurylinklabs.watchtower.enable: false
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-frontend.rule: Host(`media.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-frontend.entrypoints: web
+      traefik.http.routers.media-frontend.middlewares: redirect@docker
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-frontend-secure.rule: Host(`media.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-frontend-secure.entrypoints: websecure
+      traefik.http.routers.media-frontend-secure.middlewares: secure@docker, onlyFromLocal@docker
+      traefik.http.routers.media-frontend-secure.tls: true
+      traefik.http.routers.media-frontend-secure.tls.certResolver: dnschallenge
+    networks:
+      - traefik_proxy
+
+  nginx:
+    image: docker.pkg.github.com/darki73/plexmediamanager/nginx:latest
+    restart: always
+    working_dir: /usr/share/nginx/html
+    environment:
+      APP_BASE_URL: *main-domain
+      MAIN_DOMAIN: *main-domain
+      FPM_HOST: *php-fmp-service
+      FPM_PORT: *fpm-port
+      ROOT_DIR: '/app/public'
+    volumes:
+      - ./volumes/backend:/app:ro
+    depends_on:
+      - *php-fmp-service
+    labels:
+      # Global Container Configuration
+      traefik.enable: true
+      traefik.docker.network: traefik_proxy
+      traefik.http.services.media-backend.loadBalancer.server.port: 80
+      com.centurylinklabs.watchtower.enable: false
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-backend.rule: Host(`media-api.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-backend.entrypoints: web
+      traefik.http.routers.media-backend.middlewares: redirect@docker
+
+      # HTTP Endpoint Configuration
+      traefik.http.routers.media-backend-secure.rule: Host(`media-api.REPLACE_WITH_DOMAIN_NAME`)
+      traefik.http.routers.media-backend-secure.entrypoints: websecure
+      traefik.http.routers.media-backend-secure.middlewares: secure@docker, onlyFromLocal@docker
+      traefik.http.routers.media-backend-secure.tls: true
+      traefik.http.routers.media-backend-secure.tls.certResolver: dnschallenge
+    networks:
+      - internal
+      - traefik_proxy
+
+  redis:
+    image: redis:5.0.6-alpine
+    restart: always
+    command: redis-server
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+    volumes:
+      - ./volumes/redis:/data:rw
+    ports:
+      - *redis-port
+#      - 16379:6379 # Uncomment this line if you wish to connect to the redis from the host machine
+    networks:
+      - internal
+
+  database:
+    image: mariadb:10.4
+    restart: always
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+    environment:
+      MYSQL_DATABASE: *db-name
+      MYSQL_USER: *db-username
+      MYSQL_PASSWORD: *db-password
+      MYSQL_ROOT_PASSWORD: rootPassword
+    volumes:
+      - ./volumes/mariadb:/var/lib/mysql:rw
+    ports:
+      - *db-port
+#      - 23306:3306 # Uncomment this line if you wish to connect to the database from the host machine
+    networks:
+      - internal

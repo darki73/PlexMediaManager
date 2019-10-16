@@ -13,7 +13,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function fetch() : array {
-        return Cache::remember('tmdb::api:configuration', now()->addHours(6), function() {
+        return Cache::remember('tmdb::api:configuration', now()->addDays(7), function() {
             $request = $this->client->get(sprintf('%s/%d/configuration', $this->baseURL, $this->version), [
                 'query' =>  $this->options
             ]);
