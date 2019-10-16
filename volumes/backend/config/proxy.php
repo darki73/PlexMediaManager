@@ -23,6 +23,6 @@ return [
 
     'username'  =>  env('PROXY_USERNAME', null),
 
-    'password'  =>  env('PROXY_PASSWORD', null)
+    'password'  =>  env('PROXY_PASSWORD', null),
 
 ];

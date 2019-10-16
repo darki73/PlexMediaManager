@@ -74,7 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder {
 
 
         foreach ($permissions as $index => $permission) {
-            if (! Permission::where('name', '=', $permissions)->exists()) {
+            if (!Permission::where('name', '=', $permission)->where('guard_name', '=', 'web')->exists()) {
                 $permissions[$index] = Permission::create(['name' => $permission, 'guard_name' => 'web']);
             } else {
                 $permissions[$index] = Permission::where('name', '=', $permission)->first();

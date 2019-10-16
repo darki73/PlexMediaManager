@@ -1,5 +1,7 @@
 <?php namespace App\Console\Commands\Episodes;
 
+use App\Classes\Integrations\Message;
+use App\Classes\Integrations\NotificationsManager;
 use App\Classes\Jackett\Jackett;
 use App\Models\SeriesIndexer;
 use Illuminate\Console\Command;
@@ -74,12 +76,14 @@ class EpisodesDownloadCLI extends Command {
                     foreach ($episodes as $episode) {
                         $downloading = $class::download($series, $episode);
                         if ($downloading) {
+                            NotificationsManager::sendMessage(Message::seriesEpisodeDownloadStart($series, $episode));
                             $this->info('Starting download procedure for `' . $series->title . '` Season ' . $episode->season_number . ', Episode ' . $episode->episode_number);
                         }
                     }
                 } else {
                     $downloading = $class::downloadMultiple($series, $episodes);
                     if ($downloading) {
+                        NotificationsManager::sendMessage(Message::seriesEpisodesDownloadStart($series, $tracker, $episodes->count()));
                         $this->info('Starting download procedure for `' . $series->title . '` with `' . $episodes->count() . '` missing episodes');
                     }
                 }

@@ -6,6 +6,8 @@
     </v-app>
 </template>
 <script>
+    import { mapGetters } from 'vuex';
+
     import Header from '~/components/dashboard/layout/header';
     import Sidebar from '~/components/dashboard/layout/sidebar';
     import Content from '~/components/dashboard/layout/content';
@@ -17,6 +19,23 @@
             'dashboard-layout-header': Header,
             'dashboard-layout-sidebar': Sidebar,
             'dashboard-layout-content': Content,
+        },
+        computed: {
+            ...mapGetters({
+                token: 'account/token',
+                token_type: 'account/token_type',
+            }),
+        },
+        mounted() {
+            this.updateEchoConfiguration();
+        },
+        methods: {
+            updateEchoConfiguration() {
+                const tokenString = `${this.token_type} ${this.token}`;
+                this.$echo.options.auth.headers.Authorization = tokenString;
+                this.$echo.connector.pusher.config.auth.headers.Authorization = tokenString;
+                return this;
+            },
         }
     };
 </script>

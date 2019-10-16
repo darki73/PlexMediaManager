@@ -67,6 +67,7 @@
     import DashboardSettingsEnvironmentPage from '~/components/dashboard/settings/environment-page';
     import DashboardSettingsDisksPage from '~/components/dashboard/settings/disks-page';
     import DashboardSettingsProxyPage from '~/components/dashboard/settings/proxy-page';
+    import DashboardSettingsIntegrationsPage from '~/components/dashboard/settings/integrations-page';
 
     export default {
         layout: 'dashboard',
@@ -74,6 +75,7 @@
             'dashboard-settings-environment': DashboardSettingsEnvironmentPage,
             'dashboard-settings-disks': DashboardSettingsDisksPage,
             'dashboard-settings-proxy': DashboardSettingsProxyPage,
+            'dashboard-settings-integrations': DashboardSettingsIntegrationsPage
         },
         data() {
             return {
@@ -98,6 +100,12 @@
                         href: 'proxy',
                         component: 'dashboard-settings-proxy'
                     },
+                    {
+                        text: this.$t('dashboard.settings.tabs.integrations'),
+                        icon: 'extension',
+                        href: 'integrations',
+                        component: 'dashboard-settings-integrations'
+                    }
                 ],
                 settings: []
             };
@@ -108,6 +116,9 @@
         mounted() {
             this.resetPage();
             this.fetchSettings();
+            this.$bus.$on('settingsUpdateRequested', () => {
+                this.fetchSettings();
+            });
         },
         methods: {
             resetPage() {

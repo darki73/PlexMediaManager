@@ -1,11 +1,14 @@
 <?php namespace App\Http\Controllers\Api\Dashboard;
 
+use App\Models\Integration;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Classes\Storage\PlexStorage;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\APIController;
+use App\Classes\Integrations\AbstractClient as IntegrationClient;
 
 /**
  * Class SettingsController
@@ -24,8 +27,73 @@ class SettingsController extends APIController {
         return $this->sendResponse('Successfully fetched application settings', [
             'environment'   =>  $this->extractEnvironmentSettings($environment),
             'disks'         =>  $this->extractStorageSettings($environment),
-            'proxy'         =>  $this->extractProxySettings($environment)
+            'proxy'         =>  $this->extractProxySettings($environment),
+            'integrations'  =>  $this->extractIntegrationsSettings(Integration::all()->toArray()),
         ]);
+    }
+
+    /**
+     * Update Integration Settings
+     * @param Request $request
+     * @param string $integration
+     * @return JsonResponse
+     */
+    public function updateIntegrationSettings(Request $request, string $integration) : JsonResponse {
+        $supportedIntegrations = config('integrations.list');
+        if (! array_key_exists($integration, $supportedIntegrations)) {
+            return $this->sendError('Trying to update settings for integration which is not supported!', [], Response::HTTP_BAD_REQUEST);
+        }
+        /**
+         * @var IntegrationClient $integrationClass
+         */
+        $integrationClass = (new $supportedIntegrations[$integration]);
+
+        $validationRules = [
+            'enabled'           =>  'required|boolean'
+        ];
+        foreach ($integrationClass->validationRules() as $key => $value) {
+            $validationRules['configuration.' . $key] = $value;
+        }
+        $validator = Validator::make($request->toArray(), $validationRules);
+
+        if ($validator->fails()) {
+            return $this->sendError('Invalid/Missing parameters detected, request cannot be completed', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $newConfiguration = [];
+
+        foreach ($request->get('configuration') as $key => $value) {
+            if ($value !== null && strlen($value) > 0) {
+                $newConfiguration[$key] = $value;
+            }
+        }
+
+        $integrationModel = Integration::where('integration', '=', $integration)->first();
+        if ($integrationModel === null) {
+            return $this->sendError('Unable to find specified integration in the database. Probably you forgot to seed the database!', [], Response::HTTP_NOT_FOUND);
+        }
+        $databaseConfiguration = $integrationModel->configuration;
+
+        foreach ($databaseConfiguration as $key => $value) {
+            if (array_key_exists($key, $newConfiguration)) {
+                if ($value !== $newConfiguration[$key]) {
+                    $databaseConfiguration[$key] = $newConfiguration[$key];
+                }
+            }
+        }
+
+        try {
+            $integrationModel->update([
+                'enabled'           =>  $request->get('enabled'),
+                'configuration'     =>  $databaseConfiguration
+            ]);
+            return $this->sendResponse('Successfully updated configuration for the integration');
+        } catch (\Exception $exception) {
+            return $this->sendError('Failed to update configuration for the integration', [
+                'code'      =>  $exception->getCode(),
+                'message'   =>  $exception->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -116,6 +184,30 @@ class SettingsController extends APIController {
         $this->extractParameters($returnArray, $environment, 'proxy');
 
         return $returnArray;
+    }
+
+    /**
+     * Extract integrations settings
+     * @param array $integrations
+     * @return array
+     */
+    private function extractIntegrationsSettings(array $integrations) : array {
+        $hide = [
+            'refresh_before'
+        ];
+        foreach ($integrations as $index => $integration) {
+            foreach ($integration['configuration'] as $key => $value) {
+                if (in_array($key, $hide)) {
+                    unset($integrations[$index]['configuration'][$key]);
+                }
+            }
+            $integrations[$index]['oauth'] = in_array($integration['integration'], config('integrations.oauth_required'));
+            $integrations[$index]['validation'] = config('integrations.validation_rules.' . $integration['integration'], []);
+            if (isset($integrations[$index]['created_at'], $integrations[$index]['updated_at'])) {
+                unset($integrations[$index]['created_at'], $integrations[$index]['updated_at']);
+            }
+        }
+        return $integrations;
     }
 
     /**

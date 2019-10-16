@@ -65,12 +65,22 @@ Route::group([
         'prefix'        =>  'oauth',
         'namespace'     =>  'OAuth',
     ], static function() {
-//        Route::get('google', 'GoogleController@redirectToProvider');
-//        Route::get('google/callback', 'GoogleController@callback');
+        Route::group([
+            'prefix'    =>  'plex'
+        ], static function() {
+            Route::get('', 'PlexController@redirectToProvider')->middleware('auth:api');
+            Route::post('', 'PlexController@finalizeAuthorization')->middleware('auth:api');
+            Route::get('/callback', 'PlexController@callback');
+        });
 
-        Route::get('plex', 'PlexController@redirectToProvider')->middleware('auth:api');
-        Route::post('plex', 'PlexController@finalizeAuthorization')->middleware('auth:api');
-        Route::get('plex/callback', 'PlexController@callback');
+        Route::group([
+            'prefix'    =>  'discord'
+        ], static function() {
+            Route::get('', 'DiscordController@redirectToProvider')->middleware('auth:api');
+            Route::post('', 'DiscordController@finalizeAuthorization')->middleware('auth:api');
+            Route::get('/callback', 'DiscordController@callback');
+        });
+
     });
 });
 
@@ -183,6 +193,9 @@ Route::group([
         });
     });
 
+    /**
+     * Dashboard >> Indexers Group
+     */
     Route::group([
         'prefix'        =>  'indexers'
     ], static function() {
@@ -250,6 +263,7 @@ Route::group([
         'prefix'        =>  'settings'
     ], static function() {
         Route::get('', 'SettingsController@fetchSettings');
+        Route::post('update-integration/{integration}', 'SettingsController@updateIntegrationSettings');
     });
 
 });

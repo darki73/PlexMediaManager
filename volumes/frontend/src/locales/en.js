@@ -29,6 +29,7 @@ export default {
         logged_in_with_google: 'Signed in with Google',
         log_in_with_plex: 'Sign in with Plex',
         logged_in_with_plex: 'Signed in with Plex',
+        field_required: '* This field is required'
     },
     notification: {
         request: {
@@ -309,7 +310,8 @@ export default {
             tabs: {
                 environment: 'Environment',
                 disks: 'Disks',
-                proxy: 'Proxy'
+                proxy: 'Proxy',
+                integrations: 'Integrations'
             },
             loading_settings: 'Fetching latest application settings...',
             environment: {
@@ -391,6 +393,13 @@ export default {
                     placeholder: 'Please provide password used for authentication',
                     hint: 'Leave it empty if proxy server does not have authentication enabled'
                 }
+            },
+            integrations: {
+                enabled: 'This integration is enabled',
+                disabled: 'This integration is disabled',
+                placeholder: 'Please provide {item} for this integration',
+                update: 'Update Configuration',
+                oauth: 'Complete Authorization'
             }
         },
         indexers: {

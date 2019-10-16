@@ -3,13 +3,14 @@
         v-model="content"
         :label="label"
         :placeholder="placeholder"
-        :hint="hint"
-        :persistent-hint="persistentHint"
+        :hint="required ? $t('common.field_required') : hint"
+        :persistent-hint="persistentHint || required"
         :outlined="outlined"
         :append-icon="sensitive ? (show ? 'visibility' : 'visibility_off') : ''"
         :type="sensitive ? (show ? 'text' : 'password') : 'text'"
         @click:append="sensitive ? (show = !show) : ''"
         @input="handleInput"
+
     />
 </template>
 <script>
@@ -45,6 +46,11 @@
                 default: () => false
             },
             sensitive: {
+                type: Boolean,
+                required: false,
+                default: () => false
+            },
+            required: {
                 type: Boolean,
                 required: false,
                 default: () => false

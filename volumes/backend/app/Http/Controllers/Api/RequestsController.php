@@ -32,7 +32,7 @@ class RequestsController extends APIController {
 
         try {
             $createdRequest = \App\Models\Request::create([
-                'user_id'       =>  $user,
+                'user_id'       =>  $user->id,
                 'request_type'  =>  $this->getMediaType($request->get('type')),
                 'title'         =>  $request->get('title'),
                 'year'          =>  $this->extractYear($request->get('released'))

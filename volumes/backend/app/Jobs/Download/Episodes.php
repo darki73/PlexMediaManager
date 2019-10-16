@@ -1,5 +1,7 @@
 <?php namespace App\Jobs\Download;
 
+use App\Classes\Integrations\Message;
+use App\Classes\Integrations\NotificationsManager;
 use App\Models\SeriesIndexer;
 use Illuminate\Config\Repository;
 use App\Jobs\AbstractLongQueueJob;
@@ -56,7 +58,10 @@ class Episodes extends AbstractLongQueueJob {
             $episodes = $episodes->get();
             if ($episodes->count() > 0) {
                 foreach ($episodes as $episode) {
-                    $class::download($series, $episode);
+                    $response = $class::download($series, $episode);
+                    if ($response) {
+                        NotificationsManager::sendMessage(Message::seriesEpisodeDownloadStart($series, $episode));
+                    }
                 }
             }
         }
