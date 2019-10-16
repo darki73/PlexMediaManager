@@ -1,11 +1,13 @@
 <?php namespace App\Events\Requests;
 
-use App\Models\Request;
 use App\Models\User;
+use App\Models\Series;
+use App\Classes\Integrations\Message;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Classes\Integrations\NotificationsManager;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 /**
@@ -36,6 +38,7 @@ class RequestCompleted implements ShouldBroadcast {
     public function __construct(array $item, User $user) {
         $this->item = $item;
         $this->user = $user;
+        NotificationsManager::sendMessage(Message::seriesDownloadFinished(Series::find($item['id'])));
     }
 
     /**

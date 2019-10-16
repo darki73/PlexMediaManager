@@ -38,6 +38,7 @@ class RequestStatus extends AbstractLongQueueJob {
                         $completed[] = [
                             'request_id'    =>  $request->id,
                             'series'        =>  [
+                                'id'        =>  $series->id,
                                 'title'     =>  $series->title,
                                 'year'      =>  $request->year
                             ],

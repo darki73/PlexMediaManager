@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "908cf58e1ab1968e91f57aff86799f3f",
+    "content-hash": "70bb0528c539a8375fe3bc3bdbbf2ac8",
     "packages": [
         {
             "name": "avto-dev/roadrunner-laravel",
@@ -974,59 +974,6 @@
             "time": "2017-06-27T22:17:23+00:00"
         },
         {
-            "name": "guzzlehttp/command",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/guzzle/command.git",
-                "reference": "2aaa2521a8f8269d6f5dfc13fe2af12c76921034"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/command/zipball/2aaa2521a8f8269d6f5dfc13fe2af12c76921034",
-                "reference": "2aaa2521a8f8269d6f5dfc13fe2af12c76921034",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.2",
-                "guzzlehttp/promises": "~1.3",
-                "guzzlehttp/psr7": "~1.0",
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0|~5.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.9-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\Command\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Michael Dowling",
-                    "email": "mtdowling@gmail.com",
-                    "homepage": "https://github.com/mtdowling"
-                },
-                {
-                    "name": "Jeremy Lindblom",
-                    "email": "jeremeamia@gmail.com",
-                    "homepage": "https://github.com/jeremeamia"
-                }
-            ],
-            "description": "Provides the foundation for building command-based web service clients",
-            "time": "2016-11-24T13:34:15+00:00"
-        },
-        {
             "name": "guzzlehttp/guzzle",
             "version": "6.3.3",
             "source": {
@@ -1090,66 +1037,6 @@
                 "web service"
             ],
             "time": "2018-04-22T15:46:56+00:00"
-        },
-        {
-            "name": "guzzlehttp/guzzle-services",
-            "version": "1.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/guzzle/guzzle-services.git",
-                "reference": "9e3abf20161cbf662d616cbb995f2811771759f7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle-services/zipball/9e3abf20161cbf662d616cbb995f2811771759f7",
-                "reference": "9e3abf20161cbf662d616cbb995f2811771759f7",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/command": "~1.0",
-                "guzzlehttp/guzzle": "^6.2",
-                "php": ">=5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0"
-            },
-            "suggest": {
-                "gimler/guzzle-description-loader": "^0.0.4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\Command\\Guzzle\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Michael Dowling",
-                    "email": "mtdowling@gmail.com",
-                    "homepage": "https://github.com/mtdowling"
-                },
-                {
-                    "name": "Jeremy Lindblom",
-                    "email": "jeremeamia@gmail.com",
-                    "homepage": "https://github.com/jeremeamia"
-                },
-                {
-                    "name": "Stefano Kowalke",
-                    "email": "blueduck@mail.org",
-                    "homepage": "https://github.com/konafets"
-                }
-            ],
-            "description": "Provides an implementation of the Guzzle Command library that uses Guzzle service descriptions to describe web services, serialize requests, and parse responses into easy to use model structures.",
-            "time": "2017-10-06T14:32:02+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -1490,16 +1377,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v6.2.0",
+            "version": "v6.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "cacce5a77fa94793cf25345d67387632134d75dd"
+                "reference": "80914c430fb5e49f492812d704ba6aeec03d80a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/cacce5a77fa94793cf25345d67387632134d75dd",
-                "reference": "cacce5a77fa94793cf25345d67387632134d75dd",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/80914c430fb5e49f492812d704ba6aeec03d80a2",
+                "reference": "80914c430fb5e49f492812d704ba6aeec03d80a2",
                 "shasum": ""
             },
             "require": {
@@ -1632,7 +1519,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2019-10-08T12:50:06+00:00"
+            "time": "2019-10-15T13:38:24+00:00"
         },
         {
             "name": "laravel/horizon",
@@ -2073,16 +1960,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.55",
+            "version": "1.0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6"
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/33c91155537c6dc899eacdc54a13ac6303f156e6",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/90e3f83cb10ef6b058d70f95267030e7a6236518",
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518",
                 "shasum": ""
             },
             "require": {
@@ -2153,7 +2040,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-08-24T11:17:19+00:00"
+            "time": "2019-10-12T13:05:59+00:00"
         },
         {
             "name": "league/oauth1-client",
@@ -2423,76 +2310,17 @@
             "time": "2019-08-30T09:56:44+00:00"
         },
         {
-            "name": "more-cores/laravel-restcord",
-            "version": "v3.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://gitlab.com/more-cores/laravel-restcord.git",
-                "reference": "4a9e9514c5ea4e638d5819ecfc9a5c43b900a4d7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/more-cores%2Flaravel-restcord/repository/archive.zip?sha=4a9e9514c5ea4e638d5819ecfc9a5c43b900a4d7",
-                "reference": "4a9e9514c5ea4e638d5819ecfc9a5c43b900a4d7",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": ">=6.0",
-                "illuminate/support": ">=6.0",
-                "laravel/socialite": "^4.0",
-                "php": ">=7.3.0",
-                "restcord/restcord": "dev-master"
-            },
-            "require-dev": {
-                "codeclimate/php-test-reporter": "^0.4",
-                "mockery/mockery": "^1.0",
-                "phpunit/phpunit": "8.*",
-                "satooshi/php-coveralls": "^1.0",
-                "socialiteproviders/discord": "2.*",
-                "symfony/var-dumper": "^4.0",
-                "vlucas/phpdotenv": "^3.3"
-            },
-            "suggest": {
-                "socialiteproviders/discord": "Bootstraps Restcord's API library with the currently OAuth'd user"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "LaravelRestcord\\ServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "LaravelRestcord\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ben Kuhl",
-                    "email": "ben@morecores.games"
-                }
-            ],
-            "homepage": "https://gitlab.com/more-cores/laravel-restcord",
-            "time": "2019-10-13T13:42:43+00:00"
-        },
-        {
             "name": "nesbot/carbon",
-            "version": "2.25.1",
+            "version": "2.25.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "d59c6cea9c4a3547bb6c0dfec451319abdaa4fb1"
+                "reference": "443fe5f1498147e0fbc792142b5dc43e2e8a533f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/d59c6cea9c4a3547bb6c0dfec451319abdaa4fb1",
-                "reference": "d59c6cea9c4a3547bb6c0dfec451319abdaa4fb1",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/443fe5f1498147e0fbc792142b5dc43e2e8a533f",
+                "reference": "443fe5f1498147e0fbc792142b5dc43e2e8a533f",
                 "shasum": ""
             },
             "require": {
@@ -2546,53 +2374,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2019-10-05T15:52:23+00:00"
-        },
-        {
-            "name": "netresearch/jsonmapper",
-            "version": "v1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweiske/jsonmapper.git",
-                "reference": "0d4d1b48d682a93b6bfedf60b88c7750e9cb0b06"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweiske/jsonmapper/zipball/0d4d1b48d682a93b6bfedf60b88c7750e9cb0b06",
-                "reference": "0d4d1b48d682a93b6bfedf60b88c7750e9cb0b06",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-pcre": "*",
-                "ext-reflection": "*",
-                "ext-spl": "*",
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.8.35 || ~5.7 || ~6.4",
-                "squizlabs/php_codesniffer": "~1.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "JsonMapper": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "OSL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Weiske",
-                    "email": "cweiske@cweiske.de",
-                    "homepage": "http://github.com/cweiske/jsonmapper/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Map nested JSON structures onto PHP classes",
-            "time": "2019-08-15T19:41:25+00:00"
+            "time": "2019-10-14T14:18:59+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -4035,56 +3817,6 @@
             "time": "2019-01-01T16:15:09+00:00"
         },
         {
-            "name": "restcord/restcord",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/restcord/restcord.git",
-                "reference": "c3b2810ab8b0029761e7ea7ab442f6157299e74f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/restcord/restcord/zipball/c3b2810ab8b0029761e7ea7ab442f6157299e74f",
-                "reference": "c3b2810ab8b0029761e7ea7ab442f6157299e74f",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.3",
-                "guzzlehttp/guzzle-services": "^1.0",
-                "monolog/monolog": "^1.22|^2.0",
-                "netresearch/jsonmapper": "^1.4",
-                "php": "^5.6|^7.0",
-                "symfony/options-resolver": "^2.6|^3.0|^4.0"
-            },
-            "require-dev": {
-                "beberlei/assert": "^2.7",
-                "gossi/php-code-generator": "^0.4.1",
-                "phpunit/phpunit": "^6.0|^5.0",
-                "symfony/console": "^2.6|^3.0|^4.0",
-                "symfony/process": "^2.6|^3.0|^4.0",
-                "symfony/var-dumper": "^2.6|^3.0|^4.0",
-                "twig/twig": "^1.20|^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "RestCord\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aaron Scherer",
-                    "email": "aequasi@gmail.com"
-                }
-            ],
-            "description": "REST Library for the Discord API",
-            "time": "2019-10-13T16:03:52+00:00"
-        },
-        {
             "name": "ringcentral/psr7",
             "version": "1.2.2",
             "source": {
@@ -4310,20 +4042,20 @@
         },
         {
             "name": "spiral/roadrunner",
-            "version": "v1.4.8",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spiral/roadrunner.git",
-                "reference": "dcd03789d7f8e1dd31ddf63e6ee66aebf89b1605"
+                "reference": "a72ccd1b6247a25c90fad317d98c884f3869b623"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spiral/roadrunner/zipball/dcd03789d7f8e1dd31ddf63e6ee66aebf89b1605",
-                "reference": "dcd03789d7f8e1dd31ddf63e6ee66aebf89b1605",
+                "url": "https://api.github.com/repos/spiral/roadrunner/zipball/a72ccd1b6247a25c90fad317d98c884f3869b623",
+                "reference": "a72ccd1b6247a25c90fad317d98c884f3869b623",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0",
+                "php": "^7.1",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.0",
                 "spiral/goridge": "^2.0",
@@ -4354,7 +4086,7 @@
                 }
             ],
             "description": "High-performance PHP application server, load-balancer and process manager written in Golang",
-            "time": "2019-09-06T11:02:08+00:00"
+            "time": "2019-10-12T10:07:47+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -5154,60 +4886,6 @@
                 "mime-type"
             ],
             "time": "2019-09-19T17:00:15+00:00"
-        },
-        {
-            "name": "symfony/options-resolver",
-            "version": "v4.3.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/options-resolver.git",
-                "reference": "81c2e120522a42f623233968244baebd6b36cb6a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/81c2e120522a42f623233968244baebd6b36cb6a",
-                "reference": "81c2e120522a42f623233968244baebd6b36cb6a",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\OptionsResolver\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony OptionsResolver Component",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "config",
-                "configuration",
-                "options"
-            ],
-            "time": "2019-08-08T09:29:19+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -6123,16 +5801,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "2.1.4",
+            "version": "2.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "a16378c4db99be661afc76805242281603d20a7c"
+                "reference": "6dcf9e760a6b476f3e9d80abbc9ce9c4aa921f9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/a16378c4db99be661afc76805242281603d20a7c",
-                "reference": "a16378c4db99be661afc76805242281603d20a7c",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/6dcf9e760a6b476f3e9d80abbc9ce9c4aa921f9c",
+                "reference": "6dcf9e760a6b476f3e9d80abbc9ce9c4aa921f9c",
                 "shasum": ""
             },
             "require": {
@@ -6186,7 +5864,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2019-10-08T20:08:44+00:00"
+            "time": "2019-10-10T17:38:20+00:00"
         }
     ],
     "packages-dev": [
@@ -6302,16 +5980,16 @@
         },
         {
             "name": "facade/ignition",
-            "version": "1.11.1",
+            "version": "1.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facade/ignition.git",
-                "reference": "dc56111b19e160236084dc6ab460e9c08912ecac"
+                "reference": "862cbc2dfffa1fa28b47822a116e5b2e03b421db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facade/ignition/zipball/dc56111b19e160236084dc6ab460e9c08912ecac",
-                "reference": "dc56111b19e160236084dc6ab460e9c08912ecac",
+                "url": "https://api.github.com/repos/facade/ignition/zipball/862cbc2dfffa1fa28b47822a116e5b2e03b421db",
+                "reference": "862cbc2dfffa1fa28b47822a116e5b2e03b421db",
                 "shasum": ""
             },
             "require": {
@@ -6369,7 +6047,7 @@
                 "laravel",
                 "page"
             ],
-            "time": "2019-10-08T07:36:31+00:00"
+            "time": "2019-10-13T10:42:06+00:00"
         },
         {
             "name": "filp/whoops",
@@ -6532,16 +6210,16 @@
         },
         {
             "name": "laravel-frontend-presets/tailwindcss",
-            "version": "2.0.2",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel-frontend-presets/tailwindcss.git",
-                "reference": "a0f437f65d3047b2c07839f966538600bfec14e7"
+                "reference": "acc0a70558b829d34597040ff8dfa9e3cb417cda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel-frontend-presets/tailwindcss/zipball/a0f437f65d3047b2c07839f966538600bfec14e7",
-                "reference": "a0f437f65d3047b2c07839f966538600bfec14e7",
+                "url": "https://api.github.com/repos/laravel-frontend-presets/tailwindcss/zipball/acc0a70558b829d34597040ff8dfa9e3cb417cda",
+                "reference": "acc0a70558b829d34597040ff8dfa9e3cb417cda",
                 "shasum": ""
             },
             "require": {
@@ -6570,7 +6248,7 @@
                 "preset",
                 "tailwindcss"
             ],
-            "time": "2019-09-11T23:32:17+00:00"
+            "time": "2019-10-14T22:15:37+00:00"
         },
         {
             "name": "mockery/mockery",

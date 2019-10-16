@@ -13,12 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::get('/redis', static function() {
-//    $keys = \Illuminate\Support\Facades\Redis::connection()->keys('*');
-//    dd($keys);
-//});
-
-
 Route::get('/test', static function() {
 
 });

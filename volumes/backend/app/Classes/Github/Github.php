@@ -16,37 +16,37 @@ class Github {
      * Github API Url for the application
      * @var string
      */
-    protected $githubAPIUrl = 'https://api.github.com/repos/darki73/PlexMediaManager/commits';
+    protected string $githubAPIUrl = 'https://api.github.com/repos/darki73/PlexMediaManager/commits';
 
     /**
      * Get path to the git folder
      * @var string|null
      */
-    protected $gitFolder = null;
+    protected ?string $gitFolder = null;
 
     /**
      * Indicates if application was loaded with the `git clone` command
      * @var bool
      */
-    protected $isLoadedFromGithub = false;
+    protected bool $isLoadedFromGithub = false;
 
     /**
      * Latest local commit
      * @var string|null
      */
-    protected $latestLocalCommit = null;
+    protected ?string $latestLocalCommit = null;
 
     /**
      * Latest remote commit
      * @var string|null
      */
-    protected $latestRemoteCommit = null;
+    protected ?string $latestRemoteCommit = null;
 
     /**
      * Indicates if application is updated or not
      * @var bool
      */
-    protected $applicationUpToDate = false;
+    protected bool $applicationUpToDate = false;
 
     /**
      * Github constructor.

@@ -16,25 +16,25 @@ class Server {
      * Server kernel information
      * @var Kernel|null
      */
-    protected $kernel = null;
+    protected ?Kernel $kernel = null;
 
     /**
      * Server processor information
      * @var Processor|null
      */
-    protected $processor = null;
+    protected ?Processor $processor = null;
 
     /**
      * Server memory information
      * @var Memory|null
      */
-    protected $memory = null;
+    protected ?Memory $memory = null;
 
     /**
      * Server network information
      * @var Network|null
      */
-    protected $network = null;
+    protected ?Network $network = null;
 
     /**
      * Server constructor.

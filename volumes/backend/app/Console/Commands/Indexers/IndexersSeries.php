@@ -1,4 +1,4 @@
-<?php namespace App\Console\Commands\Series;
+<?php namespace App\Console\Commands\Indexers;
 
 use App\Jobs\Update\SeriesIndexers;
 use Illuminate\Console\Command;

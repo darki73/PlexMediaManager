@@ -149,16 +149,21 @@ class Message {
     /**
      * This message will notify user that the download procedure for series has started
      * @param Series $series
+     * @param string|null $message
      * @return static
      */
-    public static function seriesDownloadStart(Series $series) : self {
+    public static function seriesDownloadStart(Series $series, ?string $message = null) : self {
         $self = new static;
         $self->title = sprintf('%s (%d)', $series->title, Message::getSeriesReleaseDate($series->release_date));
-        $self->message = sprintf(
-            '%s `%s`',
-            Message::getActionMessage(__FUNCTION__),
-            $self->title
-        );
+        if ($message !== null) {
+            $self->message = $message;
+        } else {
+            $self->message = sprintf(
+                '%s `%s`',
+                Message::getActionMessage(__FUNCTION__),
+                $self->title
+            );
+        }
         $self->informer = NotificationsManager::SERIES_INFORMER;
         $self->color = 57391;
         $self->description = $series->overview;
@@ -171,6 +176,21 @@ class Message {
         );
         return $self;
     }
+
+    /**
+     * This message will be sent when the download of series is finished
+     * @param Series $series
+     * @return static
+     */
+    public static function seriesDownloadFinished(Series $series) : self {
+        $message = sprintf(
+            '%s `%s`',
+            Message::getActionMessage(__FUNCTION__),
+            sprintf('%s (%d)', $series->title, Message::getSeriesReleaseDate($series->release_date))
+        );
+        return Message::seriesDownloadStart($series, $message);
+    }
+
 
     /**
      * This message will notify user that we are downloading new episode for series
@@ -207,10 +227,10 @@ class Message {
     protected static function getActionMessage(string $method) : string {
         $methods = [
             'seriesDownloadStart'           =>  'Started download procedure for',
+            'seriesDownloadFinished'        =>  'Finished downloading',
             'seriesEpisodeDownloadStart'    =>  'Downloading **Episode %d** for **Season %d** of `%s (%d)`',
             'seriesEpisodesDownloadStart'   =>  'Downloading **%d** episodes for `%s (%d)` from %s'
         ];
-
         return $methods[$method];
     }
 
