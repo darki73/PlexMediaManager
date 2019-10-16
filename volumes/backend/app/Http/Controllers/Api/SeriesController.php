@@ -6,8 +6,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Classes\TheMovieDB\TheMovieDB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Collection;
+use App\Classes\TheMovieDB\Endpoint\Discover;
 
 /**
  * Class SeriesController
@@ -19,7 +22,7 @@ class SeriesController extends APIMediaController {
      * Series Collection Array
      * @var Series[]|Collection|null
      */
-    protected $seriesCollection = null;
+    protected ?Collection $seriesCollection = null;
 
     /**
      * SeriesController constructor.
@@ -35,8 +38,31 @@ class SeriesController extends APIMediaController {
      * @return JsonResponse
      */
     public function list(Request $request) : JsonResponse {
-        // TODO: Check the caching mechanism later (smells fishy)
         return $this->sendResponse('Successfully fetched list of series', $this->cacheAllSeries());
+    }
+
+    /**
+     * Get top picks for series
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function topPicks(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'page'      =>  'required|integer'
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError('Missing required | Invalid parameters', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $discover = (new TheMovieDB)->discover()->for(Discover::SERIES)->page($request->get('page'));
+
+        if ($request->get('language') !== null) {
+            $discover->language($request->get('language'));
+        }
+
+        $result = $discover->fetch();
+
+        return $this->sendResponse('Successfully fetched top picks for series for page ' . $request->get('page'), $result);
     }
 
     /**

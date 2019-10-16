@@ -28,6 +28,7 @@ Route::group([
     'namespace' =>  'Api'
 ], static function() {
     Route::get('', 'SeriesController@list');
+    Route::post('top-picks', 'SeriesController@topPicks');
     Route::get('/missing', 'SeriesController@getMissingEpisodes');
     Route::get('/{id}', 'SeriesController@getSingleSeries');
     Route::get('/{id}/seasons', 'SeriesController@getSeriesSeasons');

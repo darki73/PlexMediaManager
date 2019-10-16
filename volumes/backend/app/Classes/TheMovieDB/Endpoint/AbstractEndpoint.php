@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
+use LanguageDetection\Language;
 
 /**
  * Class AbstractEndpoint
@@ -49,37 +50,37 @@ abstract class AbstractEndpoint {
      * API Base URL
      * @var string
      */
-    protected $baseURL = 'https://api.themoviedb.org';
+    protected string $baseURL = 'https://api.themoviedb.org';
 
     /**
      * GuzzleHTTP Client Instance
      * @var Client|null
      */
-    protected $client = null;
+    protected ?Client $client = null;
 
     /**
      * API Version
      * @var int
      */
-    protected $version = 3;
+    protected int $version = 3;
 
     /**
      * API Language
      * @var string
      */
-    protected $language = 'en';
+    protected string $language = 'en';
 
     /**
      * TheMovieDB Configuration Settings
      * @var array|null
      */
-    protected $configuration = null;
+    protected ?array $configuration = null;
 
     /**
      * Request Options
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * AbstractEndpoint constructor.
@@ -140,6 +141,16 @@ abstract class AbstractEndpoint {
     public function page(int $page = 1) : self {
         $this->options['page'] = $page;
         return $this;
+    }
+
+    /**
+     * Detect the best language for query
+     * @return void
+     */
+    protected function detectLanguage() : void {
+        $languageDetect = (new Language)->detect($this->query)->whitelist(... config('search.languages'));
+        $this->options['language'] = $this->language = array_key_first($languageDetect->bestResults()->close());
+        return;
     }
 
     /**

@@ -152,7 +152,6 @@ class RequestsController extends APIController {
      * @return array
      */
     protected function retrieveMediaInformation(string $title, int $year, int $type) : array {
-        // TODO: Add caching
         $types = [
             0   =>  'tv',
             1   =>  'movie'

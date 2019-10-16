@@ -1,6 +1,6 @@
 <?php namespace App\Classes\TheMovieDB;
 
-use App\Classes\TheMovieDB\Endpoint\{Configuration, Genres, Movies, Networks, Search, Series};
+use App\Classes\TheMovieDB\Endpoint\{Configuration, Discover, Genres, Movies, Networks, Search, Series};
 
 /**
  * Class TheMovieDB
@@ -12,37 +12,43 @@ class TheMovieDB {
      * Configuration Instance
      * @var Configuration|null
      */
-    protected $configuration = null;
+    protected ?Configuration $configuration = null;
 
     /**
      * Genres Instance
      * @var Genres|null
      */
-    protected $genres = null;
+    protected ?Genres $genres = null;
 
     /**
      * Search Instance
      * @var Search|null
      */
-    protected $search = null;
+    protected ?Search $search = null;
 
     /**
      * Series Instance
      * @var Series|null
      */
-    protected $series = null;
+    protected ?Series $series = null;
 
     /**
      * Movies Instance
      * @var Movies|null
      */
-    protected $movies = null;
+    protected ?Movies $movies = null;
 
     /**
      * Networks Instance
      * @var Networks|null
      */
-    protected $networks = null;
+    protected ?Networks $networks = null;
+
+    /**
+     * Discover Instance
+     * @var Discover|null
+     */
+    protected ?Discover $discover = null;
 
     /**
      * TMDB constructor.
@@ -100,6 +106,14 @@ class TheMovieDB {
         return $this->networks;
     }
 
+    /**
+     * Get Discover Instance
+     * @return Discover
+     */
+    public function discover() : Discover {
+        return $this->discover;
+    }
+
 
     /**
      * Initialize TheMovieDB Endpoints
@@ -112,6 +126,7 @@ class TheMovieDB {
         $this->series = new Series;
         $this->movies = new Movies;
         $this->networks = new Networks;
+        $this->discover = new Discover;
         return $this;
     }
 

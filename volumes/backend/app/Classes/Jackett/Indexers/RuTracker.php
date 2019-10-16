@@ -310,7 +310,7 @@ class RuTracker extends AbstractIndexer {
      * @return void
      */
     protected function runPreChecks(): void {
-        // TODO: Implement runPreChecks() method.
+        // Nothing to do here, this method must be implemented tho
     }
 
     /**

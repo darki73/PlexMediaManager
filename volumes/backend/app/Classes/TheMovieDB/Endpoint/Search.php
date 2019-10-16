@@ -1,8 +1,6 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use LanguageDetection\Language;
 
 /**
  * Class Search
@@ -56,37 +54,37 @@ class Search extends AbstractEndpoint {
      * Search Type
      * @var null|string
      */
-    protected $type = null;
+    protected ?string $type = null;
 
     /**
      * Search Query
      * @var null|string
      */
-    protected $query = null;
+    protected ?string $query = null;
 
     /**
      * Release Year
      * @var null|integer
      */
-    protected $year = null;
+    protected ?int $year = null;
 
     /**
      * Whether Or Not Include Adult Content
      * @var bool
      */
-    protected $includeAdult = true;
+    protected bool $includeAdult = true;
 
     /**
      * Number of requests left before 429 error will be triggered
      * @var int
      */
-    protected $requestsRemaining = 40;
+    protected int $requestsRemaining = 40;
 
     /**
      * Names Which Must Be "Fixed"
      * @var array
      */
-    protected $nameFix = [
+    protected array $nameFix = [
 
     ];
 
@@ -137,16 +135,6 @@ class Search extends AbstractEndpoint {
     protected function removeYear(int $year) : void {
         $query = str_replace('(' . $year . ')', '', $this->options['query']);
         $this->options['query'] = trim($query);
-    }
-
-    /**
-     * Detect the best language for query
-     * @return void
-     */
-    protected function detectLanguage() : void {
-        $languageDetect = (new Language)->detect($this->query)->whitelist(... config('search.languages'));
-        $this->options['language'] = $this->language = array_key_first($languageDetect->bestResults()->close());
-        return;
     }
 
     /**
