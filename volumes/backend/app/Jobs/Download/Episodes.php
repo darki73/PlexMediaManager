@@ -18,7 +18,7 @@ class Episodes extends AbstractLongQueueJob {
      * List of indexers for series in the database
      * @var SeriesIndexer[]|Collection|null
      */
-    protected ?Collection $seriesIndexers = null;
+    protected $seriesIndexers = null;
 
     /**
      * Implemented indexers for Jackett

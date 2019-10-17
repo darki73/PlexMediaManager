@@ -2,13 +2,19 @@
 .idea
 
 # Ignore Contents In These Volumes
+volumes/jackett/*
 volumes/mariadb/*
 volumes/redis/*
+volumes/torrent/*
 volumes/traefik/*
 
 # Keep Certain Files In These Volumes
+!volumes/jackett/config/.gitkeep
+!volumes/jackett/completed/.gitkeep
 !volumes/mariadb/.gitkeep
 !volumes/redis/.gitkeep
+!volumes/torrent/config/.gitkeep
+!volumes/torrent/completed/.gitkeep
 !volumes/traefik/.gitkeep
 
 # Ignore Manually Created Files
@@ -16,3 +22,4 @@ docker-compose.yml
 docker-compose.fpm.yml
 docker-compose.roadrunner.yml
 settings.yml
+move_files.sh

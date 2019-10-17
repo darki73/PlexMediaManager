@@ -9,67 +9,136 @@ volumes:
   home-dir:
 
 services:
-  #    traefik:
-  #      hostname: traefik
-  #      image: traefik:latest
-  #      container_name: traefik
-  #      restart: always
-  #      domainname: REPLACE_WITH_DOMAIN_NAME
-  #      networks:
-  #        - default
-  #        - traefik_proxy
-  #      ports:
-  #        - 80:80
-  #        - 443:443
-  #      environment:
-  #        - CF_API_EMAIL=REPLACE_WITH_CLOUDFLARE_EMAIL
-  #        - CF_API_KEY=REPLACE_WITH_CLOUDFLARE_API_KEY
-  #      labels:
-  #        # Global Container Configuration
-  #        traefik.enable: true
-  #        traefik.docker.network: traefik_proxy
-  #        traefik.http.services.traefik.loadBalancer.server.port: 8080
-  #
-  #        # HTTP Endpoint Configuration
-  #        traefik.http.routers.traefik.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
-  #        traefik.http.routers.traefik.entrypoints: web
-  #        traefik.http.routers.traefik.middlewares: redirect@docker
-  #
-  #        # HTTP Endpoint Configuration
-  #        traefik.http.routers.traefik-secure.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
-  #        traefik.http.routers.traefik-secure.entrypoints: websecure
-  #        traefik.http.routers.traefik-secure.middlewares: secure@docker, onlyFromLocal@docker, basicAuth@docker
-  #        traefik.http.routers.traefik-secure.tls: true
-  #        traefik.http.routers.traefik-secure.tls.certResolver: dnschallenge
-  #
-  #        # Middleware Configuration
-  #
-  #        # Redirect Middleware
-  #        traefik.http.middlewares.redirect.redirectScheme.scheme: https
-  #        # Secure Middleware
-  #
-  #        traefik.http.middlewares.secure.headers.sslRedirect: true
-  #        traefik.http.middlewares.secure.headers.stsSeconds: 315360000
-  #        traefik.http.middlewares.secure.headers.browserXSSFilter: true
-  #        traefik.http.middlewares.secure.headers.contentTypeNosniff: true
-  #        traefik.http.middlewares.secure.headers.forceSTSHeader: true
-  #        traefik.http.middlewares.secure.headers.sslHost: 'REPLACE_WITH_DOMAIN_NAME'
-  #        traefik.http.middlewares.secure.headers.stsIncludeSubdomains: true
-  #        traefik.http.middlewares.secure.headers.stsPreload: true
-  #        traefik.http.middlewares.secure.headers.frameDeny: true
-  #
-  #        # Basic Authentication Middleware
-  #        # Use `echo $(htpasswd -nb USERNAME PASSWORD) | sed -e s/\\$/\\$\\$/g` command to generate username and password. Default is admin admin
-  #        traefik.http.middlewares.basicAuth.basicAuth.users: admin:$$apr1$$/E.wRpo.$$QRyZh8HtoiH42.kIUcH1M0
-  #
-  #        # Whitelist Middleware
-  #        traefik.http.middlewares.onlyFromLocal.ipWhiteList.sourceRange: 192.168.0.0/16, 172.16.0.0/12, 127.0.0.1/32
-  #
-  #        # Sameorigin Middleware
-  #        traefik.http.middlewares.sameOrigin.headers.customFrameOptionsValue: SAMEORIGIN
-  #      volumes:
-  #        - /var/run/docker.sock:/var/run/docker.sock:ro
-  #        - ./volumes/traefik:/etc/traefik
+#  traefik:
+#    hostname: traefik
+#    image: traefik:latest
+#    container_name: traefik
+#    restart: always
+#    domainname: REPLACE_WITH_DOMAIN_NAME
+#    networks:
+#      - default
+#      - traefik_proxy
+#    ports:
+#      - 80:80
+#      - 443:443
+#    environment:
+#      - CF_API_EMAIL=REPLACE_WITH_CLOUDFLARE_EMAIL
+#      - CF_API_KEY=REPLACE_WITH_CLOUDFLARE_API_KEY
+#    labels:
+#      # Global Container Configuration
+#      traefik.enable: true
+#      traefik.docker.network: traefik_proxy
+#      traefik.http.services.traefik.loadBalancer.server.port: 8080
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.traefik.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.traefik.entrypoints: web
+#      traefik.http.routers.traefik.middlewares: redirect@docker
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.traefik-secure.rule: Host(`traefik.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.traefik-secure.entrypoints: websecure
+#      traefik.http.routers.traefik-secure.middlewares: secure@docker, onlyFromLocal@docker, basicAuth@docker
+#      traefik.http.routers.traefik-secure.tls: true
+#      traefik.http.routers.traefik-secure.tls.certResolver: dnschallenge
+#
+#      # Middleware Configuration
+#
+#      # Redirect Middleware
+#      traefik.http.middlewares.redirect.redirectScheme.scheme: https
+#      # Secure Middleware
+#
+#      traefik.http.middlewares.secure.headers.sslRedirect: true
+#      traefik.http.middlewares.secure.headers.stsSeconds: 315360000
+#      traefik.http.middlewares.secure.headers.browserXSSFilter: true
+#      traefik.http.middlewares.secure.headers.contentTypeNosniff: true
+#      traefik.http.middlewares.secure.headers.forceSTSHeader: true
+#      traefik.http.middlewares.secure.headers.sslHost: 'REPLACE_WITH_DOMAIN_NAME'
+#      traefik.http.middlewares.secure.headers.stsIncludeSubdomains: true
+#      traefik.http.middlewares.secure.headers.stsPreload: true
+#      traefik.http.middlewares.secure.headers.frameDeny: true
+#
+#      # Basic Authentication Middleware
+#      # Use `echo $(htpasswd -nb USERNAME PASSWORD) | sed -e s/\\$/\\$\\$/g` command to generate username and password. Default is admin admin
+#      traefik.http.middlewares.basicAuth.basicAuth.users: admin:$$apr1$$/E.wRpo.$$QRyZh8HtoiH42.kIUcH1M0
+#
+#      # Whitelist Middleware
+#      traefik.http.middlewares.onlyFromLocal.ipWhiteList.sourceRange: 192.168.0.0/16, 172.16.0.0/12, 127.0.0.1/32
+#
+#      # Sameorigin Middleware
+#      traefik.http.middlewares.sameOrigin.headers.customFrameOptionsValue: SAMEORIGIN
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+#      - ./volumes/traefik:/etc/traefik
+
+#  torrent:
+#    image: linuxserver/qbittorrent:latest
+#    container_name: qbittorrent
+#    restart: always
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Moscow
+#      - UMASK_SET=002
+#    networks:
+#      - internal
+#      - torrent_network
+#    ports:
+#      - "6881:6881"
+#      - "6881:6881/udp"
+#    labels:
+#      # Global Container Configuration
+#      traefik.enable: true
+#      traefik.docker.network: traefik_proxy
+#      traefik.http.services.torrent.loadBalancer.server.port: 8080
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.torrent.rule: Host(`torrent.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.torrent.entrypoints: web
+#      traefik.http.routers.torrent.middlewares: redirect@docker
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.torrent-secure.rule: Host(`torrent.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.torrent-secure.entrypoints: websecure
+#      traefik.http.routers.torrent-secure.middlewares: secure@docker
+#      traefik.http.routers.torrent-secure.tls: true
+#      traefik.http.routers.torrent-secure.tls.certResolver: dnschallenge
+#    volumes:
+#      - ./volumes/qbittorrent/config:/config
+#      - ./volumes/qbittorrent/completed:/downloads
+#
+#  jackett:
+#    image: linuxserver/jackett
+#    container_name: jackett
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Moscow
+#    volumes:
+#      - ./volumes/jackett/config:/config
+#      - ./volumes/jackett/downloads:/downloads
+#    labels:
+#      # Global Container Configuration
+#      traefik.enable: true
+#      traefik.docker.network: traefik_proxy
+#      traefik.http.services.jackett.loadBalancer.server.port: 9117
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.jackett.rule: Host(`jackett.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.jackett.entrypoints: web
+#      traefik.http.routers.jackett.middlewares: redirect@docker
+#
+#      # HTTP Endpoint Configuration
+#      traefik.http.routers.jackett-secure.rule: Host(`jackett.REPLACE_WITH_DOMAIN_NAME`)
+#      traefik.http.routers.jackett-secure.entrypoints: websecure
+#      traefik.http.routers.jackett-secure.middlewares: secure@docker, onlyFromLocal@docker
+#      traefik.http.routers.jackett-secure.tls: true
+#      traefik.http.routers.jackett-secure.tls.certResolver: dnschallenge
+#      com.centurylinklabs.watchtower.enable: false
+#    restart: unless-stopped
+#    networks:
+#      - traefik_proxy
+#      - internal
 
   &app-service app: &app-service-template
     image: registry.freedomcore.ru/darki73/plexmediamanager/application:latest

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+response=$(curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN_NAME/torrent/completed");
+readarray -t commands <<<"$response"
+
+for i in "${commands[@]}"
+do
+    eval $i
+done
+
+curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN_NAME/torrent/sync"
