@@ -35,13 +35,19 @@ class EpisodesSyncCLI extends Command {
      * List of locally available series
      * @var array
      */
-    protected $seriesList = [];
+    protected array $seriesList = [];
 
     /**
      * List of all available series
      * @var Series[]|Collection|null
      */
-    protected $seriesCollection = null;
+    protected ?Collection $seriesCollection = null;
+
+    /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
 
     /**
      * Create a new command instance.
@@ -49,9 +55,13 @@ class EpisodesSyncCLI extends Command {
      */
     public function __construct() {
         parent::__construct();
-        $this->storage = Source::series();
-        $this->seriesList = $this->storage->list();
-        $this->seriesCollection = Series::all();
+        try {
+            $this->storage = Source::series();
+            $this->seriesList = $this->storage->list();
+            $this->seriesCollection = Series::all();
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
@@ -60,6 +70,9 @@ class EpisodesSyncCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        if (! $this->ready) {
+            return;
+        }
         $countSynced = 0;
         foreach ($this->seriesCollection as $seriesModel) {
             foreach ($this->seriesList as $series) {

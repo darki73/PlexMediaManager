@@ -32,14 +32,24 @@ class EpisodesUpdateCLI extends Command {
      * List of all available series
      * @var Series[]|Collection|null
      */
-    protected $series = null;
+    protected ?Collection $series = null;
+
+    /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
 
     /**
      * EpisodesUpdateCLI constructor.
      */
     public function __construct() {
         parent::__construct();
-        $this->series = Series::all();
+        try {
+            $this->series = Series::all();
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
@@ -48,6 +58,9 @@ class EpisodesUpdateCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        if (! $this->ready) {
+            return;
+        }
         $missingEpisodesCount = $this->countMissingEpisodes();
         $progressBar = $this->output->createProgressBar($missingEpisodesCount);
         foreach ($this->series as $series) {

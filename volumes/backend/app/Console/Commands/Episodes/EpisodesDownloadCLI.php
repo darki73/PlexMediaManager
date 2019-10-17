@@ -31,7 +31,7 @@ class EpisodesDownloadCLI extends Command {
      * List of indexers for series in the database
      * @var SeriesIndexer[]|Collection|null
      */
-    protected $seriesIndexers = null;
+    protected ?Collection $seriesIndexers = null;
 
     /**
      * Implemented indexers for Jackett
@@ -40,12 +40,22 @@ class EpisodesDownloadCLI extends Command {
     protected $implementations = [];
 
     /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
+
+    /**
      * EpisodesDownload constructor.
      */
     public function __construct() {
         parent::__construct();
-        $this->seriesIndexers = SeriesIndexer::all();
-        $this->implementations = config('jackett.indexers');
+        try {
+            $this->seriesIndexers = SeriesIndexer::all();
+            $this->implementations = config('jackett.indexers');
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
@@ -53,6 +63,10 @@ class EpisodesDownloadCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        if (! $this->ready) {
+            return;
+        }
+
         $now = \Carbon\Carbon::now()->format('Y-m-d');
         foreach ($this->seriesIndexers as $indexer) {
             $tracker = $indexer->indexer;

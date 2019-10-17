@@ -24,6 +24,11 @@ class IndexersSeriesCLI extends Command {
      */
     protected $description = 'Update indexers information for series';
 
+    /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
 
     /**
      * Create a new command instance.
@@ -32,12 +37,21 @@ class IndexersSeriesCLI extends Command {
      */
     public function __construct() {
         parent::__construct();
+        try {
+            $series = Series::all();
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
      * Execute the console command.
      */
     public function handle() {
+        if (! $this->ready) {
+            return;
+        }
+
         $implementations = config('jackett.indexers');
         foreach ($implementations as $tracker => $class) {
             $this->info('Refreshing indexes for: ' . $tracker . ' ...');

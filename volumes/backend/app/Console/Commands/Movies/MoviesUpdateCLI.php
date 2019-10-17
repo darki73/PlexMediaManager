@@ -32,7 +32,13 @@ class MoviesUpdateCLI extends Command {
      * List of all available movies
      * @var array
      */
-    protected $list = [];
+    protected array $list = [];
+
+    /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
 
     /**
      * Create a new command instance.
@@ -41,7 +47,11 @@ class MoviesUpdateCLI extends Command {
      */
     public function __construct() {
         parent::__construct();
-        $this->list = Source::movies()->list();
+        try {
+            $this->list = Source::movies()->list();
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
@@ -49,6 +59,10 @@ class MoviesUpdateCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        if (! $this->ready) {
+            return;
+        }
+
         $progressBar = $this->output->createProgressBar(\count($this->list));
         $progressBar->setFormat('[%current%/%max%] Processed Movie: `%message%`.');
         $progressBar->start();

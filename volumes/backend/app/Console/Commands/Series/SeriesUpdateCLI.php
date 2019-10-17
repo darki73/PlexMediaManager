@@ -33,13 +33,19 @@ class SeriesUpdateCLI extends Command {
      * Initialize series storage
      * @var Series|null
      */
-    private $storage = null;
+    private ?Series $storage = null;
 
     /**
      * Series list
      * @var array
      */
-    private $list = [];
+    private array $list = [];
+
+    /**
+     * Indicates whether application is ready to handle commands
+     * @var bool
+     */
+    protected bool $ready = true;
 
     /**
      * Create a new command instance.
@@ -48,8 +54,12 @@ class SeriesUpdateCLI extends Command {
      */
     public function __construct() {
         parent::__construct();
-        $this->storage = Source::series();
-        $this->list = $this->storage->list();
+        try {
+            $this->storage = Source::series();
+            $this->list = $this->storage->list();
+        } catch (\Exception $exception) {
+            $this->ready = false;
+        }
     }
 
     /**
@@ -57,6 +67,10 @@ class SeriesUpdateCLI extends Command {
      * @return void
      */
     public function handle() : void {
+        if (! $this->ready) {
+            return;
+        }
+
         $progressBar = $this->output->createProgressBar(\count($this->list));
         $progressBar->setFormat('[%current%/%max%] Processed Series: `%message%`.');
         $progressBar->start();
