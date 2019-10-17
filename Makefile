@@ -162,7 +162,6 @@ install: install-up ## Install application dependencies into application contain
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" cp .env.example .env
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" composer install --ignore-platform-reqs --no-interaction --ansi --no-suggest
 	$(docker_compose_bin) up -d --no-recreate frontend
-	$(docker_compose_bin) run --rm "$(FRONTEND_CONTAINER_NAME)" yarn install
 	$(docker_compose_bin) down
 
 init: install ## Make full application initialization (install, seed, build assets, etc)
