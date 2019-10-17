@@ -79,6 +79,7 @@ services:
       - home-dir:/home/user
       - ./volumes/backend:/app:rw
       - .git:/app/.git:ro
+      - ./settings.yml:/app/storage/app/private/settings.yml:ro
     hostname: *app-service
     labels:
       traefik.enable: false

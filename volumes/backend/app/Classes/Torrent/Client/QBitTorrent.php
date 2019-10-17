@@ -48,7 +48,7 @@ class QBitTorrent extends AbstractClient {
      * QBitTorrent constructor.
      */
     public function __construct() {
-        $this->apiURL = env('QBIT_URL', null);
+        $this->apiURL = config('torrent.url');
         $this->initializeClient();
     }
 
@@ -266,7 +266,7 @@ class QBitTorrent extends AbstractClient {
             ],
             'cookies'       =>  CookieJar::fromArray([
                 'SID'       =>  $this->authenticationToken
-            ], str_replace(['http://', 'https://'], '', env('QBIT_URL')))
+            ], str_replace(['http://', 'https://'], '', config('torrent.url')))
         ]);
         return $this;
     }
@@ -280,10 +280,9 @@ class QBitTorrent extends AbstractClient {
             'base_uri'  =>  $this->apiURL,
             'timeout'   =>  2.0
         ]);
-
         $this->crawler = new CrawlerClient();
         $this->crawler->setClient($this->client);
-        $this->crawler->setAuth(env('QBIT_USERNAME'), env('QBIT_PASSWORD'));
+        $this->crawler->setAuth(config('torrent.username'), config('torrent.password'));
         return $this;
     }
 
@@ -301,7 +300,7 @@ class QBitTorrent extends AbstractClient {
             $requestParameters = [
                 'cookies'   =>  CookieJar::fromArray([
                     'SID'   =>  $this->authenticationToken
-                ], str_replace(['http://', 'https://'], '', env('QBIT_URL'))),
+                ], str_replace(['http://', 'https://'], '', config('torrent.url'))),
             ];
 
             if (array_key_exists('multipart', $parameters)) {
@@ -332,8 +331,8 @@ class QBitTorrent extends AbstractClient {
         if ($this->authenticationToken === null) {
             $request = $this->client->post('/login', [
                 'form_params'   =>  [
-                    'username'  =>  env('QBIT_USERNAME'),
-                    'password'  =>  env('QBIT_PASSWORD')
+                    'username'  =>  config('torrent.username'),
+                    'password'  =>  config('torrent.password')
                 ]
             ]);
             $response = $request->getHeader('Set-Cookie');

@@ -114,7 +114,7 @@ class Library extends AbstractClient {
                 'title'             =>  $item['title'],
                 'released'          =>  $item['originallyAvailableAt'] ?? null,
                 'duration'          =>  isset($item['duration']) ? ($item['duration'] / 1000) : null,
-                'watch'             =>  sprintf('//%s/web/index.html#!/server/%s/details?key=%s', env('PLEX_URL'), $this->selectedServer['id'], urlencode($item['key'])),
+                'watch'             =>  sprintf('//%s/web/index.html#!/server/%s/details?key=%s', config('media.plex_url'), $this->selectedServer['id'], urlencode($item['key'])),
                 'dates'             =>  [
                     'createdAt'     =>  $item['addedAt'],
                     'updatedAt'     =>  $item['updatedAt']

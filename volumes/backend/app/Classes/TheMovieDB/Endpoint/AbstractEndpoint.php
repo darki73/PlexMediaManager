@@ -159,7 +159,7 @@ abstract class AbstractEndpoint {
      */
     protected function buildBaseOptions() : self {
         $this->options = [
-            'api_key'       =>  env('TMDB_API_KEY'),
+            'api_key'       =>  config('media.tmdb_api_key'),
             'language'      =>  $this->language,
             'adult'         =>  true,
             'include_adult' =>  true

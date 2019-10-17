@@ -209,11 +209,11 @@ abstract class AbstractIndexer {
     protected function isSeasonExcludedFromDownload(Series $series, Episode $episode) : bool {
         $shouldSkip = SeriesIndexerExclude::where('series_id', '=', $episode->series_id)->where('season_number', '=', $episode->season_number)->exists();
         if ($shouldSkip) {
-            app('log')->info(sprintf(
-                '%s Season %d was marked to be excluded from downloading',
-                $series->title,
-                $episode->season_number
-            ));
+//            app('log')->info(sprintf(
+//                '%s Season %d was marked to be excluded from downloading',
+//                $series->title,
+//                $episode->season_number
+//            ));
         }
         return $shouldSkip;
     }

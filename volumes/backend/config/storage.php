@@ -52,11 +52,8 @@ return [
     | Plex mounts.
     */
     'mounts'            =>  [
-        'plex'          =>  [
-            'hdd'       =>  '/docker/hdd/volumes/plex/media',
-            'nas'       =>  '/docker/nas/volumes/plex/media',
-        ],
-        'torrent'       =>  '/docker/nas/volumes/qbittorrent/completed'
+        'plex'          =>  [],
+        'torrent'       =>  null
     ],
 
     /*

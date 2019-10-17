@@ -1,5 +1,7 @@
 <?php namespace App\Providers;
 
+use Illuminate\Support\Facades\Config;
+use Symfony\Component\Yaml\Yaml;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -14,7 +16,12 @@ class AppServiceProvider extends ServiceProvider {
      * @return void
      */
     public function register() : void {
-        //
+        $configuration = Yaml::parseFile('/app/storage/app/private/settings.yml');
+        foreach ($configuration as $file => $parameters) {
+            foreach ($parameters as $key => $value) {
+                Config::set($file . '.' . $key, $value);
+            }
+        }
     }
 
     /**

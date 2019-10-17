@@ -48,7 +48,7 @@ abstract class AbstractClient {
             'headers'               =>  [
                 'Accept'            =>  'application/json',
             ],
-            'timeout'                   =>  5,
+            'timeout'                   =>  10,
         ]);
     }
 
@@ -84,15 +84,15 @@ abstract class AbstractClient {
         ];
 
         $curlOptions = [
-            CURLOPT_PROXYTYPE   =>  isset($proxyTypes[env('PROXY_TYPE')]) ? $proxyTypes[env('PROXY_TYPE')] : null,
-            CURLOPT_PROXY       =>  env('PROXY_HOST'),
-            CURLOPT_PROXYPORT   =>  env('PROXY_PORT')
+            CURLOPT_PROXYTYPE   =>  isset($proxyTypes[config('proxy.type')]) ? $proxyTypes[config('proxy.type')] : null,
+            CURLOPT_PROXY       =>  config('proxy.host'),
+            CURLOPT_PROXYPORT   =>  config('proxy.port')
         ];
-        if (strlen(env('PROXY_USERNAME')) > 0) {
-            $curlOptions[CURLOPT_PROXYUSERNAME] = env('PROXY_USERNAME');
+        if (strlen(config('proxy.username')) > 0) {
+            $curlOptions[CURLOPT_PROXYUSERNAME] = config('proxy.username');
         }
-        if (strlen(env('PROXY_PASSWORD')) > 0) {
-            $curlOptions[CURLOPT_PROXYPASSWORD] = env('PROXY_PASSWORD');
+        if (strlen(config('proxy.password')) > 0) {
+            $curlOptions[CURLOPT_PROXYPASSWORD] = config('proxy.password');
         }
 
 

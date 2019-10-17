@@ -1,0 +1,44 @@
+jackett:
+  version: v2.0
+  url: jackett
+  key:
+  timeout: 10.0
+  max_redirects: 5
+
+proxy:
+  type: socks5
+  host: 127.0.0.1
+  port: 1080
+  username: null
+  password: null
+
+search:
+  languages:
+    - en
+    - ru
+
+media:
+  tmdb_api_key:
+  plex_url:
+
+storage:
+  preferred: nas
+  threshold:
+    value: 500
+    units: GB
+    percentage: false
+  mounts:
+    plex:
+    torrent:
+  process_only:
+    - avi
+    - mkv
+    - mp4
+    - m4v
+
+torrent:
+  url: torrent
+  username:
+  password: ""
+  ignore_parts:
+    - remux

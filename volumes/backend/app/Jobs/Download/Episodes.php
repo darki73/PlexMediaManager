@@ -18,7 +18,7 @@ class Episodes extends AbstractLongQueueJob {
      * List of indexers for series in the database
      * @var SeriesIndexer[]|Collection|null
      */
-    protected $seriesIndexers = null;
+    protected ?Collection $seriesIndexers = null;
 
     /**
      * Implemented indexers for Jackett
@@ -44,6 +44,7 @@ class Episodes extends AbstractLongQueueJob {
         foreach ($this->seriesIndexers as $indexer) {
             $tracker = $indexer->indexer;
             $class = $this->implementations[$tracker];
+            $hasTorrentFiles = $indexer->torrentFiles->count() !== 0;
 
             $series = $indexer->series;
             $episodes = $indexer
@@ -56,11 +57,19 @@ class Episodes extends AbstractLongQueueJob {
             }
 
             $episodes = $episodes->get();
+
             if ($episodes->count() > 0) {
-                foreach ($episodes as $episode) {
-                    $response = $class::download($series, $episode);
-                    if ($response) {
-                        NotificationsManager::sendMessage(Message::seriesEpisodeDownloadStart($series, $episode));
+                if (!$hasTorrentFiles) {
+                    foreach ($episodes as $episode) {
+                        $downloading = $class::download($series, $episode);
+                        if ($downloading) {
+                            NotificationsManager::sendMessage(Message::seriesEpisodeDownloadStart($series, $episode));
+                        }
+                    }
+                } else {
+                    $downloading = $class::downloadMultiple($series, $episodes);
+                    if ($downloading) {
+                        NotificationsManager::sendMessage(Message::seriesEpisodesDownloadStart($series, $tracker, $episodes->count()));
                     }
                 }
             }

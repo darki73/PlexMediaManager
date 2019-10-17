@@ -15,3 +15,4 @@ volumes/traefik/*
 docker-compose.yml
 docker-compose.fpm.yml
 docker-compose.roadrunner.yml
+settings.yml

@@ -1,6 +1,5 @@
 <?php
 
-
 return [
 
     /*
@@ -14,7 +13,6 @@ return [
     |
     */
     'version'                   =>  env('JACKETT_VERSION', 'v2.0'),
-
 
     'url'                       =>  env('JACKETT_URL', null),
 
