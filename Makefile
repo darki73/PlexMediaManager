@@ -171,4 +171,6 @@ init: install ## Make full application initialization (install, seed, build asse
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan migrate --force --no-interaction -vvv
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan db:seed --force -vvv
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan storage:link --force -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan horizon:install --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan passport:install --force --no-interaction -vvv
 	$(docker_compose_bin) down
