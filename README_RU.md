@@ -1,0 +1,1 @@
+[В данный момент доступна документация только на Английском](https://github.com/darki73/PlexMediaManager/README.md)
