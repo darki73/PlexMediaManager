@@ -2,7 +2,7 @@
 
 SHELL = /bin/sh
 
-REGISTRY_HOST = docker.pkg.github.com
+REGISTRY_HOST = registry.freedomcore.ru
 REGISTRY_PATH = darki73/plexmediamanager
 IMAGES_PREFIX := $(shell basename $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
@@ -68,6 +68,17 @@ app: app-pull ## Application - build Docker image locally
 app-push: app-pull ## Application - tag and push Docker image into remote registry
 	$(docker_bin) build \
 	  --cache-from "$(APP_IMAGE):$(PULL_TAG)" \
+	  --build-arg INSTALL_PHPREDIS=true \
+	  --build-arg INSTALL_PCNTL=true \
+	  --build-arg INSTALL_BCMATH=true \
+	  --build-arg INSTALL_GMP=true \
+	  --build-arg INSTALL_EXIF=true \
+	  --build-arg INSTALL_MYSQLI=true \
+	  --build-arg INSTALL_INTL=true \
+	  --build-arg INSTALL_GHOSTSCRIPT=true \
+	  --build-arg INSTALL_IMAGE_OPTIMIZERS=true \
+	  --build-arg INSTALL_IMAGEMAGICK=true \
+	  --build-arg INSTALL_YAML=true \
 	  $(foreach tag_name,$(PUBLISH_TAGS),--tag "$(APP_IMAGE):$(tag_name)") \
 	  -f $(APP_IMAGE_DOCKERFILE) $(APP_IMAGE_CONTEXT);
 	$(foreach tag_name,$(PUBLISH_TAGS),$(docker_bin) push "$(APP_IMAGE):$(tag_name)";)
@@ -140,10 +151,19 @@ restart: up ## Restart all started for development containers
 shell: up ## Start shell into application container
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" /bin/sh
 
-install: up ## Install application dependencies into application container
+install-up: ## Start containers for installation
+	$(docker_compose_bin) up -d --no-recreate redis
+	$(docker_compose_bin) up -d --no-recreate database
+	$(docker_compose_bin) up -d --no-recreate app
+	$(docker_compose_bin) up -d --no-recreate php-fpm
+	$(docker_compose_bin) up -d --no-recreate nginx
+
+install: install-up ## Install application dependencies into application container
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" cp .env.example .env
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" composer install --no-interaction --ansi --no-suggest
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" composer install --ignore-platform-reqs --no-interaction --ansi --no-suggest
+	$(docker_compose_bin) up -d --no-recreate frontend
 	$(docker_compose_bin) run --rm "$(FRONTEND_CONTAINER_NAME)" yarn install
+	$(docker_compose_bin) down
 
 init: install ## Make full application initialization (install, seed, build assets, etc)
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan pmm:socket-keys --force --no-interaction -vvv
@@ -151,3 +171,4 @@ init: install ## Make full application initialization (install, seed, build asse
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan migrate --force --no-interaction -vvv
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan db:seed --force -vvv
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan storage:link --force -vvv
+	$(docker_compose_bin) down

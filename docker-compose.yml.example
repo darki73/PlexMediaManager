@@ -72,7 +72,7 @@ services:
   #        - ./volumes/traefik:/etc/traefik
 
   &app-service app: &app-service-template
-    image: docker.pkg.github.com/darki73/plexmediamanager/application:latest
+    image: registry.freedomcore.ru/darki73/plexmediamanager/application:latest
     user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
     restart: always
     volumes:
@@ -185,7 +185,7 @@ services:
       - internal
 
   frontend:
-    image: docker.pkg.github.com/darki73/plexmediamanager/frontend:latest
+    image: registry.freedomcore.ru/darki73/plexmediamanager/frontend:latest
     restart: always
     environment:
       API_URL: *api-domain
@@ -216,7 +216,7 @@ services:
       - traefik_proxy
 
   nginx:
-    image: docker.pkg.github.com/darki73/plexmediamanager/nginx:latest
+    image: registry.freedomcore.ru/darki73/plexmediamanager/nginx:latest
     restart: always
     working_dir: /usr/share/nginx/html
     environment:
