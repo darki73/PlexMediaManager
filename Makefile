@@ -162,14 +162,14 @@ install: install-up ## Install application dependencies into application contain
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" cp .env.example .env
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" composer install --ignore-platform-reqs --no-interaction --ansi --no-suggest
 	$(docker_compose_bin) up -d --no-recreate frontend
-	$(docker_compose_bin) stop frontend
+
 
 init: install ## Make full application initialization (install, seed, build assets, etc)
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan pmm:socket-keys --force --no-interaction -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan key:generate --force --no-interaction -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan migrate --force --no-interaction -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan db:seed --force -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan storage:link --force -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan horizon:install --force --no-interaction -vvv
-	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" artisan passport:install --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan pmm:socket-keys --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan key:generate --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan migrate --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan db:seed --force -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan storage:link --force -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan horizon:install --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan passport:install --force --no-interaction -vvv
 	$(docker_compose_bin) down
