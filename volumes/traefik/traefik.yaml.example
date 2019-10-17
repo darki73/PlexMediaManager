@@ -1,0 +1,49 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: true
+
+serversTransport:
+  insecureSkipVerify: true
+
+entryPoints:
+  web:
+    address: :80
+  websecure:
+    address: :443
+
+certificatesResolvers:
+  dnschallenge:
+    acme:
+      email: PROVIDE_YOUR_CLOUDFLARE_EMAIL
+      storage: /etc/traefik/acme/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+
+log:
+  level: ERROR
+  # filePath: /etc/traefik/logs/error.log
+  # format: json
+
+# accessLog:
+#   filePath: /etc/traefik/logs/access.log
+#   format: json
+
+api:
+  insecure: true
+  dashboard: true
+
+ping:
+  entryPoint: traefik
+
+# metrics:
+
+providers:
+  docker:
+    endpoint: unix:///var/run/docker.sock
+    defaultRule: Host(`REPLACE_WITH_DOMAIN_NAME`)
+    exposedByDefault: false
+    watch: true
+  file:
+    directory: /etc/traefik/rules
+    watch: true
