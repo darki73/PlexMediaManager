@@ -62,7 +62,12 @@
                                     {{ item.email }}
                                 </td>
                                 <td align="center">
-                                    {{ toLocalDateTime(item.email_verified_at) }}
+                                    <span v-if="item.email_verified_at === null">
+                                        {{ $t('dashboard.account.users.not_validated') }}
+                                    </span>
+                                    <span v-else>
+                                        {{ toLocalDateTime(item.email_verified_at) }}
+                                    </span>
                                 </td>
                                 <td align="center">
                                     {{ toLocalDateTime(item.created_at) }}

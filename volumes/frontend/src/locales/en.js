@@ -43,7 +43,8 @@ export default {
         api: {
             account: {
                 invalid_credentials: 'You have provided invalid credentials',
-                not_administrator: 'Your account does not belongs to \'Administrators\' group'
+                not_administrator: 'Your account does not belongs to \'Administrators\' group',
+                not_validated: 'Your account has not yet been validated by the administrator'
             }
         }
     },
@@ -173,7 +174,8 @@ export default {
                     title: 'Deleting: {username}',
                     message: 'Are you sure you want to delete selected user and all data associated with that user?',
                     warning: 'This action cannot be reverted, so please, think twice before deleting a user.'
-                }
+                },
+                not_validated: 'Not validated'
             },
             groups: {
                 groups: 'Groups',
@@ -466,21 +468,38 @@ export default {
 
             },
             create: {
+                return: 'Return to home page',
+                created: 'Your account has been created and now awaits validation from the server administrator.',
+                created_second: 'You will receive an E-Mail when your account is validated by the administrator.',
                 username: {
                     label: 'Username',
-                    placeholder: 'Please provide desired Username'
+                    placeholder: 'Please provide desired Username',
+                    minLength: 'Username should be at least {number} characters long',
+                    maxLength: 'Username should be at most {number} characters long',
+                    required: 'Username is required and cannot be empty',
+                    isUnique: 'Account with this Username already exists'
                 },
                 email: {
                     label: 'E-Mail',
-                    placeholder: 'Please provide your E-Mail address'
+                    placeholder: 'Please provide your E-Mail address',
+                    email: 'Please provide a valid E-Mail address',
+                    required: 'E-Mail is required and cannot be empty',
+                    isUnique: 'Account with this E-Mail already exists'
                 },
                 password: {
                     label: 'Password',
-                    placeholder: 'Please enter password'
+                    placeholder: 'Please enter password',
+                    minLength: 'Password should be at least {number} characters long',
+                    maxLength: 'Password should be at most {number} characters long',
+                    required: 'Password is required and cannot be empty'
                 },
                 password_confirmation: {
                     label: 'Password Confirmation',
-                    placeholder: 'Please confirm password'
+                    placeholder: 'Please confirm password',
+                    minLength: 'Password Confirmation should be at least {number} characters long',
+                    maxLength: 'Password Confirmation should be at most {number} characters long',
+                    required: 'Password Confirmation is required and cannot be empty',
+                    sameAs: 'Password confirmation differs from the password'
                 }
             }
         },

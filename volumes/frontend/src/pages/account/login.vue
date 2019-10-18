@@ -58,7 +58,17 @@
                 </v-card-text>
                 <v-card-actions class="mt-0 pt-0">
                     <v-layout row wrap>
-                        <v-flex xs12>
+                        <v-flex xs12 lg6>
+                            <v-btn
+                                color="amber"
+                                block
+                                outlined
+                                @click.stop="resetPage"
+                            >
+                                {{ $t('common.clear_form') }}
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs12 lg6>
                             <v-btn
                                 color="primary"
                                 block
@@ -67,14 +77,15 @@
                                 {{ $t('common.log_in') }}
                             </v-btn>
                         </v-flex>
-                        <v-flex xs12>
+                        <v-flex xs12 text-center class="pt-2">
                             <v-btn
-                                color="amber"
-                                block
-                                outlined
-                                @click.stop="resetPage"
+                                small
+                                text
+                                class="normal-case"
+                                to="/"
+                                nuxt
                             >
-                                {{ $t('common.clear_form') }}
+                                {{ $t('user.account.create.return') }}
                             </v-btn>
                         </v-flex>
                     </v-layout>

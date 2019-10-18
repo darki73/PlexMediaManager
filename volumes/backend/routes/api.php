@@ -60,6 +60,9 @@ Route::group([
     'namespace' =>  'Api'
 ], static function() {
     Route::post('authenticate', 'AccountController@authenticate');
+    Route::post('create', 'AccountController@create');
+    Route::post('username-availability-check', 'AccountController@usernameAvailabilityCheck');
+    Route::post('email-availability-check', 'AccountController@emailAvailabilityCheck');
     Route::get('user', 'AccountController@user')->middleware('auth:api');
 
     Route::group([
