@@ -20,7 +20,7 @@ class SeriesUpdateCLI extends Command {
      *
      * @var string
      */
-    protected $signature = 'series:update-cli';
+    protected $signature = 'series:update-cli {--force : Force the operation to update all information}';
 
     /**
      * The console command description.
@@ -71,12 +71,14 @@ class SeriesUpdateCLI extends Command {
             return;
         }
 
+        $forceUpdate = $this->option('force');
+
         $progressBar = $this->output->createProgressBar(\count($this->list));
         $progressBar->setFormat('[%current%/%max%] Processed Series: `%message%`.');
         $progressBar->start();
         $progressBar->setMessage(Arr::first($this->list)['name']);
         foreach ($this->list as $index => $series) {
-            $this->createOrUpdateSeries($series);
+            $this->createOrUpdateSeries($series, $forceUpdate);
             $progressBar->setMessage($series['name']);
             $progressBar->advance();
         }
@@ -87,15 +89,16 @@ class SeriesUpdateCLI extends Command {
     /**
      * Create or update series
      * @param array $series
+     * @param bool $forceUpdate
      * @return void
      */
-    protected function createOrUpdateSeries(array $series) : void {
-        if (!Processor::exists(Processor::SERIES, $series['original_name'])) {
+    protected function createOrUpdateSeries(array $series, bool $forceUpdate = false) : void {
+        if (!Processor::exists(Processor::SERIES, $series['original_name']) || $forceUpdate) {
             $database = new TheMovieDB;
             $search = $database->search()->for(Search::SEARCH_SERIES, $series['name'])->year($series['year']);
             $results = $search->fetch();
-            $item = $database->series()->fetchPrimaryInformation($results['id'], $series['original_name']);
-            $parser = new \App\Classes\TheMovieDB\Processor\Series($item->primaryInformation());
+            $item = $database->series()->fetch($results['id'], $series['original_name'], $forceUpdate);
+            $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
             Processor::series($parser);
         } else {
             $this->info('');

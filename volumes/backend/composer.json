@@ -16,9 +16,11 @@
     "require": {
         "php": "^7.2",
         "beyondcode/laravel-websockets": "^1.3",
+        "elasticsearch/elasticsearch": "^7.3",
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.3",
+        "hamburgscleanest/guzzle-advanced-throttle": "^4.1",
         "imtigger/laravel-job-status": "^0.2.2",
         "intervention/image": "^2.5",
         "laravel/framework": "^6.1",
@@ -45,6 +47,9 @@
         "wnx/laravel-stats": "^2.0"
     },
     "config": {
+        "platform": {
+            "php": "7.3.10"
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true

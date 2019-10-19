@@ -1,6 +1,6 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
-use RuntimeException;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Discover
@@ -75,12 +75,6 @@ class Discover extends AbstractEndpoint {
     protected string $language = 'en';
 
     /**
-     * Page we are requesting
-     * @var int
-     */
-    protected int $page = 1;
-
-    /**
      * Set the discovery type
      * @param string $type
      * @return Discover|static|self|$this
@@ -129,28 +123,45 @@ class Discover extends AbstractEndpoint {
     }
 
     /**
-     * Set language for the request
+     * Set language for request
      * @param string $language
      * @return Discover|static|self|$this
      */
-    public function language(string $language) : self {
-        $this->language = $language;
-        $this->options['language'] = $this->language;
+    public function language(string $language = 'en') : self {
+        $this->language = $this->options['language'] = $language;
         return $this;
     }
 
     /**
-     * @inheritDoc
+     * Fetch results
+     * @param bool $forceRefresh
      * @return array
      */
-    public function fetch() : array {
-        if ($this->type === null) {
-            throw new RuntimeException('You have to specify the type first using the `for(type)` method!');
+    public function fetch(bool $forceRefresh = false) : array {
+        $key = $this->buildCacheKey();
+        if ($forceRefresh) {
+            Cache::forget($key);
         }
-        $request = $this->client->get(sprintf('%s/%d/discover/%s', $this->baseURL, $this->version, $this->type), [
-            'query'   =>  $this->options
-        ]);
-        return json_decode($request->getBody()->getContents(), true);
+        return Cache::remember($key, now()->addMinutes(30), function() {
+            $response = $this->client->get(sprintf('%s/%d/discover/%s', $this->baseURL, $this->version, $this->type), [
+                'query'     =>  $this->options
+            ]);
+            return json_decode($response->getBody()->getContents(), true);
+        });
+    }
+
+    /**
+     * Generate cache key
+     * @return string
+     */
+    protected function buildCacheKey() : string {
+        return sprintf('tmdb::api:discover:%s', md5(sprintf(
+            '%s:%s:%d:%s',
+            $this->type,
+            $this->sort,
+            $this->options['page'],
+            $this->language
+        )));
     }
 
 }

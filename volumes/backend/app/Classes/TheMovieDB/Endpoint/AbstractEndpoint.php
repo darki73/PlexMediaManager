@@ -1,38 +1,18 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
+use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Cache;
+use GuzzleHttp\HandlerStack;
 use LanguageDetection\Language;
+use GuzzleHttp\Handler\CurlHandler;
+use hamburgscleanest\GuzzleAdvancedThrottle\RequestLimitRuleset;
+use hamburgscleanest\GuzzleAdvancedThrottle\Middleware\ThrottleMiddleware;
 
 /**
  * Class AbstractEndpoint
  * @package App\Classes\TheMovieDB\Endpoint
  */
 abstract class AbstractEndpoint {
-
-    /**
-     * Russian Language Constant Variable
-     * @var string
-     */
-    public const LANGUAGE_RUSSIAN = 'ru';
-
-    /**
-     * English Language Constant Variable
-     * @var string
-     */
-    public const LANGUAGE_ENGLISH = 'en';
-
-    /**
-     * Deutsch Language Constant Variable
-     * @var string
-     */
-    public const LANGUAGE_DEUTSCH = 'de';
-
-    /**
-     * Spanish Language Constant Variable
-     * @var string
-     */
-    public const LANGUAGE_SPANISH = 'es';
 
     /**
      * API Version 3
@@ -71,34 +51,34 @@ abstract class AbstractEndpoint {
     protected string $language = 'en';
 
     /**
-     * TheMovieDB Configuration Settings
-     * @var array|null
-     */
-    protected ?array $configuration = null;
-
-    /**
      * Request Options
      * @var array
      */
     protected array $options = [];
 
     /**
+     * Number of requests allowed to be executed in the given time frame
+     * @var int
+     */
+    protected int $requestLimiterNumber = 40;
+
+    /**
+     * Time frame in which given number of requests can be executed
+     * @var int
+     */
+    protected int $requestLimiterTime = 10;
+
+    /**
      * AbstractEndpoint constructor.
      */
     public function __construct() {
-        $this->client = new Client;
-        $this->buildBaseOptions();
-        if (Cache::has('tmdb::api:configuration')) {
-            $this->configuration = Cache::get('tmdb::api:configuration');
-        } else {
-            if (!$this instanceof Configuration) {
-                $this->configuration = (new Configuration)->fetch();
-            }
-        }
+        $this
+            ->initializeClient()
+            ->buildBaseOptions();
     }
 
     /**
-     * Get Current API Version
+     * Get selected API version
      * @return int
      */
     public function getVersion() : int {
@@ -106,35 +86,35 @@ abstract class AbstractEndpoint {
     }
 
     /**
-     * Set Desired API Version
+     * Set new API version
      * @param int $version
      * @return AbstractEndpoint|static|self|$this
      */
-    public function setVersion(int $version = AbstractEndpoint::VERSION_3) : self {
+    public function setVersion(int $version = self::VERSION_3) : self {
         $this->version = $version;
         return $this;
     }
 
     /**
-     * Get Current API Language
-     * @return string
+     * Get selected Language
+     * @return int
      */
-    public function getLanguage() : string {
-        return $this->language;
+    public function getLanguage() : int {
+        return $this->version;
     }
 
     /**
-     * Set Desired API Language
+     * Set new Language
      * @param string $language
      * @return AbstractEndpoint|static|self|$this
      */
-    public function setLanguage(string $language = AbstractEndpoint::LANGUAGE_ENGLISH) : self {
+    public function setLanguage(string $language) : self {
         $this->language = $language;
         return $this;
     }
 
     /**
-     * Set Page
+     * Set page
      * @param int $page
      * @return AbstractEndpoint|static|self|$this
      */
@@ -154,10 +134,38 @@ abstract class AbstractEndpoint {
     }
 
     /**
-     * Build Base Options
+     * Initialize GuzzleHttp Client Instance
+     * @return AbstractEndpoint|static|self|$this
+     * @throws Exception
+     */
+    private function initializeClient() : self {
+        $handler = new HandlerStack;
+        $handler->setHandler(new CurlHandler);
+        $handler->push((new ThrottleMiddleware(new RequestLimitRuleset([
+            $this->baseURL      =>  [
+                [
+                    'max_requests'      =>  $this->requestLimiterNumber / $this->requestLimiterTime,
+                    'request_interval'  =>  1
+                ],
+                [
+                    'max_requests'      =>  $this->requestLimiterNumber,
+                    'request_interval'  =>  $this->requestLimiterTime,
+                ]
+            ]
+        ])))->handle());
+        $this->client = new Client([
+            'base_uri'      =>  $this->baseURL,
+            'handler'       =>  $handler
+        ]);
+        return $this;
+    }
+
+    /**
+     * Build default options
      * @return AbstractEndpoint|static|self|$this
      */
-    protected function buildBaseOptions() : self {
+    private function buildBaseOptions() : self {
+        $this->version = config('media.tmdb_api_version');
         $this->options = [
             'api_key'       =>  config('media.tmdb_api_key'),
             'language'      =>  $this->language,

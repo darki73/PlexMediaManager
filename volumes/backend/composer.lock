@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "30c3493e60a887e7ab845b2d2e6775b1",
+    "content-hash": "cacc1be8fb65ca64343466940cff3d6e",
     "packages": [
         {
             "name": "beyondcode/laravel-websockets",
@@ -593,6 +593,66 @@
             "time": "2019-08-13T17:33:27+00:00"
         },
         {
+            "name": "elasticsearch/elasticsearch",
+            "version": "v7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/elastic/elasticsearch-php.git",
+                "reference": "f8b5d2beeeb22a5a59aabb183b5bcd7e70878d2f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/f8b5d2beeeb22a5a59aabb183b5bcd7e70878d2f",
+                "reference": "f8b5d2beeeb22a5a59aabb183b5bcd7e70878d2f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": ">=1.3.7",
+                "guzzlehttp/ringphp": "~1.0",
+                "php": "^7.1",
+                "psr/log": "~1.0"
+            },
+            "require-dev": {
+                "cpliakas/git-wrapper": "~2.0",
+                "doctrine/inflector": "^1.3",
+                "mockery/mockery": "^1.2",
+                "phpstan/phpstan-shim": "^0.11",
+                "phpunit/phpunit": "^7.5",
+                "squizlabs/php_codesniffer": "^3.4",
+                "symfony/finder": "~4.0",
+                "symfony/yaml": "~4.0"
+            },
+            "suggest": {
+                "ext-curl": "*",
+                "monolog/monolog": "Allows for client-level logging and tracing"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Elasticsearch\\": "src/Elasticsearch/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Zachary Tong"
+                },
+                {
+                    "name": "Enrico Zimuel"
+                }
+            ],
+            "description": "PHP Client for Elasticsearch",
+            "keywords": [
+                "client",
+                "elasticsearch",
+                "search"
+            ],
+            "time": "2019-09-30T12:52:38+00:00"
+        },
+        {
             "name": "erusev/parsedown",
             "version": "1.7.3",
             "source": {
@@ -1066,6 +1126,173 @@
                 "url"
             ],
             "time": "2019-07-01T23:21:34+00:00"
+        },
+        {
+            "name": "guzzlehttp/ringphp",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/RingPHP.git",
+                "reference": "5e2a174052995663dd68e6b5ad838afd47dd615b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/RingPHP/zipball/5e2a174052995663dd68e6b5ad838afd47dd615b",
+                "reference": "5e2a174052995663dd68e6b5ad838afd47dd615b",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/streams": "~3.0",
+                "php": ">=5.4.0",
+                "react/promise": "~2.0"
+            },
+            "require-dev": {
+                "ext-curl": "*",
+                "phpunit/phpunit": "~4.0"
+            },
+            "suggest": {
+                "ext-curl": "Guzzle will use specific adapters if cURL is present"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "GuzzleHttp\\Ring\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                }
+            ],
+            "description": "Provides a simple API and specification that abstracts away the details of HTTP into a single PHP function.",
+            "time": "2018-07-31T13:22:33+00:00"
+        },
+        {
+            "name": "guzzlehttp/streams",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/streams.git",
+                "reference": "47aaa48e27dae43d39fc1cea0ccf0d84ac1a2ba5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/streams/zipball/47aaa48e27dae43d39fc1cea0ccf0d84ac1a2ba5",
+                "reference": "47aaa48e27dae43d39fc1cea0ccf0d84ac1a2ba5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "GuzzleHttp\\Stream\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                }
+            ],
+            "description": "Provides a simple abstraction over streams of data",
+            "homepage": "http://guzzlephp.org/",
+            "keywords": [
+                "Guzzle",
+                "stream"
+            ],
+            "time": "2014-10-12T19:18:40+00:00"
+        },
+        {
+            "name": "hamburgscleanest/guzzle-advanced-throttle",
+            "version": "v4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hamburgscleanest/guzzle-advanced-throttle.git",
+                "reference": "d46f2366b0e6378132d844c113ff465750c33ae2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hamburgscleanest/guzzle-advanced-throttle/zipball/d46f2366b0e6378132d844c113ff465750c33ae2",
+                "reference": "d46f2366b0e6378132d844c113ff465750c33ae2",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.3.0",
+                "illuminate/cache": "^5.8.2|^6.0.0",
+                "illuminate/config": "^5.8.2|^6.0.0",
+                "illuminate/container": "^5.8.2|^6.0.0",
+                "illuminate/database": "^5.8.2|^6.0.0",
+                "illuminate/filesystem": "^5.8.2|^6.0.0",
+                "illuminate/redis": "^5.8.2|^6.0.0",
+                "php": "^7.2",
+                "predis/predis": "^1.1",
+                "symfony/http-kernel": "~3|~4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "hamburgscleanest\\GuzzleAdvancedThrottle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Timo",
+                    "email": "chroma91@gmail.com",
+                    "homepage": "https://www.timo-pruesse.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Guzzle middleware that can throttle requests according to (multiple) defined rules. It is also possible to define a caching strategy, e.g. get response from cache when rate limit is exceeded or always get cached value to spare your rate limits.",
+            "keywords": [
+                "Guzzle",
+                "advanced",
+                "api",
+                "cache",
+                "hamburgscleanest",
+                "laravel",
+                "rate limit",
+                "rate limiting",
+                "ratelimit",
+                "request",
+                "response",
+                "throttle",
+                "wildcard",
+                "wildcards"
+            ],
+            "time": "2019-08-13T17:15:54+00:00"
         },
         {
             "name": "imtigger/laravel-job-status",
@@ -2442,16 +2669,16 @@
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v1.11.1",
+            "version": "v1.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "a9f968bc99485f85f9303a8524c3485a7e87bc15"
+                "reference": "b7115d0a80d5f9e8ae4cbfdee59d1d39dcfc90ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/a9f968bc99485f85f9303a8524c3485a7e87bc15",
-                "reference": "a9f968bc99485f85f9303a8524c3485a7e87bc15",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/b7115d0a80d5f9e8ae4cbfdee59d1d39dcfc90ea",
+                "reference": "b7115d0a80d5f9e8ae4cbfdee59d1d39dcfc90ea",
                 "shasum": ""
             },
             "require": {
@@ -2520,7 +2747,7 @@
                 "secret-key cryptography",
                 "side-channel resistant"
             ],
-            "time": "2019-09-12T12:05:58+00:00"
+            "time": "2019-10-18T15:04:07+00:00"
         },
         {
             "name": "patrickschur/language-detection",
@@ -7928,5 +8155,8 @@
     "platform": {
         "php": "^7.2"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.3.10"
+    }
 }

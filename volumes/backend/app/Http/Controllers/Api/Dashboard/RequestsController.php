@@ -93,8 +93,8 @@ class RequestsController extends APIController {
             $database = new TheMovieDB;
             $search = $database->search()->for(Search::SEARCH_SERIES, $requestModel->title)->year($requestModel->year);
             $results = $search->fetch();
-            $item = $database->series()->fetchPrimaryInformation($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
-            $parser = new \App\Classes\TheMovieDB\Processor\Series($item->primaryInformation());
+            $item = $database->series()->fetch($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
+            $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
             \App\Classes\Media\Processor\Processor::series($parser);
         } catch (\Exception $exception) {
             return $this->sendError('Unable to load information from the Media API', [

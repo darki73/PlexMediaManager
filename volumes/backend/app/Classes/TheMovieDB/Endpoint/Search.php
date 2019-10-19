@@ -1,6 +1,11 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
 use Carbon\Carbon;
+use ReflectionClass;
+use RuntimeException;
+use ReflectionException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Search
@@ -75,51 +80,33 @@ class Search extends AbstractEndpoint {
     protected bool $includeAdult = true;
 
     /**
-     * Number of requests left before 429 error will be triggered
-     * @var int
-     */
-    protected int $requestsRemaining = 40;
-
-    /**
-     * Names Which Must Be "Fixed"
-     * @var array
-     */
-    protected array $nameFix = [
-
-    ];
-
-    /**
-     * Set The Search Type
+     * Set the search type and query
      * @param string $type
      * @param string $query
      * @return Search|static|self|$this
      */
     public function for(string $type, string $query) : self {
         $allowedTypes = $this->getAllowedSearchTypes();
-        if (!in_array($type, $allowedTypes, true)) {
-            throw  new \RuntimeException('Invalid search type `' . $type . '` provided, allowed search types are: ' . implode(', ', $allowedTypes));
+        if (! in_array($type, $allowedTypes)) {
+            throw new RuntimeException('Invalid search type `' . $type . '` provided, allowed search types are: ' . implode(', ', $allowedTypes));
         }
         $this->type = $type;
-        if (array_key_exists($query, $this->nameFix)) {
-            $this->options['query'] = $this->query = $this->nameFix[$query];
-        } else {
-            $this->options['query'] = $this->query = $query;
-        }
+        $this->query = $this->options['query'] = $query;
         return $this;
     }
 
     /**
-     * Set Release Year
-     * @param null|int $year
+     * Set the year
+     * @param int|null $year
      * @return Search|static|self|$this
      */
-    public function year(?int $year) : self {
+    public function year(?int $year = null) : self {
         if ($year !== null) {
             $now = Carbon::now();
             $currentYear = $now->year;
             if ($year > $currentYear) {
                 $year = $currentYear;
-                $this->removeYear($currentYear);
+                $this->removeYearFromQuery($currentYear);
             }
             $this->year = $year;
         }
@@ -127,56 +114,59 @@ class Search extends AbstractEndpoint {
     }
 
     /**
-     * Remove year from the query
-     * NOTE: this method will only be called if there is error with year parsing
-     * @param int $year
-     * @return void
+     * Fetch anything that matched the original query
+     * @param bool $forceRefresh
+     * @return array
      */
-    protected function removeYear(int $year) : void {
-        $query = str_replace('(' . $year . ')', '', $this->options['query']);
-        $this->options['query'] = trim($query);
+    public function fetchAll(bool $forceRefresh = false) : array {
+        $this->detectLanguage();
+        if ($this->year !== null) {
+            if ($this->type === 'tv') {
+                $this->options['first_air_date_year'] = $this->year;
+            } else if ($this->type === 'tv') {
+                $this->options['year'] = $this->year;
+            }
+        }
+        $key = 'tmdb::api:search:' . md5(sprintf('%s:%s:%s', $this->type, strtolower($this->query), $this->year));
+
+        if ($forceRefresh) {
+            Cache::forget($key);
+        }
+
+        return Cache::remember($key, now()->addMinutes(2), function() {
+            $request = $this->client->get(sprintf('%s/%d/search/%s', $this->baseURL, $this->version, $this->type), [
+                'query'         =>  $this->options
+            ]);
+            $response = json_decode($request->getBody()->getContents(), true);
+            return $response['results'];
+        });
     }
 
     /**
-     * Fetch anything that matched the original query
+     * Get the best matching item from the results
+     * @param bool $forceRefresh
      * @return array
      */
-    public function fetchAll() : array {
-        $this->detectLanguage();
-        if ($this->year !== null) {
-            switch ($this->type) {
-                case 'tv':
-                    $this->options['first_air_date_year'] = $this->year;
-                    break;
-                case 'movie':
-                    $this->options['year'] = $this->year;
-                    break;
-            }
-        }
-        $request = $this->client->get(sprintf('%s/%d/search/%s', $this->baseURL, $this->version, $this->type), [
-            'query' =>  $this->options
-        ]);
-        $this->requestsRemaining = (int) $request->getHeader('X-RateLimit-Limit')[0];
-        $data = json_decode($request->getBody()->getContents(), true);
-
-        return $data['results'];
-    }
-
-    public function fetch() : array {
-        $data = $this->fetchAll();
+    public function fetch(bool $forceRefresh = false) : array {
+        $data = $this->fetchAll($forceRefresh);
         $returnArray = [];
 
         if (\count($data) === 1) {
-            return $data[0];
+            return Arr::first($data);
         }
 
         foreach ($data as $result) {
             $itemName = $result['name'] ?? $result['title'];
+            $originalItemName = $result['original_name'] ?? $result['original_title'];
             if (false !== strpos($itemName, ':')) {
                 $itemName = str_replace(':', '', $itemName);
             }
-            if (false !== stripos($itemName, $this->query)) {
-                if (strtolower($itemName) === strtolower($this->query)) {
+            if (false !== strpos($originalItemName, ':')) {
+                $originalItemName = str_replace(':', '', $originalItemName);
+            }
+
+            if (false !== stripos($itemName, $this->query) || false !== stripos($originalItemName, $this->query)) {
+                if (strtolower($itemName) === strtolower($this->query) || strtolower($originalItemName) === strtolower($this->query)) {
                     $returnArray = $result;
                     break;
                 }
@@ -184,18 +174,21 @@ class Search extends AbstractEndpoint {
         }
 
         if (\count($returnArray) === 0) {
-            $returnArray = $data[0];
+            $returnArray = Arr::first($data);
         }
-
         return $returnArray;
     }
 
     /**
-     * Get number of requests left before rate limiting
-     * @return int
+     * Remove year from query string
+     * This method is only called if invalid year is provided
+     * @param int $year
+     * @return void
      */
-    public function getRemainingRequestsCount() : int {
-        return $this->requestsRemaining;
+    protected function removeYearFromQuery(int $year) : void {
+        $query = str_replace('(' . $year . ')', '', $this->options['query']);
+        $this->options['query'] = trim($query);
+        return;
     }
 
     /**
@@ -205,13 +198,13 @@ class Search extends AbstractEndpoint {
     protected function getAllowedSearchTypes() : array {
         $types = [];
         try {
-            $constants = (new \ReflectionClass(__CLASS__))->getConstants();
+            $constants = (new ReflectionClass(__CLASS__))->getConstants();
             foreach ($constants as $constant => $value) {
                 if (false !== stripos($constant, 'search_')) {
                     $types[] = $value;
                 }
             }
-        } catch (\ReflectionException $exception) {
+        } catch (ReflectionException $exception) {
             $types = [];
         }
         return $types;

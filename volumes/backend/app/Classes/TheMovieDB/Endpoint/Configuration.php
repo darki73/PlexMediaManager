@@ -9,16 +9,22 @@ use Illuminate\Support\Facades\Cache;
 class Configuration extends AbstractEndpoint {
 
     /**
-     * Fetch TMDB Configuration
+     * Configuration Array
+     * @var array
+     */
+    private array $configuration = [];
+
+    /**
+     * Fetch configuration from the API
      * @return array
      */
     public function fetch() : array {
-        return Cache::remember('tmdb::api:configuration', now()->addDays(7), function() {
-            $request = $this->client->get(sprintf('%s/%d/configuration', $this->baseURL, $this->version), [
-                'query' =>  $this->options
-            ]);
-            return json_decode($request->getBody()->getContents(), true);
-        });
+        $this->configuration = $this->requestConfiguration();
+        if (\count($this->configuration) === 0) {
+            Cache::forget('tmdb::api:configuration');
+            $this->configuration = $this->requestConfiguration();
+        }
+        return $this->configuration;
     }
 
     /**
@@ -26,7 +32,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function getBackdropSizes() : array {
-        return $this->configuration['images']['backdrop_sizes'];
+        return $this->fetch()['images']['backdrop_sizes'];
     }
 
     /**
@@ -34,7 +40,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function getPosterSizes() : array {
-        return $this->configuration['images']['poster_sizes'];
+        return $this->fetch()['images']['poster_sizes'];
     }
 
     /**
@@ -42,7 +48,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function getStillSizes() : array {
-        return $this->configuration['images']['still_sizes'];
+        return $this->fetch()['images']['still_sizes'];
     }
 
     /**
@@ -50,7 +56,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function getLogoSizes() : array {
-        return $this->configuration['images']['logo_sizes'];
+        return $this->fetch()['images']['logo_sizes'];
     }
 
     /**
@@ -58,7 +64,7 @@ class Configuration extends AbstractEndpoint {
      * @return array
      */
     public function getProfileSizes() : array {
-        return $this->configuration['images']['profile_sizes'];
+        return $this->fetch()['images']['profile_sizes'];
     }
 
     /**
@@ -72,17 +78,17 @@ class Configuration extends AbstractEndpoint {
 
         switch ($type) {
             case 'backdrop':
-                foreach ($this->configuration['images']['backdrop_sizes'] as $size) {
+                foreach ($this->fetch()['images']['backdrop_sizes'] as $size) {
                     $paths[$size] = $this->buildRemoteImageUrl($image, $size);
                 }
                 break;
             case 'poster':
-                foreach ($this->configuration['images']['poster_sizes'] as $size) {
+                foreach ($this->fetch()['images']['poster_sizes'] as $size) {
                     $paths[$size] = $this->buildRemoteImageUrl($image, $size);
                 }
                 break;
             case 'still':
-                foreach ($this->configuration['images']['still_sizes'] as $size) {
+                foreach ($this->fetch()['images']['still_sizes'] as $size) {
                     $paths[$size] = $this->buildRemoteImageUrl($image, $size);
                 }
                 break;
@@ -94,13 +100,26 @@ class Configuration extends AbstractEndpoint {
     }
 
     /**
+     * Request configuration from API
+     * @return array
+     */
+    private function requestConfiguration() : array {
+        return Cache::remember('tmdb::api:configuration', now()->addHours(12), function() : array {
+            $request = $this->client->get(sprintf('%s/%d/configuration', $this->baseURL, $this->version), [
+                'query' =>  $this->options
+            ]);
+            return json_decode($request->getBody()->getContents(), true);
+        });
+    }
+
+    /**
      * Build URL For Remote Image
      * @param string $image
      * @param string $size
      * @return string
      */
     private function buildRemoteImageUrl(string $image, string $size) : string {
-        return sprintf('%s%s/%s', $this->configuration['images']['secure_base_url'], $size, $image);
+        return sprintf('%s%s/%s', $this->fetch()['images']['secure_base_url'], $size, $image);
     }
 
 }

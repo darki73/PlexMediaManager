@@ -4,6 +4,8 @@ app/Classes/backup
 /public/storage
 /storage/*.key
 /vendor
+/storage/temp/*
+!/storage/temp/.gitkeep
 .env
 .env.backup
 .phpunit.result.cache

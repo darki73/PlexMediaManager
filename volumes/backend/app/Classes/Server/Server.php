@@ -1,5 +1,6 @@
 <?php namespace App\Classes\Server;
 
+use App\Classes\Github\Github;
 use App\Classes\Server\Entity\Kernel;
 use App\Classes\Server\Entity\Memory;
 use App\Classes\Server\Entity\Network;
@@ -107,7 +108,7 @@ class Server {
      * @return bool
      */
     protected function getUpdatesInformation() : bool {
-        return false;
+        return (new Github)->updatesAvailable();
     }
 
 }

@@ -40,8 +40,8 @@ class Series extends AbstractLongQueueJob {
                 $database = new TheMovieDB;
                 $search = $database->search()->for(Search::SEARCH_SERIES, $item['name'])->year($item['year']);
                 $searchResult = $search->fetch();
-                $series = $database->series()->fetchPrimaryInformation($searchResult['id'], $item['original_name']);
-                Processor::series(new \App\Classes\TheMovieDB\Processor\Series($series->primaryInformation()));
+                $series = $database->series()->fetch($searchResult['id'], $item['original_name']);
+                Processor::series(new \App\Classes\TheMovieDB\Processor\Series($series));
             }
         }
         $newSeriesCount = SeriesModel::count();

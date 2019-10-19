@@ -61,6 +61,14 @@ class Github {
     }
 
     /**
+     * Get updates status
+     * @return bool
+     */
+    public function updatesAvailable() : bool {
+        return !$this->applicationUpToDate;
+    }
+
+    /**
      * Convert class to array
      * @return array
      */

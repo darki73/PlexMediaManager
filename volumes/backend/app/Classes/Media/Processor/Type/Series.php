@@ -1,10 +1,11 @@
 <?php namespace App\Classes\Media\Processor\Type;
 
-use App\Models\Creator;
 use App\Models\Genre;
+use App\Models\Season;
+use App\Models\Creator;
 use App\Models\Network;
 use App\Models\ProductionCompany;
-use App\Models\Season;
+use App\Models\SeriesTranslation;
 use App\Models\Series as SeriesModel;
 
 /**
@@ -22,7 +23,8 @@ class Series extends AbstractType {
         'genres'                =>  Genre::class,
         'networks'              =>  Network::class,
         'productionCompanies'   =>  ProductionCompany::class,
-        'seasons'               =>  Season::class
+        'seasons'               =>  Season::class,
+        'translations'          =>  SeriesTranslation::class
     ];
 
     /**

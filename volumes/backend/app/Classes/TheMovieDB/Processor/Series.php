@@ -10,49 +10,55 @@ class Series extends AbstractProcessor {
      * Whether or not series in production
      * @var bool
      */
-    protected $inProduction = false;
+    protected bool $inProduction = false;
 
     /**
      * Series seasons count
      * @var int
      */
-    protected $seasonsCount = 0;
+    protected int $seasonsCount = 0;
 
     /**
      * Series episodes count
      * @var int
      */
-    protected $episodesCount = 0;
+    protected int $episodesCount = 0;
 
     /**
      * When last episode aired
      * @var string|null
      */
-    protected $lastAirDate = null;
+    protected ?string $lastAirDate = null;
 
     /**
      * Series networks list
      * @var array|null
      */
-    protected $networks = null;
+    protected ?array $networks = null;
 
     /**
      * Series origin country
-     * @var string
+     * @var string|null
      */
-    protected $originCountry = null;
+    protected ?string $originCountry = null;
 
     /**
      * Series seasons list
      * @var array|null
      */
-    protected $seasons = null;
+    protected ?array $seasons = null;
 
     /**
      * Series creators list
      * @var array|null
      */
-    protected $creators = null;
+    protected ?array $creators = null;
+
+    /**
+     * Series translations
+     * @var array|null
+     */
+    protected ?array $translations = null;
 
     /**
      * @inheritDoc
@@ -112,7 +118,8 @@ class Series extends AbstractProcessor {
             ->extractNetworks()
             ->extractOriginCountry()
             ->extractSeasons()
-            ->extractCreators();
+            ->extractCreators()
+            ->extractTranslations();
         return $this;
     }
 
@@ -213,6 +220,27 @@ class Series extends AbstractProcessor {
                 'photo'         =>  $this->clearPath($creator['profile_path'])
             ];
         }
+        return $this;
+    }
+
+    /**
+     * Extract series translations
+     * @return Series|static|self|$this
+     */
+    private function extractTranslations() : self {
+        $id = $this->rawElement['id'];
+        $translations = [
+            0               =>  [
+                'id'        =>  $id
+            ]
+        ];
+        foreach ($this->rawElement['translations']['translations'] as $localeData) {
+            $localeCode = $localeData['iso_639_1'];
+            $details = $localeData['data'];
+            $translations[0]['locale_' . $localeCode . '_title'] = strlen($details['name']) > 0 ? $details['name'] : $this->rawElement['original_name'];
+            $translations[0]['locale_' . $localeCode . '_overview'] = strlen($details['overview']) > 0 ? str_replace(["\n", "\r", "\n\r", "\r\n"], '', $details['overview']) : $this->rawElement['overview'];
+        }
+        $this->translations = $translations;
         return $this;
     }
 

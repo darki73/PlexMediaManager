@@ -18,6 +18,7 @@ search:
     - ru
 
 media:
+  tmdb_api_version: 3
   tmdb_api_key:
   plex_url:
 

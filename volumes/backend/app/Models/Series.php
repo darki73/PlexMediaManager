@@ -113,4 +113,12 @@ class Series extends Model {
         return $this->hasMany(Episode::class, 'series_id', 'id');
     }
 
+    /**
+     * Get translation for selected series
+     * @return HasOne
+     */
+    public function translation() : HasOne {
+        return $this->hasOne(SeriesTranslation::class, 'id', 'id');
+    }
+
 }

@@ -72,8 +72,8 @@ class MoviesUpdateCLI extends Command {
                 $database = new TheMovieDB;
                 $search = $database->search()->for(Search::SEARCH_MOVIE, $item['name'])->year($item['year']);
                 $searchResult = $search->fetch();
-                $movie = $database->movies()->fetchPrimaryInformation($searchResult['id'], $item['original_name']);
-                Processor::movie(new Movie($movie->primaryInformation()));
+                $movie = $database->movies()->fetch($searchResult['id'], $item['original_name']);
+                Processor::movie(new Movie($movie));
             }
             $progressBar->setMessage($item['name']);
             $progressBar->advance();
