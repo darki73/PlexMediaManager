@@ -186,6 +186,11 @@ services:
       # Redis Configuration
       REDIS_HOST: redis
       REDIS_PORT: &redis-port 6379
+
+      ELASTIC_PORT: &elastic-port 9200
+      SCOUT_DRIVER: "Matchish\\ScoutElasticSearch\\Engines\\ElasticSearchEngine"
+      ELASTICSEARCH_HOST: "plexmediamanager_elasticsearch:9200"
+      KIBANA_PORT: &kibana-port 5601
     command: /scripts/keep-alive.sh
     depends_on:
       - redis
