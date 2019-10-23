@@ -174,7 +174,7 @@ class Search extends AbstractEndpoint {
         }
 
         if (\count($returnArray) === 0) {
-            $returnArray = Arr::first($data);
+            $returnArray = [];
         }
         return $returnArray;
     }

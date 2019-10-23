@@ -3,6 +3,7 @@
 use App\Models\Series;
 use Illuminate\Console\Command;
 use \Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class IndexersSeriesCLI
@@ -25,38 +26,24 @@ class IndexersSeriesCLI extends Command {
     protected $description = 'Update indexers information for series';
 
     /**
-     * Indicates whether application is ready to handle commands
-     * @var bool
-     */
-    protected bool $ready = true;
-
-    /**
      * Create a new command instance.
      *
      * @return void
      */
     public function __construct() {
         parent::__construct();
-        try {
-            $series = Series::all();
-        } catch (\Exception $exception) {
-            $this->ready = false;
-        }
     }
 
     /**
      * Execute the console command.
      */
     public function handle() {
-        if (! $this->ready) {
-            return;
-        }
-
         $implementations = config('jackett.indexers');
         foreach ($implementations as $tracker => $class) {
             $this->info('Refreshing indexes for: ' . $tracker . ' ...');
-            $class::index(Series::all());
+            $class::index(Series::where('local_title', '!=', null)->get());
         }
+        Cache::forget('indexers:series');
     }
 
 }

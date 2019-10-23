@@ -29,7 +29,8 @@ export default {
         logged_in_with_google: 'Signed in with Google',
         log_in_with_plex: 'Sign in with Plex',
         logged_in_with_plex: 'Signed in with Plex',
-        field_required: '* This field is required'
+        field_required: '* This field is required',
+        select_server: 'Please select server to watch on'
     },
     notification: {
         request: {
@@ -66,6 +67,11 @@ export default {
             tv: 'Series',
             movie: 'Movies'
         },
+        show_in: {
+            label: 'Show results in',
+            placeholder: 'Please select language for results'
+        },
+        show_more: 'Show More',
         genres: 'Genres',
         release_date: 'Release Date',
         average_rating: 'Rating',
@@ -148,6 +154,10 @@ export default {
                 list: 'Active Downloads',
                 categories: 'Categories',
                 add_torrent: 'Add Torrent'
+            },
+            plex: {
+                plex: 'Plex',
+                users: 'Plex Users'
             },
             search: 'Search',
             settings: 'Settings',
@@ -444,6 +454,22 @@ export default {
                     exclude: 'This season will be excluded from download'
                 }
             }
+        },
+        plex: {
+            users: {
+                users: 'Plex Users',
+                headers: {
+                    id: 'ID',
+                    uuid: 'UUID',
+                    title: 'Full Name',
+                    username: 'Username',
+                    email: 'E-Mail',
+                    admin: 'Is Administrator',
+                    guest: 'Is Guest',
+                    avatar: 'Avatar',
+                    actions: 'Actions',
+                }
+            }
         }
     },
     user: {
@@ -451,6 +477,7 @@ export default {
             admin: 'Administrative Panel',
             home: 'Home',
             search: 'Search',
+            search_local: '[TMP] Local Search',
             requests: {
                 requests: '[WIP] Requests',
                 all: 'All',

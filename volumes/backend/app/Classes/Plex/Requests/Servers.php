@@ -86,23 +86,16 @@ class Servers extends AbstractClient {
      * Extract server information
      * @param array $servers
      * @param array $server
-     * @param string $proxyAddress
-     * @param string $remoteAddress
+     * @param string|null $proxyAddress
+     * @param string|null $remoteAddress
      * @return void
      */
-    protected function extractServerInformation(array & $servers, array $server, string $proxyAddress, string $remoteAddress) : void {
+    public function extractServerInformation(array & $servers, array $server, ?string $proxyAddress = null, ?string $remoteAddress = null) : void {
         $localAddresses = explode(',', $server['localAddresses']);
 
-        $isLocalByLocals = ip_belongs_to_cidr($remoteAddress, array_map(function($value) {
-            return sprintf('%s/24', $value);
-        }, $localAddresses));
-
-        $isLocalByProxy = $proxyAddress === $server['address'];
-
-        $servers[] = [
+        $tmpArray = [
             'id'            =>  $server['machineIdentifier'],
             'name'          =>  $server['name'],
-            'local'         =>  $isLocalByProxy && $isLocalByLocals,
             'ping'          =>  $this->dumbPingFunction($server['address'], (integer) $server['port']),
             'scheme'        =>  $server['scheme'],
             'address'       =>  [
@@ -119,6 +112,18 @@ class Servers extends AbstractClient {
             'owned'         =>  $server['owned'] === '1',
             'synced'        =>  $server['synced'] === '1',
         ];
+
+        if ($proxyAddress !== null && $remoteAddress !== null) {
+
+            $isLocalByLocals = ip_belongs_to_cidr($remoteAddress, array_map(function($value) {
+                return sprintf('%s/24', $value);
+            }, $localAddresses));
+
+            $isLocalByProxy = $proxyAddress === $server['address'];
+
+            $tmpArray['local'] = $isLocalByProxy && $isLocalByLocals;
+        }
+        $servers[] = $tmpArray;
         return;
     }
 

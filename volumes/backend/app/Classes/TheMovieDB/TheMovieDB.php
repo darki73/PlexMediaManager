@@ -2,11 +2,13 @@
 
 use App\Classes\TheMovieDB\Endpoint\Genres;
 use App\Classes\TheMovieDB\Endpoint\Movies;
+use App\Classes\TheMovieDB\Endpoint\People;
 use App\Classes\TheMovieDB\Endpoint\Search;
 use App\Classes\TheMovieDB\Endpoint\Series;
 use App\Classes\TheMovieDB\Endpoint\Discover;
 use App\Classes\TheMovieDB\Endpoint\Networks;
 use App\Classes\TheMovieDB\Endpoint\Configuration;
+use App\Classes\TheMovieDB\Downloader\DumpDownloader;
 
 /**
  * Class TheMovieDB
@@ -45,6 +47,12 @@ class TheMovieDB {
     protected ?Networks $networks = null;
 
     /**
+     * People class instance
+     * @var People|null
+     */
+    protected ?People $people = null;
+
+    /**
      * Search class instance
      * @var Search|null
      */
@@ -57,6 +65,12 @@ class TheMovieDB {
     protected ?Series $series = null;
 
     /**
+     * DumpDownloader class instance
+     * @var DumpDownloader|null
+     */
+    protected ?DumpDownloader $downloader = null;
+
+    /**
      * TheMovieDB constructor.
      */
     public function __construct() {
@@ -65,8 +79,10 @@ class TheMovieDB {
         $this->genres = new Genres;
         $this->movies = new Movies;
         $this->networks = new Networks;
+        $this->people = new People;
         $this->search = new Search;
         $this->series = new Series;
+        $this->downloader = new DumpDownloader;
     }
 
     /**
@@ -110,6 +126,14 @@ class TheMovieDB {
     }
 
     /**
+     * Get People class instance
+     * @return People|null
+     */
+    public function people() : ?People {
+        return $this->people;
+    }
+
+    /**
      * Get Search class instance
      * @return Search|null
      */
@@ -123,6 +147,14 @@ class TheMovieDB {
      */
     public function series() : ?Series {
         return $this->series;
+    }
+
+    /**
+     * Get DumpDownloader class instance
+     * @return DumpDownloader|null
+     */
+    public function downloader() : ?DumpDownloader {
+        return $this->downloader;
     }
 
 }

@@ -1,7 +1,9 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
+use Illuminate\Support\Arr;
 use RuntimeException;
 use Illuminate\Support\Facades\Cache;
+use function GuzzleHttp\Promise\settle;
 
 /**
  * Class Series
@@ -20,6 +22,12 @@ class Series extends AbstractEndpoint {
      * @var array
      */
     protected array $seasonInformation = [];
+
+    /**
+     * Information for all seasons
+     * @var array
+     */
+    protected array $seasonsInformation = [];
 
     /**
      * Fetch primary information for series
@@ -95,6 +103,103 @@ class Series extends AbstractEndpoint {
             $this->primaryInformation = $this->requestSeriesSeasonInformation($seriesID, $seasonNumber);
         }
         return $this;
+    }
+
+    /**
+     * Get information for all seasons of series
+     * @param int $seriesID
+     * @param array $seasons
+     * @return Series|static|self|$this
+     */
+    public function seasons(int $seriesID, array $seasons) : self {
+        $requestsLeft = (integer) Cache::get('tmdb::ratelimiter:remaining');
+        $resetTime = (integer) Cache::get('tmdb::ratelimiter:reset');
+
+        if ($requestsLeft === 0 && $resetTime === 0) {
+            $requestsLeft = null;
+            $resetTime = null;
+        }
+
+        if ($requestsLeft !== null && $resetTime !== null) {
+            $sleepFor = $resetTime - time();
+            $sleepFor = $sleepFor < 0 ? 0 : ($sleepFor + 1);
+            $enoughToComplete = \count($seasons) < $requestsLeft;
+
+            if (! $enoughToComplete) {
+                if ($sleepFor !== 0) {
+                    app('log')->info('[Series ' . $seriesID . '] Needed ' . \count($seasons) . ' requests, only had ' . $requestsLeft . '. Sleeping for ' . $sleepFor . ' seconds.');
+                    sleep($sleepFor);
+                }
+            }
+            Cache::forget('tmdb::ratelimiter:remaining');
+            Cache::forget('tmdb::ratelimiter:reset');
+        }
+        $promises = [];
+        $counter = 0;
+        foreach ($seasons as $index => $season) {
+            $number = $season['season_number'];
+            if ($number > 0) {
+                $promises[] = $this->client->getAsync(sprintf('%s/%d/tv/%d/season/%d', $this->baseURL, $this->version, $seriesID, $number), [
+                    'query' =>  $this->options
+                ]);
+            }
+
+            if ($counter === 28) {
+                $counter = 0;
+                app('log')->info('[Series ' . $seriesID . '] Internal promises generator reached the limit of requests and is going to sleep for 10 seconds.');
+                sleep(10);
+            }
+            $counter++;
+        }
+        $response = settle($promises)->wait();
+        foreach ($response as $index => $item) {
+            $fulfilled = $item['state'] === 'fulfilled';
+            if (!$fulfilled) {
+                app('log')->info(sprintf('[Series %d Season %d] Failed to complete the request, encountered rate limiting', $seriesID, ($index + 1)));
+                continue;
+            } else {
+                $result = $item['value'];
+                $requestsLeft = Arr::first($result->getHeader('X-RateLimit-Remaining'));
+                $limitReset = Arr::first($result->getHeader('X-RateLimit-Reset'));
+                $result = $result->getBody()->getContents();
+                $seasonData = json_decode($result, true);
+                if(isset($seasonData['season_number'])) {
+                    $seasonNumber = $seasonData['season_number'];
+                    $this->seasonsInformation[$seasonNumber] = $seasonData;
+                } else {
+                    app('log')->info('Unable to get season number for series: ' . $seriesID . '. Json Object: ' . json_encode($seasonData));
+                }
+                if (\count($response) === $index + 1) {
+                    Cache::rememberForever('tmdb::ratelimiter:remaining', function() use ($requestsLeft) : int {
+                        return (integer) $requestsLeft;
+                    });
+                    Cache::rememberForever('tmdb::ratelimiter:reset', function() use ($limitReset) : int {
+                        return (integer) $limitReset;
+                    });
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Get episodes for selected season
+     * @param int $seasonNumber
+     * @return array
+     */
+    public function seasonEpisodes(int $seasonNumber) : array {
+        if (empty($this->seasonsInformation)) {
+            throw new RuntimeException('You have to load season information first using the `seasons(int $seriesID, array $seasons)` method.');
+        }
+        return $this->seasonsInformation[$seasonNumber]['episodes'];
+    }
+
+    /**
+     * Get list of all season for series
+     * @return array
+     */
+    public function getAllSeasons() : array {
+        return $this->seasonsInformation;
     }
 
     /**

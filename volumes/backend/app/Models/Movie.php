@@ -1,12 +1,21 @@
 <?php namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Laravel\Scout\Searchable;
+
 
 /**
  * Class Movie
  * @package App\Models
  */
-class Movie extends Model {
+class Movie extends AbstractMediaModel {
+    use Searchable;
+
+    /**
+     * @inheritDoc
+     * @var string|null
+     */
+    protected ?string $translationClass = MovieTranslation::class;
 
     /**
      * @inheritDoc
@@ -44,7 +53,6 @@ class Movie extends Model {
         'backdrop',
         'poster',
     ];
-
 
     /**
      * @inheritDoc
@@ -85,6 +93,36 @@ class Movie extends Model {
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * @inheritDoc
+     * @return string
+     */
+    public function searchableAs() : string {
+        return 'movies';
+    }
+
+    /**
+     * @inheritDoc
+     * @return array
+     */
+    public function toSearchableArray() : array {
+        $array = Arr::only($this->toArray(), [
+            'id', 'title', 'original_title', 'original_language', 'overview',
+            'tagline', 'genres', 'adult', 'production_companies', 'production_countries',
+            'release_date', 'vote_average', 'popularity'
+        ]);
+        if ($array['id'] === 0) {
+            return [];
+        }
+        $translations = $this->getModelTranslations(true);
+        $array['title'] = $translations['title'];
+        $array['overview'] = $translations['overview'];
+        $array['production_companies'] = ProductionCompany::findMany($array['production_companies'])->toArray();
+        $array['production_countries'] = ProductionCountry::findMany($array['production_countries'])->toArray();
+        $array['genres'] = Genre::findMany($array['genres'])->toArray();
+        return $array;
+    }
 
 }
 

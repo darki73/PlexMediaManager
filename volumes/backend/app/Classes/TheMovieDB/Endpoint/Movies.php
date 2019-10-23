@@ -39,21 +39,25 @@ class Movies extends AbstractEndpoint {
     /**
      * Fetch movie information
      * @param int $movieID
-     * @param string $localName
+     * @param string|null $localName
      * @param bool $forceRefresh
+     * @param array $with
      * @return array
      */
-    public function fetch(int $movieID, string $localName, bool $forceRefresh = false) : array {
+    public function fetch(int $movieID, ?string $localName = null, bool $forceRefresh = false, array $with = ['translations']) : array {
         $key = 'tmdb::api:movies:' . $movieID;
         if ($forceRefresh) {
             Cache::forget($key);
         }
+        $this->options['append_to_response'] = implode(',', $with);
         return Cache::remember($key, now()->addHours(12), function() use ($movieID, $localName) : array {
             $request = $this->client->get(sprintf('%s/%d/movie/%d', $this->baseURL, $this->version, $movieID), [
                 'query'     =>  $this->options
             ]);
             $response = json_decode($request->getBody()->getContents(), true);
-            $response['local_name'] = $localName;
+            if ($localName !== null) {
+                $response['local_name'] = $localName;
+            }
             return $response;
         });
     }

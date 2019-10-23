@@ -1,14 +1,22 @@
 <?php namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
+use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Genre
  * @package App\Models
  */
-class Series extends Model {
+class Series extends AbstractMediaModel {
+    use Searchable;
+
+    /**
+     * @inheritDoc
+     * @var string|null
+     */
+    protected ?string $translationClass = SeriesTranslation::class;
 
     /**
      * @inheritDoc
@@ -90,6 +98,38 @@ class Series extends Model {
     ];
 
     /**
+     * @inheritDoc
+     * @return string
+     */
+    public function searchableAs() : string {
+        return 'series';
+    }
+
+    /**
+     * @inheritDoc
+     * @return array
+     */
+    public function toSearchableArray() : array {
+        $array = Arr::only($this->toArray(), [
+            'id', 'title', 'original_title', 'original_language', 'overview',
+            'genres', 'origin_country', 'production_companies', 'creators',
+            'networks', 'vote_average', 'popularity', 'release_date'
+        ]);
+        if ($array['id'] === 0) {
+            return [];
+        }
+        $translations = $this->getModelTranslations(true);
+        $array['title'] = $translations['title'];
+        $array['overview'] = $translations['overview'];
+        $array['production_companies'] = ProductionCompany::findMany($array['production_companies'])->toArray();
+        $array['creators'] = Creator::findMany($array['creators'])->toArray();
+        $array['networks'] = Network::findMany($array['networks'])->toArray();
+        $array['genres'] = Genre::findMany($array['genres'])->toArray();
+        return $array;
+    }
+
+
+    /**
      * Get indexer assigned to series
      * @return HasOne
      */
@@ -119,6 +159,46 @@ class Series extends Model {
      */
     public function translation() : HasOne {
         return $this->hasOne(SeriesTranslation::class, 'id', 'id');
+    }
+
+    /**
+     * Get number of seasons available for the series
+     * @return int
+     */
+    public function seasonsCount() : int {
+        return $this->seasons()->count();
+    }
+
+    /**
+     * Count downloaded episodes for series
+     * @return int
+     */
+    public function downloadedEpisodesCount() : int {
+        return $this->episodes()->where('downloaded', '=', 1)->count();
+    }
+
+    /**
+     * Count missing episodes for series
+     * @return int
+     */
+    public function missingEpisodesCount() : int {
+        return $this->episodes()->where('downloaded', '=', 0)->count();
+    }
+
+    /**
+     * Count number of episodes available in the database
+     * @return int
+     */
+    public function episodesCount() : int {
+        return $this->episodes()->count();
+    }
+
+    /**
+     * Count total number of episodes for series
+     * @return int
+     */
+    public function episodesTotal() : int {
+        return $this->seasons()->sum('episodes_count');
     }
 
 }

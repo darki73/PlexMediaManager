@@ -354,3 +354,21 @@ services:
 #      - 23306:3306 # Uncomment this line if you wish to connect to the database from the host machine
     networks:
       - internal
+
+  elasticsearch:
+    image: elasticsearch:6.8.3
+    restart: always
+    container_name: plexmediamanager_elasticsearch
+    labels:
+      traefik.enable: false
+      com.centurylinklabs.watchtower.enable: false
+    environment:
+      cluster.name: "docker-cluster"
+      discovery.type: "single-node"
+    volumes:
+      - ./volumes/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - *elastic-port
+#      - 19200:9200
+    networks:
+      - internal

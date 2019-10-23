@@ -219,6 +219,15 @@ abstract class AbstractIndexer {
     }
 
     /**
+     * Check if we should download this series
+     * @param Series $series
+     * @return bool
+     */
+    protected function seriesWanted(Series $series) : bool {
+        return $series->local_title !== null;
+    }
+
+    /**
      * Check if series wes approved for download
      * @param Series $series
      * @return bool

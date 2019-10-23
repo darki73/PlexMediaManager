@@ -44,6 +44,17 @@
                         ]
                     },
                     {
+                        action: 'mdi-plex',
+                        title: 'dashboard.menu.plex.plex',
+                        items: [
+                            {
+                                title: 'dashboard.menu.plex.users',
+                                link: '/dashboard/plex/users',
+                                icon: 'group'
+                            }
+                        ]
+                    },
+                    {
                         action: 'playlist_add',
                         title: 'dashboard.menu.requests.requests',
                         items: [

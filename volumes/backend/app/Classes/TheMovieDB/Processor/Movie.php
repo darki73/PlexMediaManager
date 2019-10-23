@@ -43,6 +43,12 @@ class Movie extends AbstractProcessor {
     protected $productionCountries = null;
 
     /**
+     * Series translations
+     * @var array|null
+     */
+    protected ?array $translations = null;
+
+    /**
      * @inheritDoc
      * @return AbstractProcessor|static|self|$this
      */
@@ -100,7 +106,8 @@ class Movie extends AbstractProcessor {
             ->extractAdult()
             ->extractTagline()
             ->extractIMDBId()
-            ->extractProductionCountries();
+            ->extractProductionCountries()
+            ->extractTranslations();
         return $this;
     }
 
@@ -161,6 +168,45 @@ class Movie extends AbstractProcessor {
                 'name'      =>  $country['name']
             ];
         }
+        return $this;
+    }
+
+    /**
+     * Extract series translations
+     * @return Series|static|self|$this
+     */
+    private function extractTranslations() : self {
+        $allowedLocales = [
+            'ar',
+            'de',
+            'en',
+            'es',
+            'fr',
+            'ja',
+            'ko',
+            'no',
+            'ru',
+            'uk',
+            'zh'
+        ];
+
+        $id = $this->rawElement['id'];
+        $translations = [
+            0               =>  [
+                'id'        =>  $id
+            ]
+        ];
+        foreach ($this->rawElement['translations']['translations'] as $localeData) {
+            $localeCode = $localeData['iso_639_1'];
+            if (in_array($localeCode, $allowedLocales)) {
+                $details = $localeData['data'];
+                $title = strlen($details['title']) > 0 ? $details['title'] : $this->rawElement['original_title'];
+                $overview = strlen($details['overview']) > 0 ? str_replace(["\n", "\r", "\n\r", "\r\n"], '', $details['overview']) : $this->rawElement['overview'];
+                $translations[0]['locale_' . $localeCode . '_title'] = strlen($title) > 100 ? $this->rawElement['original_title'] : $title;
+                $translations[0]['locale_' . $localeCode . '_overview'] = $overview;
+            }
+        }
+        $this->translations = $translations;
         return $this;
     }
 

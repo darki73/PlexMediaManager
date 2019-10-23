@@ -93,13 +93,34 @@ class SeriesUpdateCLI extends Command {
      * @return void
      */
     protected function createOrUpdateSeries(array $series, bool $forceUpdate = false) : void {
-        if (!Processor::exists(Processor::SERIES, $series['original_name']) || $forceUpdate) {
-            $database = new TheMovieDB;
-            $search = $database->search()->for(Search::SEARCH_SERIES, $series['name'])->year($series['year']);
-            $results = $search->fetch();
-            $item = $database->series()->fetch($results['id'], $series['original_name'], $forceUpdate);
-            $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
-            Processor::series($parser);
+        if (! \App\Classes\Media\Processor\Processor::exists(\App\Classes\Media\Processor\Processor::SERIES, $series['original_name'])) {
+            $databaseModel = \App\Models\Series::query()->where('title', '=', $series['name']);
+
+            if ($series['year'] !== null) {
+                $databaseModel = $databaseModel->where('release_date', 'LIKE', $series['year'] . '-%');
+            }
+
+            $databaseModel = $databaseModel->first();
+
+            if (! $databaseModel) {
+                $database = new TheMovieDB();
+                $response = $database->search()->for(Search::SEARCH_SERIES, $series['name'])->year($series['year'])->fetch();
+                if (\count($response) !== 0) {
+                    [$year, $month, $day] = explode('-', $response['first_air_date']);
+                    $seriesModel = Series::where('title', '=', $response['name'])->where('release_date', 'LIKE', $year . '-%')->first();
+                    if ($seriesModel !== null) {
+                        $seriesModel->update([
+                            'local_title'       =>  $series['original_name']
+                        ]);
+                    }
+                } else {
+                    app('log')->info('[SeriesUpdate::handle] We need to query API, Series `' . $series['name'] . '` was not found in the database');
+                }
+            } else {
+                $databaseModel->update([
+                    'local_title'       =>  $series['original_name']
+                ]);
+            }
         } else {
             $this->info('');
             $now = Carbon::now();

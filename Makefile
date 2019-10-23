@@ -172,4 +172,6 @@ init: install ## Make full application initialization (install, seed, build asse
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan storage:link
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan horizon:install --no-interaction -vvv
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan passport:install --force --no-interaction -vvv
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan pmm:restore-all
+	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" php artisan scout:import
 	$(docker_compose_bin) down

@@ -29,7 +29,7 @@ class Episodes extends AbstractLongQueueJob {
         $this->setAttempts(25);
         $this->setTags('sync', 'episodes');
         $this->localSeriesList = Source::series()->list();
-        $this->seriesCollection = Series::all();
+        $this->seriesCollection = Series::where('local_title', '!=', null)->get();
     }
 
     /**

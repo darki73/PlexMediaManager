@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Api;
 
+use App\Models\PlexMediaRelation;
 use App\Models\Season;
 use App\Models\Series;
 use Illuminate\Support\Arr;
@@ -29,7 +30,7 @@ class SeriesController extends APIMediaController {
      */
     public function __construct() {
         parent::__construct();
-        $this->seriesCollection = Series::all();
+        $this->seriesCollection = Series::where('local_title', '!=', null)->get();
     }
 
     /**
@@ -105,11 +106,13 @@ class SeriesController extends APIMediaController {
 
         $seasons = $series->seasons->map(function (Season $season, int $index) {
             $returnArray = $season->toArray();
-            $returnArray['poster'] = $this->buildImagePath($season->poster, 'poster', [
-                'type'      =>  'series',
-                'id'        =>  $season->series_id,
-                'category'  =>  'seasons'
-            ]);
+            if ($season->poster !== null) {
+                $returnArray['poster'] = $this->buildImagePath($season->poster, 'poster', [
+                    'type'      =>  'series',
+                    'id'        =>  $season->series_id,
+                    'category'  =>  'seasons'
+                ]);
+            }
             return $returnArray;
         })->toArray();
 
@@ -167,7 +170,17 @@ class SeriesController extends APIMediaController {
      * @return JsonResponse
      */
     public function getMissingEpisodes(Request $request) : JsonResponse {
-        $missingEpisodes = \App\Models\Episode::where('downloaded', '=', false)->orderBy('series_id', 'ASC')->get();
+        $seriesCollection = Series::where('local_title', '!=', null)->get();
+        $missingEpisodes = [];
+
+        foreach ($seriesCollection as $series) {
+            foreach ($series->episodes as $episode) {
+                if (!$episode->downloaded) {
+                    $missingEpisodes[] = $episode;
+                }
+            }
+        }
+
         $currentDate = \Carbon\Carbon::now();
         $result = [];
 
@@ -223,7 +236,7 @@ class SeriesController extends APIMediaController {
      * @param array $only
      * @return array
      */
-    private function getBaseSeriesInformation(Series $series, array $only = []) : array {
+    public function getBaseSeriesInformation(Series $series, array $only = []) : array {
         $data = Arr::except($series->toArray(), [
             'backdrop',
             'poster',
@@ -232,23 +245,35 @@ class SeriesController extends APIMediaController {
             'creators',
             'networks'
         ]);
-        $data['backdrop'] = $this->buildImagePath($series->backdrop, 'backdrop', [
-            'type'      =>  'series',
-            'id'        =>  $series->id,
-            'category'  =>  'global'
-        ]);
-        $data['poster'] = $this->buildImagePath($series->poster, 'poster', [
-            'type'      =>  'series',
-            'id'        =>  $series->id,
-            'category'  =>  'global'
-        ]);
+        if ($series->backdrop !== null) {
+            $data['backdrop'] = $this->buildImagePath($series->backdrop, 'backdrop', [
+                'type'      =>  'series',
+                'id'        =>  $series->id,
+                'category'  =>  'global'
+            ]);
+        }
+        if ($series->poster !== null) {
+            $data['poster'] = $this->buildImagePath($series->poster, 'poster', [
+                'type'      =>  'series',
+                'id'        =>  $series->id,
+                'category'  =>  'global'
+            ]);
+        }
+        $requestDetails = $this->checkIfRequested($data['title'], $data['release_date'], 0);
+        $data['requested'] = $requestDetails['requested'];
+        $data['request_status'] = $requestDetails['status'];
+        $translations = $series->getModelTranslations();
+        $data['title'] = $translations['title'];
+        $data['overview'] = $translations['overview'];
+        $data['type'] = 0;
         $data['genres'] = $this->loadGenres($series->genres);
         $data['production_companies'] = $this->loadProductionCompanies($series->production_companies);
         $data['creators'] = $this->loadCreators($series->creators);
         $data['networks'] = $this->loadNetworks($series->networks);
+        $data['plex'] = PlexMediaRelation::where('model', '=', Series::class)->where('media_id', '=', $series->id)->get();
 
         if (\count($only) > 0) {
-            $data = Arr::only($data, $only);
+            $data = Arr::only($data, array_merge($only, ['plex', 'type', 'vote_average', 'requested', 'request_status']));
         }
 
 

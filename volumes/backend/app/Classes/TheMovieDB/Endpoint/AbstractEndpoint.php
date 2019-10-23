@@ -1,10 +1,14 @@
 <?php namespace App\Classes\TheMovieDB\Endpoint;
 
+use Closure;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use LanguageDetection\Language;
 use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TooManyRedirectsException;
 use hamburgscleanest\GuzzleAdvancedThrottle\RequestLimitRuleset;
 use hamburgscleanest\GuzzleAdvancedThrottle\Middleware\ThrottleMiddleware;
 
@@ -70,6 +74,7 @@ abstract class AbstractEndpoint {
 
     /**
      * AbstractEndpoint constructor.
+     * @throws Exception
      */
     public function __construct() {
         $this
@@ -134,6 +139,40 @@ abstract class AbstractEndpoint {
     }
 
     /**
+     * User proxy for request
+     * @param string $type
+     * @param string $host
+     * @param int $port
+     * @return Client
+     * @throws Exception
+     */
+    public function useProxy(string $type, string $host, int $port) : Client {
+        $proxyTypes = [
+            'http'          =>  CURLPROXY_HTTP,
+            'http1'         =>  CURLPROXY_HTTP_1_0,
+            'https'         =>  CURLPROXY_HTTPS,
+            'socks4'        =>  CURLPROXY_SOCKS4,
+            'socks4a'       =>  CURLPROXY_SOCKS4A,
+            'socks5'        =>  CURLPROXY_SOCKS5,
+            'socks5host'    =>  CURLPROXY_SOCKS5_HOSTNAME
+        ];
+
+        $curlOptions = [
+            CURLOPT_PROXYTYPE   =>  array_key_exists($type, $proxyTypes) ? $proxyTypes[$type] : null,
+            CURLOPT_PROXY       =>  $host,
+            CURLOPT_PROXYPORT   =>  $port
+        ];
+
+        return new Client([
+            'headers'                   =>  [
+                'Accept'                =>  'application/json',
+            ],
+            'timeout'                   =>  5,
+            'curl'                      =>  $curlOptions
+        ]);
+    }
+
+    /**
      * Initialize GuzzleHttp Client Instance
      * @return AbstractEndpoint|static|self|$this
      * @throws Exception
@@ -144,20 +183,51 @@ abstract class AbstractEndpoint {
         $handler->push((new ThrottleMiddleware(new RequestLimitRuleset([
             $this->baseURL      =>  [
                 [
-                    'max_requests'      =>  $this->requestLimiterNumber / $this->requestLimiterTime,
-                    'request_interval'  =>  1
-                ],
-                [
                     'max_requests'      =>  $this->requestLimiterNumber,
                     'request_interval'  =>  $this->requestLimiterTime,
                 ]
             ]
         ])))->handle());
+        $handler->push(Middleware::retry($this->retryDecider(), $this->retryDelay()));
         $this->client = new Client([
             'base_uri'      =>  $this->baseURL,
             'handler'       =>  $handler
         ]);
         return $this;
+    }
+
+    /**
+     * Decided when we need to retry the request
+     * @return Closure
+     */
+    protected function retryDecider() : Closure {
+        return function($retries, $request, $response = null, $exception = null) {
+            if ($retries > 5) {
+                return false;
+            }
+
+            if ($exception instanceof ConnectException || $exception instanceof TooManyRedirectsException) {
+                return true;
+            }
+
+            if( $response ) {
+                if( $response->getStatusCode() >= 500 ) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * Get the delay for the request retry
+     * @return Closure
+     */
+    protected function retryDelay() : Closure {
+        return function($numberOfRetries) : int {
+            return 1000 * $numberOfRetries;
+        };
     }
 
     /**

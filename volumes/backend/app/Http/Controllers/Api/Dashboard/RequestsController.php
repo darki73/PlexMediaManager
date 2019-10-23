@@ -5,6 +5,7 @@ use App\Jobs\Download\SeriesImages;
 use App\Jobs\Update\Episodes;
 use App\Jobs\Update\SeriesIndexers;
 use App\Models\Genre;
+use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -89,24 +90,34 @@ class RequestsController extends APIController {
             ]);
         }
 
-        try {
-            $database = new TheMovieDB;
-            $search = $database->search()->for(Search::SEARCH_SERIES, $requestModel->title)->year($requestModel->year);
-            $results = $search->fetch();
-            $item = $database->series()->fetch($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
-            $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
-            \App\Classes\Media\Processor\Processor::series($parser);
-        } catch (\Exception $exception) {
-            return $this->sendError('Unable to load information from the Media API', [
-                'code'      =>  $exception->getCode(),
-                'message'   =>  $exception->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $seriesModel = Series::where('title', '=', $requestModel->title)->orWhere('original_title', '=', $requestModel->title)->where('release_date', 'LIKE', $requestModel->year . '-%')->first();
 
-        Episodes::withChain([
-            new SeriesIndexers,
-            new SeriesImages
-        ])->dispatch();
+        if ($seriesModel !== null) {
+            if ($status === 1) {
+                $seriesModel->update([
+                    'local_title'       =>  sprintf('%s (%d)', $requestModel->title, $requestModel->year)
+                ]);
+                dispatch(new SeriesIndexers);
+            }
+        } else {
+            try {
+                $database = new TheMovieDB;
+                $search = $database->search()->for(Search::SEARCH_SERIES, $requestModel->title)->year($requestModel->year);
+                $results = $search->fetch();
+                $item = $database->series()->fetch($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
+                $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
+                \App\Classes\Media\Processor\Processor::series($parser);
+            } catch (\Exception $exception) {
+                return $this->sendError('Unable to load information from the Media API', [
+                    'code'      =>  $exception->getCode(),
+                    'message'   =>  $exception->getMessage()
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            Episodes::withChain([
+                new SeriesIndexers
+            ])->dispatch();
+        }
 
         $requestModel->update([
             'status'    =>  $status

@@ -146,7 +146,7 @@ class Series extends AbstractProcessor {
      * @return Series|static|self|$this
      */
     private function extractEpisodesCount() : self {
-        $this->episodesCount = $this->rawElement['number_of_episodes'];
+        $this->episodesCount = $this->rawElement['number_of_episodes'] ?? 0;
         return $this;
     }
 
@@ -165,12 +165,14 @@ class Series extends AbstractProcessor {
      */
     private function extractNetworks() : self {
         foreach ($this->rawElement['networks'] as $network) {
-            $this->networks[] = [
-                'id'        =>  $network['id'],
-                'name'      =>  $network['name'],
-                'logo'      =>  $this->clearPath($network['logo_path']),
-                'country'   =>  $network['origin_country']
-            ];
+            if ($network['name'] !== null && strlen($network['name']) > 0) {
+                $this->networks[] = [
+                    'id'        =>  $network['id'],
+                    'name'      =>  $network['name'],
+                    'logo'      =>  $this->clearPath($network['logo_path']),
+                    'country'   =>  $network['origin_country']
+                ];
+            }
         }
         return $this;
     }
@@ -192,16 +194,18 @@ class Series extends AbstractProcessor {
         foreach ($this->rawElement['seasons'] as $season) {
             $seasonNumber = $season['season_number'];
             if ($seasonNumber !== 0) {
-                $this->seasons[$seasonNumber] = [
-                    'id'                =>  $season['id'],
-                    'name'              =>  $season['name'],
-                    'series_id'         =>  $this->id,
-                    'season_number'     =>  $seasonNumber,
-                    'overview'          =>  $season['overview'],
-                    'episodes_count'    =>  $season['episode_count'],
-                    'poster'            =>  $this->clearPath($season['poster_path']),
-                    'air_date'          =>  $season['air_date']
-                ];
+                if ($season['episode_count'] !== null) {
+                    $this->seasons[$seasonNumber] = [
+                        'id'                =>  $season['id'],
+                        'name'              =>  $season['name'],
+                        'series_id'         =>  $this->id,
+                        'season_number'     =>  $seasonNumber,
+                        'overview'          =>  $season['overview'],
+                        'episodes_count'    =>  $season['episode_count'],
+                        'poster'            =>  $this->clearPath($season['poster_path']),
+                        'air_date'          =>  $season['air_date']
+                    ];
+                }
             }
         }
         return $this;
@@ -228,6 +232,20 @@ class Series extends AbstractProcessor {
      * @return Series|static|self|$this
      */
     private function extractTranslations() : self {
+        $allowedLocales = [
+            'ar',
+            'de',
+            'en',
+            'es',
+            'fr',
+            'ja',
+            'ko',
+            'no',
+            'ru',
+            'uk',
+            'zh'
+        ];
+
         $id = $this->rawElement['id'];
         $translations = [
             0               =>  [
@@ -236,9 +254,13 @@ class Series extends AbstractProcessor {
         ];
         foreach ($this->rawElement['translations']['translations'] as $localeData) {
             $localeCode = $localeData['iso_639_1'];
-            $details = $localeData['data'];
-            $translations[0]['locale_' . $localeCode . '_title'] = strlen($details['name']) > 0 ? $details['name'] : $this->rawElement['original_name'];
-            $translations[0]['locale_' . $localeCode . '_overview'] = strlen($details['overview']) > 0 ? str_replace(["\n", "\r", "\n\r", "\r\n"], '', $details['overview']) : $this->rawElement['overview'];
+            if (in_array($localeCode, $allowedLocales)) {
+                $details = $localeData['data'];
+                $title = strlen($details['name']) > 0 ? $details['name'] : $this->rawElement['original_name'];
+                $overview = strlen($details['overview']) > 0 ? str_replace(["\n", "\r", "\n\r", "\r\n"], '', $details['overview']) : $this->rawElement['overview'];
+                $translations[0]['locale_' . $localeCode . '_title'] = strlen($title) > 100 ? $this->rawElement['original_name'] : $title;
+                $translations[0]['locale_' . $localeCode . '_overview'] = $overview;
+            }
         }
         $this->translations = $translations;
         return $this;

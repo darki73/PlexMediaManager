@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Models\Movie;
+use App\Models\PlexMediaRelation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -61,7 +62,7 @@ class MovieController extends APIMediaController {
      * @param bool $except
      * @return array
      */
-    private function getBaseMovieInformation(Movie $movie, array $only = [], bool $except = false) : array {
+    public function getBaseMovieInformation(Movie $movie, array $only = [], bool $except = false) : array {
         $data = Arr::except($movie->toArray(), [
             'backdrop',
             'poster',
@@ -73,12 +74,34 @@ class MovieController extends APIMediaController {
         $data['genres'] = $this->loadGenres($movie->genres);
         $data['production_companies'] = $this->loadProductionCompanies($movie->production_companies);
         $data['production_countries'] = $this->loadProductionCountries($movie->production_countries);
+        $data['plex'] = PlexMediaRelation::where('model', '=', Movie::class)->where('media_id', '=', $movie->id)->get();
+        $requestDetails = $this->checkIfRequested($data['title'], $data['release_date'], 1);
+        $data['requested'] = $requestDetails['requested'];
+        $data['request_status'] = $requestDetails['status'];
+        $translations = $movie->getModelTranslations();
+        $data['title'] = $translations['title'];
+        $data['overview'] = $translations['overview'];
+        $data['type'] = 1;
+        if ($movie->backdrop !== null) {
+            $data['backdrop'] = $this->buildImagePath($movie->backdrop, 'backdrop', [
+                'type'      =>  'movie',
+                'id'        =>  $movie->id,
+                'category'  =>  'global'
+            ]);
+        }
+        if ($movie->poster !== null) {
+            $data['poster'] = $this->buildImagePath($movie->poster, 'poster', [
+                'type'      =>  'movie',
+                'id'        =>  $movie->id,
+                'category'  =>  'global'
+            ]);
+        }
 
         if (\count($only) > 0) {
             if ($except) {
                 $data = Arr::except($data, $only);
             } else {
-                $data = Arr::only($data, $only);
+                $data = Arr::only($data, array_merge($only, ['plex', 'type', 'vote_average', 'requested', 'request_status']));
             }
         }
 

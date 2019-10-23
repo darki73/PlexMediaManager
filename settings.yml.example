@@ -21,6 +21,7 @@ media:
   tmdb_api_version: 3
   tmdb_api_key:
   plex_url:
+  plex_api_key:
 
 storage:
   preferred: nas

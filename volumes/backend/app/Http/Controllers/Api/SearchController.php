@@ -1,12 +1,17 @@
 <?php namespace App\Http\Controllers\Api;
 
+use App\Models\Movie;
+use App\Models\Series;
 use App\Classes\Plex\Plex;
+use Elasticsearch\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Classes\Search\Search;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
+use Matchish\ScoutElasticSearch\Mixed;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Class SearchController
@@ -14,6 +19,106 @@ use Illuminate\Support\Facades\Validator;
  */
 class SearchController extends APIController {
 
+    /**
+     * Perform local search
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function localSearch(Request $request) : JsonResponse {
+        $validator = Validator::make($request->toArray(), [
+            'query'     =>  'required|string'
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError('Unable to complete the request', $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST);
+        }
+        $query = $request->get('query');
+        return $this->sendResponse('Successfully fetched search query results', array_merge(
+            $this->formatLocalSeriesSearchResults(Series::search($query, function(Client $client, \ONGR\ElasticsearchDSL\Search $search) {
+            $query = $search->toArray()['query']['query_string']['query'];
+            return $client->search([
+                'index'     =>  (new Series)->searchableAs(),
+                'body'      =>  [
+                    'query'                                 =>  [
+                        'bool'                              =>  [
+                            'must'                          =>  [
+                                [
+                                    'match_phrase_prefix'   =>  [
+                                        'title.value'       =>  $query
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+        })->get()),
+            $this->formatLocalMoviesSearchResults(Movie::search($query, function(Client $client, \ONGR\ElasticsearchDSL\Search $search) {
+                $query = $search->toArray()['query']['query_string']['query'];
+                return $client->search([
+                    'index'     =>  (new Movie)->searchableAs(),
+                    'body'      =>  [
+                        'query'                                 =>  [
+                            'bool'                              =>  [
+                                'must'                          =>  [
+                                    [
+                                        'match_phrase_prefix'   =>  [
+                                            'title.value'       =>  $query
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]);
+            })->get())
+        ));
+    }
+
+    /**
+     * Format local series search results
+     * @param Collection $collection
+     * @return array
+     */
+    protected function formatLocalSeriesSearchResults(Collection $collection) : array {
+        $results = [];
+        foreach ($collection as $index => $series) {
+            $results[$index] = (new SeriesController)->getBaseSeriesInformation($series, [
+                'id',
+                'title',
+                'original_title',
+                'local_title',
+                'original_language',
+                'overview',
+                'backdrop',
+                'poster',
+                'genres',
+                'seasons_count',
+                'runtime',
+                'release_date'
+            ]);
+        }
+        return $results;
+    }
+
+    /**
+     * Format local movies search results
+     * @param Collection $collection
+     * @return array
+     */
+    protected function formatLocalMoviesSearchResults(Collection $collection) : array {
+        $results = [];
+        foreach ($collection as $index => $movie) {
+            $results[$index] = (new MovieController)->getBaseMovieInformation($movie, [
+                'status',
+                'imdb_id',
+                'runtime',
+                'adult',
+                'created_at',
+                'updated_at'
+            ], true);
+        }
+        return $results;
+    }
 
     /**
      * Perform search on the remote search providers

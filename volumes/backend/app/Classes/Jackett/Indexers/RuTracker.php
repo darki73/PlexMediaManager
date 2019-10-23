@@ -59,6 +59,10 @@ class RuTracker extends AbstractIndexer {
     public static function index(Collection $seriesCollection): void {
         $self = (new self(new Client));
         foreach ($seriesCollection as $series) {
+            if (! $self->seriesWanted($series)) {
+                continue;
+            }
+
             $indexer = $series->indexer;
             if ($indexer === null) {
 
@@ -188,6 +192,10 @@ class RuTracker extends AbstractIndexer {
         $seasons = [];
 
         if (!$self->isSeriesApprovedForDownload($series)) {
+            return false;
+        }
+
+        if (!$self->seriesWanted($series)) {
             return false;
         }
 

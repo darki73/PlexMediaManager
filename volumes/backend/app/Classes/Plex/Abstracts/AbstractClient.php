@@ -121,10 +121,15 @@ abstract class AbstractClient {
     /**
      * Resolve link to plex resource
      * @param string $path
+     * @param string|null $resource
      * @return string
      */
-    protected function resolvePlexResource(string $path) : string {
-        return sprintf('%s%s', sprintf($this->plexUrl, $this->plexResource), $path);
+    protected function resolvePlexResource(string $path, ?string $resource = null) : string {
+        $useResource = $this->plexResource;
+        if ($resource !== null) {
+            $useResource = $resource;
+        }
+        return sprintf('%s%s', sprintf($this->plexUrl, $useResource), $path);
     }
 
     /**

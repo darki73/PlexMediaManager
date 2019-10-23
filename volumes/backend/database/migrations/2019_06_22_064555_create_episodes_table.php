@@ -21,7 +21,7 @@ class CreateEpisodesTable extends Migration {
             $table->unsignedBigInteger('season_id');
             $table->integer('season_number');
             $table->integer('episode_number');
-            $table->string('title');
+            $table->longText('title');
             $table->longText('overview')->nullable();
             $table->string('production_code')->nullable();
             $table->string('release_date')->nullable();

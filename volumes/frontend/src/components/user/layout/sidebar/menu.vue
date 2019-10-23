@@ -32,6 +32,11 @@
                         link: '/search'
                     },
                     {
+                        action: 'search',
+                        title: 'user.menu.search_local',
+                        link: '/local-search'
+                    },
+                    {
                         action: 'move_to_inbox',
                         title: 'user.menu.requests.requests',
                         items: [

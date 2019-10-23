@@ -9,6 +9,7 @@
                         :items-per-page="10"
                         :loading="loading"
                         :search="search"
+                        :custom-filter="customSearchFilter"
                     >
                         <template v-slot:top>
                             <v-toolbar flat>
@@ -50,7 +51,7 @@
                                     {{ item.id }}
                                 </td>
                                 <td align="center">
-                                    {{ item.title }}
+                                    {{ item.title[selectedLocale].value }}
                                 </td>
                                 <td align="center">
                                     {{ item.has_torrent }}
@@ -196,8 +197,8 @@
                                                         <v-layout row wrap class="pl-4 pr-4">
                                                             <v-flex xs10>
                                                                 {{ $t('dashboard.indexers.preview.episode', {
-                                                                number: episode.episode_number,
-                                                                title: episode.title
+                                                                    number: episode.episode_number,
+                                                                    title: episode.title
                                                                 }) }}
                                                             </v-flex>
                                                             <v-flex xs2>
@@ -271,6 +272,7 @@
         },
         data() {
             return {
+                selectedLocale: 'en',
                 search: '',
                 indexerExists: false,
                 loading: false,
@@ -366,6 +368,7 @@
             if (!this.indexerExists) {
                 this.$router.push('/dashboard/indexers');
             }
+            this.selectedLocale = this.$i18n.locale;
         },
         methods: {
             updateTheSelectedIndexerValue() {
@@ -468,6 +471,16 @@
             canBeDownloaded(episode) {
                 const currentTime = this.$moment().format('YYYY-MM-DD');
                 return !episode.downloaded && this.$moment(episode.release_date).isSameOrBefore(currentTime, 'day');
+            },
+            customSearchFilter(value, search, item) {
+                let found = false;
+                search = search.toString().toLowerCase();
+                forEach(item.title, (data, locale) => {
+                    if (found === false) {
+                        found = data.value.toLowerCase().includes(search);
+                    }
+                });
+                return found;
             }
         }
     };

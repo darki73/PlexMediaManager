@@ -45,7 +45,18 @@ if (! function_exists('create_lostfilm_title')) {
      * @return string
      */
     function create_lostfilm_title(string $seriesName) : string {
-        return trim(preg_replace('/\(\d{4}\)/', '', $seriesName));
+        return trim(str_replace([
+            'Mayans M.C.',
+            'Perpetual Grace LTD',
+            'Love, Death & Robots',
+        ], [
+            'Mayans MC',
+            'Perpetual Grace',
+            'Death & Robots'
+        ], str_replace([
+            'Marvel\'s',
+            'DC\'s'
+        ], '', $seriesName)));
     }
 }
 

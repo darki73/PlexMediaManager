@@ -125,7 +125,7 @@ return [
     |
     */
 
-    'memory_limit' => 256,
+    'memory_limit' => 512,
 
     /*
     |--------------------------------------------------------------------------
@@ -144,14 +144,16 @@ return [
                 'connection'                =>  'redis',
                 'queue'                     =>  'default',
                 'balance'                   =>  'simple',
-                'processes'                 =>  10,
+                'processes'                 =>  2,
                 'tries'                     =>  3,
+                'memory'                    =>  400,
             ],
             'supervisor-1-long-running' =>  [
                 'connection'                =>  'redis-long-running',
                 'queue'                     =>  'default_long',
                 'balance'                   =>  'simple',
-                'processes'                 =>  5,
+                'processes'                 =>  2,
+                'memory'                    =>  400,
                 'tries'                     =>  2,
                 'timeout'                   =>  900
             ]
@@ -162,14 +164,16 @@ return [
                 'connection'                =>  'redis',
                 'queue'                     =>  'default',
                 'balance'                   =>  'simple',
-                'processes'                 =>  10,
+                'processes'                 =>  2,
+                'memory'                    =>  400,
                 'tries'                     =>  3,
             ],
             'supervisor-1-long-running' =>  [
                 'connection'                =>  'redis-long-running',
                 'queue'                     =>  'default_long',
                 'balance'                   =>  'simple',
-                'processes'                 =>  5,
+                'processes'                 =>  2,
+                'memory'                    =>  400,
                 'tries'                     =>  2,
                 'timeout'                   =>  900
             ]

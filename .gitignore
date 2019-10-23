@@ -5,6 +5,7 @@
 volumes/elasticsearch/*
 volumes/jackett/config/*
 volumes/jackett/downloads/*
+volumes/kibana/*
 volumes/mariadb/*
 volumes/redis/*
 volumes/torrent/config/*
@@ -18,6 +19,7 @@ volumes/traefik/traefik.yaml
 !volumes/elasticsearch/.gitkeep
 !volumes/jackett/config/.gitkeep
 !volumes/jackett/downloads/.gitkeep
+!volumes/kibana/config.yml
 !volumes/mariadb/.gitkeep
 !volumes/redis/.gitkeep
 !volumes/torrent/config/.gitkeep

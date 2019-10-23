@@ -34,24 +34,47 @@ class Series extends AbstractLongQueueJob {
      * @inheritDoc
      */
     public function handle(): void {
-        $oldSeriesCount = SeriesModel::count();
+//        $oldSeriesCount = SeriesModel::count();
+        $updatesMade = 0;
         foreach ($this->localSeriesList as $item) {
             if (!Processor::exists(Processor::SERIES, $item['original_name'])) {
-                $database = new TheMovieDB;
-                $search = $database->search()->for(Search::SEARCH_SERIES, $item['name'])->year($item['year']);
-                $searchResult = $search->fetch();
-                $series = $database->series()->fetch($searchResult['id'], $item['original_name']);
-                Processor::series(new \App\Classes\TheMovieDB\Processor\Series($series));
+                $databaseModel = \App\Models\Series::query()->where('title', '=', $item['name']);
+
+                if ($item['year'] !== null) {
+                    $databaseModel = $databaseModel->where('release_date', 'LIKE', $item['year'] . '-%');
+                }
+                $databaseModel = $databaseModel->first();
+
+                if (! $databaseModel) {
+                    $database = new TheMovieDB();
+                    $response = $database->search()->for(Search::SEARCH_SERIES, $item['name'])->year($item['year'])->fetch();
+                    if (\count($response) !== 0) {
+                        [$year, $month, $day] = explode('-', $response['first_air_date']);
+                        $seriesModel = \App\Models\Series::where('title', '=', $response['name'])->where('release_date', 'LIKE', $year . '-%')->first();
+                        if ($seriesModel !== null) {
+                            $updatesMade++;
+                            $seriesModel->update([
+                                'local_title'       =>  $item['original_name']
+                            ]);
+                        }
+                    } else {
+                        app('log')->info('[SeriesUpdate::handle] We need to query API, Series `' . $item['name'] . '` was not found in the database');
+                    }
+                } else {
+                    $updatesMade++;
+                    $databaseModel->update([
+                        'local_title'       =>  $item['original_name']
+                    ]);
+                }
             }
         }
-        $newSeriesCount = SeriesModel::count();
-        if($newSeriesCount > $oldSeriesCount) {
+//        $newSeriesCount = SeriesModel::count();
+        if($updatesMade > 0) {
             Cache::forget('series:list');
-            dispatch(new SeriesIndexers);
+            SeriesIndexers::withChain([
+                new Episodes
+            ])->dispatch();
         }
-        Episodes::withChain([
-            new SeriesImages
-        ])->dispatch();
     }
 
 }

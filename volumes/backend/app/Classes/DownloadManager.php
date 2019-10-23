@@ -7,6 +7,7 @@ use App\Models\Movie as MovieModel;
 use App\Classes\Storage\PlexStorage;
 use App\Models\Series as SeriesModel;
 use App\Classes\Storage\TorrentStorage;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -34,43 +35,43 @@ class DownloadManager {
      * Torrent Storage instance
      * @var TorrentStorage|null
      */
-    protected $torrentStorage = null;
+    protected ?TorrentStorage $torrentStorage = null;
 
     /**
      * Plex Storage instance
      * @var PlexStorage|null
      */
-    protected $plexStorage = null;
+    protected ?PlexStorage $plexStorage = null;
 
     /**
      * Torrent client instance
      * @var Torrent|null
      */
-    protected $torrentInstance = null;
+    protected ?Torrent $torrentInstance = null;
 
     /**
      * Type of content we are working with
      * @var string|null
      */
-    protected $type = null;
+    protected ?string $type = null;
 
     /**
      * Collection for specified type of media content
-     * @var array|SeriesModel[]|MovieModel[]
+     * @var Collection|null
      */
-    protected $collection = [];
+    protected ?Collection $collection = null;
 
     /**
      * Full torrent and storage paths
      * @var array
      */
-    protected $paths = [];
+    protected array $paths = [];
 
     /**
      * Cached responses for same series
      * @var array
      */
-    protected $responseCache = [];
+    protected array $responseCache = [];
 
 
     /**
@@ -88,7 +89,7 @@ class DownloadManager {
      */
     public function series() : self {
         $this->type = DownloadManager::TYPE_SERIES;
-        $this->collection = SeriesModel::all();
+        $this->collection = SeriesModel::where('local_title', '!=', null)->get();
         $this->paths = $this->torrentStorage->getStorageFor($this->type);
         return $this;
     }
@@ -99,7 +100,7 @@ class DownloadManager {
      */
     public function movies() : self {
         $this->type = DownloadManager::TYPE_MOVIES;
-        $this->collection = MovieModel::all();
+        $this->collection = MovieModel::where('local_title', '!=', null)->get();
         $this->paths = $this->torrentStorage->getStorageFor($this->type);
         return $this;
     }
@@ -254,6 +255,7 @@ class DownloadManager {
         $year = null;
 
         if ($localName === null) {
+            $response = null;
             if (! array_key_exists($possibleName, $this->responseCache)) {
                 $database = new TheMovieDB;
                 $response = $database->search()->for(Search::SEARCH_SERIES, $possibleName)->fetch();
@@ -264,6 +266,12 @@ class DownloadManager {
             if (isset($response['original_name'])) {
                 $releaseParts = explode('-', $response['first_air_date']);
                 $year = (int) $releaseParts[0];
+            }
+            if ($response !== null) {
+                $seriesModel = SeriesModel::where('title', '=', $response['name'])->where('release_date', 'LIKE', $year . '-%')->first();
+                if ($seriesModel !== null) {
+                    $localName = $seriesModel->local_title;
+                }
             }
         }
 
@@ -325,7 +333,6 @@ class DownloadManager {
                 $completedTorrents[] = $file;
             }
         }
-
 
         foreach ($completedTorrents as $path) {
             $torrentPath = str_replace($this->paths['torrent']['local']['relative'] . DIRECTORY_SEPARATOR, '', $path);

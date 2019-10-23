@@ -20,7 +20,7 @@ class CreateMoviesTable extends Migration {
             // Movie Title Columns
             $table->string('title');
             $table->string('original_title');
-            $table->string('local_title');
+            $table->string('local_title')->nullable();
 
             // Movie Languages Columns
             $table->string('original_language')->nullable();

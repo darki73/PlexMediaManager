@@ -25,7 +25,7 @@ class Episodes extends AbstractLongQueueJob {
     public function __construct() {
         $this->setAttempts(25);
         $this->setTags('update', 'episodes');
-        $this->seriesCollection = SeriesModel::all();
+        $this->seriesCollection = SeriesModel::where('local_title', '!=', null)->get();
     }
 
     /**

@@ -20,7 +20,7 @@ class CreateSeriesTable extends Migration {
             // Series Title Columns
             $table->string('title');
             $table->string('original_title');
-            $table->string('local_title');
+            $table->string('local_title')->nullable(); // If we are going to index all ~85k series from the TMDB
 
             // Series Languages Columns
             $table->string('original_language')->nullable();

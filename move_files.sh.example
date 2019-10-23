@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 
-response=$(curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN_NAME/torrent/completed");
+response=$(curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN/torrent/completed");
 readarray -t commands <<<"$response"
+counter=0
 
 for i in "${commands[@]}"
 do
-    eval $i
+    if [ ! -z "$i" ]
+    then
+        eval $i
+        counter=$[counter +1]
+    fi
 done
 
-curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN_NAME/torrent/sync"
+if [ "$counter" -gt "0" ]; then
+    curl -sb -H "https://media-api.REPLACE_WITH_DOMAIN/torrent/sync"
+fi

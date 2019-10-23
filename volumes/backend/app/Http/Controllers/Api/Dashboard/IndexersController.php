@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use App\Models\SeriesIndexerTorrentLink;
 use App\Http\Controllers\Api\APIController;
 use App\Http\Controllers\Api\SeriesController;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -24,7 +25,14 @@ class IndexersController extends APIController {
      * @return JsonResponse
      */
     public function list(Request $request) : JsonResponse {
-        $indexersCollection = SeriesIndexer::all();
+        $forceRefresh = $request->get('refresh') !== null;
+        if ($forceRefresh !== false) {
+            Cache::forget('indexers:series');
+        }
+        $indexersCollection = Cache::remember('indexers:series', now()->addHours(6), function() {
+            return SeriesIndexer::all();
+        });
+
         $groupedIndexers = [];
 
         foreach ($indexersCollection as $indexer) {
@@ -183,24 +191,30 @@ class IndexersController extends APIController {
      * @return array
      */
     protected function generateExclusionListForSeries(SeriesIndexer $item) : array {
-        $seasons = $item->series->seasons;
+        $seasons = $item->series->seasons_count;
         $exclude = $item->excludes;
-
         $list = [];
+
 
         foreach ($exclude as $item) {
             $list[$item->season_number] = true;
         }
 
-        foreach ($seasons as $season) {
-            if (! array_key_exists($season->season_number, $list)) {
-                $list[$season->season_number] = false;
+        for ($i = 1; $i <= $seasons; $i++) {
+            if (! array_key_exists($i, $list)) {
+                $list[$i] = false;
             }
         }
 
-        ksort($list);
+//        foreach ($seasons as $season) {
+//            if (! array_key_exists($season->season_number, $list)) {
+//                $list[$season->season_number] = false;
+//            }
+//        }
 
+        ksort($list);
         return $list;
     }
+
 
 }

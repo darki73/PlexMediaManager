@@ -51,8 +51,8 @@ abstract class AbstractType {
             ->executeTypeSpecificMethods()
             ->sequelizeMainModelFields()
             ->sequelizeAdditionalModelsFields()
-            ->createOrUpdateMainModel()
-            ->createOrUpdateAdditionalModels();
+            ->createOrUpdateAdditionalModels()
+            ->createOrUpdateMainModel();
     }
 
     /**

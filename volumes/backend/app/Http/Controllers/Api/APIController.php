@@ -117,4 +117,22 @@ class APIController extends Controller {
         return $this->getHeaderValueFromRequest($request, 'x-plex-token');
     }
 
+    /**
+     * Start performance counter
+     * @return float
+     */
+    protected function startPerformanceCounter() : float {
+        return microtime(true);
+    }
+
+    /**
+     * Stop performance counter
+     * @param float $startCounter
+     * @return float
+     */
+    protected function stopPerformanceCounter(float $startCounter) : float {
+        $endTime = microtime(true);
+        return $endTime - $startCounter;
+    }
+
 }

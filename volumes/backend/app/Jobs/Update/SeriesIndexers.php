@@ -2,6 +2,7 @@
 
 use App\Models\Series;
 use App\Jobs\AbstractLongQueueJob;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class SeriesIndexers
@@ -23,8 +24,9 @@ class SeriesIndexers extends AbstractLongQueueJob {
     public function handle(): void {
         $implementations = config('jackett.indexers');
         foreach ($implementations as $tracker => $class) {
-            $class::index(Series::all());
+            $class::index(Series::where('local_title', '!=', null)->get());
         }
+        Cache::forget('indexers:series');
     }
 
 

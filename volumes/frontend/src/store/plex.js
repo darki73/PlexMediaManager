@@ -4,18 +4,22 @@ const types = {
     SET_SELECTED_SERVER: 'SET_SELECTED_SERVER',
     FETCH_LIBRARIES_SUCCESS: 'FETCH_LIBRARIES_SUCCESS',
     FETCH_LIBRARIES_FAILURE: 'FETCH_LIBRARIES_FAILURE',
+    FETCH_PLEX_USERS_SUCCESS: 'FETCH_PLEX_USERS_SUCCESS',
+    FETCH_PLEX_USERS_FAILURE: 'FETCH_PLEX_USERS_FAILURE',
 };
 
 export const state = () => ({
     servers: [],
     selected_server: null,
-    libraries: []
+    libraries: [],
+    users: []
 });
 
 export const getters = {
     servers: state => state.servers,
     selected_server: state => state.selected_server,
-    libraries: state => state.libraries
+    libraries: state => state.libraries,
+    users: state => state.users,
 };
 
 export const mutations = {
@@ -33,7 +37,13 @@ export const mutations = {
     },
     [types.FETCH_LIBRARIES_FAILURE] (state) {
         state.libraries = [];
-    }
+    },
+    [types.FETCH_PLEX_USERS_SUCCESS] (state, users) {
+        state.users = users;
+    },
+    [types.FETCH_PLEX_USERS_FAILURE] (state) {
+        state.users = [];
+    },
 };
 
 export const actions = {
@@ -78,6 +88,20 @@ export const actions = {
             commit(types.FETCH_LIBRARIES_SUCCESS, data.data);
         } catch (error) {
             commit(types.FETCH_LIBRARIES_FAILURE);
+        }
+    },
+
+    /**
+     * Fetch list of plex users
+     * @param commit
+     * @returns {Promise<void>}
+     */
+    async fetchPlexUsers({ commit }) {
+        try {
+            const { data } = await this.$axios.get('dashboard/plex/users');
+            commit(types.FETCH_PLEX_USERS_SUCCESS, data.data);
+        } catch (error) {
+            commit(types.FETCH_PLEX_USERS_FAILURE);
         }
     }
 

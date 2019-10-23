@@ -1,6 +1,6 @@
 <template>
     <v-content>
-        <v-container fluid grid-list-md :fill-height="fillHeight">
+        <v-container fluid grid-list-md :fill-height="fillHeight" :class="noPadding ? 'pa-0' : ''">
             <v-alert
                 v-model="alert"
                 type="info"
@@ -31,6 +31,11 @@
         name: 'layout-content',
         props: {
             fillHeight: {
+                type: Boolean,
+                required: false,
+                default: () => false
+            },
+            noPadding: {
                 type: Boolean,
                 required: false,
                 default: () => false

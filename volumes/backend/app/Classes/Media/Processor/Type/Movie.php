@@ -1,6 +1,7 @@
 <?php namespace App\Classes\Media\Processor\Type;
 
 use App\Models\Genre;
+use App\Models\MovieTranslation;
 use App\Models\ProductionCompany;
 use App\Models\ProductionCountry;
 use App\Models\Movie as MovieModel;
@@ -24,7 +25,8 @@ class Movie extends AbstractType {
     protected $separateEntities = [
         'productionCountries'   =>  ProductionCountry::class,
         'productionCompanies'   =>  ProductionCompany::class,
-        'genres'                =>  Genre::class
+        'genres'                =>  Genre::class,
+        'translations'          =>  MovieTranslation::class,
     ];
 
     /**

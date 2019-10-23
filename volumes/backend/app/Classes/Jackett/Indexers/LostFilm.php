@@ -40,16 +40,20 @@ class LostFilm extends AbstractIndexer {
      */
     public static function index(Collection $seriesCollection): void {
         $self = (new self(new Client));
-        foreach ($seriesCollection as $series) {
+        foreach ($seriesCollection as $index => $series) {
+            if (! $self->seriesWanted($series)) {
+                continue;
+            }
             $indexer = $series->indexer;
             if ($indexer === null) {
-                $seriesName = $self->stripYear($series->local_title);
+                $seriesName = create_lostfilm_title($self->stripYear($series->local_title));
                 $result = $self
                     ->series($seriesName)
                     ->season(1)
                     ->quality(Quality::FHD)
-                    ->fetch();
-                if ($result !== null) {
+                    ->fetchForIndex();
+
+                if ($result !== false) {
                     SeriesIndexer::create([
                         'series_id'     =>  $series->id,
                         'indexer'       =>  $self->tracker
@@ -57,6 +61,23 @@ class LostFilm extends AbstractIndexer {
                 }
             }
         }
+    }
+
+    /**
+     * Fetch data for index
+     * @return bool
+     */
+    protected function fetchForIndex() {
+        $requestTime = number_format(round(microtime(true) * 1000), 0, '', '');
+        try {
+            $response = $this->client->get('indexers/all/results?Query=' . urlencode($this->query) . '&Tracker[]=' . $this->tracker . '&_=' . $requestTime);
+            if ($response === null || !array_key_exists('Results', $response) || \count($response['Results']) === 0) {
+                return false;
+            }
+        } catch (\GuzzleHttp\Exception\ConnectException $connectException) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -91,9 +112,9 @@ class LostFilm extends AbstractIndexer {
 
         foreach ($torrent->listTorrents() as $item) {
             $torrentName = $item['name'];
-            $singleFileName = sprintf('%s %d', create_lostfilm_title($series->local_title), $episode->season_number);
+            $singleFileName = sprintf('%s %d', create_lostfilm_title($self->stripYear($series->local_title)), $episode->season_number);
             $seasonFileName = sprintf('%s.S%sE%s',
-                implode('.', explode(' ', create_lostfilm_title($series->local_title))),
+                implode('.', explode(' ', create_lostfilm_title($self->stripYear($series->local_title)))),
                 pad($episode->season_number),
                 pad($episode->episode_number)
             );
@@ -114,7 +135,7 @@ class LostFilm extends AbstractIndexer {
             return false;
         }
 
-        $search = $self->series(create_lostfilm_title($series->local_title))
+        $search = $self->series(create_lostfilm_title($self->stripYear($series->local_title)))
             ->season($episode->season_number)
             ->episode($episode->episode_number)
             ->quality($quality);

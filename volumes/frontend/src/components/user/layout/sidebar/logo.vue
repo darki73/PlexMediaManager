@@ -4,7 +4,7 @@
         flat
     >
         <span v-show="!minimized">
-            Have you seen logo? O_o
+            Have you seen logo? O_o {{ $vuetify.breakpoint.name }}
         </span>
         <span v-show="minimized">
             O_o

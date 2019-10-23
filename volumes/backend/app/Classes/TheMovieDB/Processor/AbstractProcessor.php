@@ -283,7 +283,11 @@ abstract class AbstractProcessor {
      */
     private function extractHomePage() : self {
         if ($this->hasOwnProperty('homepage')) {
-            $this->homepage = $this->rawElement['homepage'];
+            if (strlen($this->rawElement['homepage']) > 200) {
+                $this->homepage = null;
+            } else {
+                $this->homepage = $this->rawElement['homepage'];
+            }
         }
         return $this;
     }

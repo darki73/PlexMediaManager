@@ -51,6 +51,7 @@ Route::group([
     'prefix'    =>  'search',
     'namespace' =>  'Api'
 ], static function() {
+    Route::any('local', 'SearchController@localSearch');
     Route::post('remote', 'SearchController@remoteSearch');
     Route::post('remote-plex', 'SearchController@remoteSearchWithPlex');
 });
@@ -222,6 +223,13 @@ Route::group([
         ], static function() {
             Route::get('list', 'StorageController@listDisks');
         });
+    });
+
+    Route::group([
+        'prefix'    =>  'plex'
+    ], static function() {
+        Route::get('users', 'PlexController@listUsers');
+        Route::get('users-sync', 'PlexController@syncUsers');
     });
 
     /**

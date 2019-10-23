@@ -9,9 +9,13 @@ ENV DEBIAN_FRONTEND noninteractive
 # Update sources list, install latest version of libraries and then install and configure the "zip" package & extension
 RUN set -xe; \
     apt update -yqq && \
+    apt install -yqq software-properties-common dirmngr && \
+    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8 && \
+    add-apt-repository 'deb [arch=amd64] http://mariadb.mirrors.ovh.net/MariaDB/repo/10.4/debian buster main' && \
+    apt update -yqq && \
     pecl channel-update pecl.php.net && \
     apt install -yqq \
-        apt-utils   \
+        apt-utils mysql-client \
         libzip-dev zip unzip dos2unix git mediainfo mkvtoolnix procps && \
         docker-php-ext-configure zip --with-libzip && \
         docker-php-ext-install zip && \

@@ -25,7 +25,7 @@ class SeriesImages extends AbstractLongQueueJob {
      * @return void
      */
     public function handle() : void {
-        $seriesCollection = SeriesModel::all();
+        $seriesCollection = SeriesModel::where('local_title', '!=', null)->get();
         $database = new TheMovieDB;
         $configuration = $database->configuration();
         $images = [];

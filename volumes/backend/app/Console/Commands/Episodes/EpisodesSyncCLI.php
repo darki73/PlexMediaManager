@@ -58,7 +58,7 @@ class EpisodesSyncCLI extends Command {
         try {
             $this->storage = Source::series();
             $this->seriesList = $this->storage->list();
-            $this->seriesCollection = Series::all();
+            $this->seriesCollection = Series::where('local_title', '!=', null)->get();
         } catch (\Exception $exception) {
             $this->ready = false;
         }
@@ -74,6 +74,7 @@ class EpisodesSyncCLI extends Command {
             return;
         }
         $countSynced = 0;
+        $progressBar = $this->output->createProgressBar($this->seriesCollection->count());
         foreach ($this->seriesCollection as $seriesModel) {
             foreach ($this->seriesList as $series) {
                 if ($seriesModel->local_title === $series['original_name']) {
@@ -94,28 +95,12 @@ class EpisodesSyncCLI extends Command {
                     }
                 }
             }
+            $progressBar->advance();
         }
+        $progressBar->finish();
         $this->info('');
         $this->info('Synced local episodes with database. Added ' . $countSynced . ' new episodes.');
         $this->info(PHP_EOL);
-    }
-
-    /**
-     * Retrieve number of missing episodes
-     * @return int
-     */
-    protected function countMissingEpisodes() : int {
-        $episodesCount = 0;
-        foreach ($this->seriesCollection as $series) {
-            foreach ($series->seasons as $season) {
-                $expected = $season->episodes_count;
-                $actual = $season->episodes->count();
-                if ($expected !== $actual) {
-                    $episodesCount += $expected - $actual;
-                }
-            }
-        }
-        return $episodesCount;
     }
 
 }

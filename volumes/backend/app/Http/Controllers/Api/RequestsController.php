@@ -23,7 +23,7 @@ class RequestsController extends APIController {
         $validator = Validator::make($request->toArray(), [
             'title'     =>  'required|string',
             'released'  =>  'required|string',
-            'type'      =>  'required|string'
+            'type'      =>  'required|integer'
         ]);
 
         if ($validator->fails()) {
@@ -33,7 +33,7 @@ class RequestsController extends APIController {
         try {
             $createdRequest = \App\Models\Request::create([
                 'user_id'       =>  $user->id,
-                'request_type'  =>  $this->getMediaType($request->get('type')),
+                'request_type'  =>  $request->get('type'),
                 'title'         =>  $request->get('title'),
                 'year'          =>  $this->extractYear($request->get('released'))
             ]);

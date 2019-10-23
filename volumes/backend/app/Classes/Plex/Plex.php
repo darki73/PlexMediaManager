@@ -2,6 +2,7 @@
 
 use App\Classes\Plex\Requests\Library;
 use App\Classes\Plex\Requests\Servers;
+use App\Classes\Plex\Requests\Internal;
 use App\Classes\Plex\Requests\Authentication;
 
 /**
@@ -32,6 +33,14 @@ class Plex {
      */
     public function library() : Library {
         return new Library;
+    }
+
+    /**
+     * Get instance of Plex Internal requests
+     * @return Internal
+     */
+    public function internal() : Internal {
+        return new Internal;
     }
 
 }

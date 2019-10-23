@@ -3,6 +3,7 @@
 use App\Models\Genre;
 use App\Models\Network;
 use App\Models\Creator;
+use App\Models\Request;
 use Illuminate\Support\Arr;
 use App\Models\ProductionCountry;
 use App\Models\ProductionCompany;
@@ -25,6 +26,28 @@ class APIMediaController extends APIController {
      */
     public function __construct() {
         $this->configuration = (new TheMovieDB)->configuration();
+    }
+
+    /**
+     * Check if media element is already requested
+     * @param string $title
+     * @param string $releaseDate
+     * @param int $type
+     * @return array
+     */
+    protected function checkIfRequested(string $title, string $releaseDate, int $type) : array {
+        [$year, $month, $day] = explode('-', $releaseDate);
+        $model = Request::where('title', '=', $title)->where('year', '=', (integer) $year)->where('request_type', '=', $type)->first();
+        if ($model === null) {
+            return [
+                'requested'     =>  false,
+                'status'        =>  null
+            ];
+        }
+        return [
+            'requested'     =>  true,
+            'status'        =>  $model->status
+        ];
     }
 
     /**
@@ -126,46 +149,30 @@ class APIMediaController extends APIController {
      */
     protected function buildImagePath(string $image, string $type, ?array $additionalParameters = null) : array {
         $paths = [];
-        $this->configuration->fetch();
+        $configuration = $this->configuration->fetch();
+
+        $baseUrl = rtrim($configuration['images']['secure_base_url'], '/');
 
         switch ($type) {
+            case 'company':
             case 'network':
                 foreach ($this->configuration->getLogoSizes() as $size) {
-                    $paths[$size] = 'https://' . sprintf('%s/storage/images/networks/%s/%s', env('APP_URL'), $size, $image);
+                    $paths[$size] = sprintf('%s/%s/%s', $baseUrl, $size, $image);
                 }
                 break;
             case 'creator':
                 foreach ($this->configuration->getProfileSizes() as $size) {
-                    $paths[$size] = 'https://' . sprintf('%s/storage/images/creators/%s/%s', env('APP_URL'), $size, $image);
-                }
-                break;
-            case 'company':
-                foreach ($this->configuration->getLogoSizes() as $size) {
-                    $paths[$size] = 'https://' . sprintf('%s/storage/images/companies/%s/%s', env('APP_URL'), $size, $image);
+                    $paths[$size] = sprintf('%s/%s/%s', $baseUrl, $size, $image);
                 }
                 break;
             case 'backdrop':
                 foreach ($this->configuration->getBackdropSizes() as $size) {
-                    switch ($additionalParameters['type']) {
-                        case 'movies':
-                            $paths[$size] = 'https://' . sprintf('%s/storage/images/movies/%d/%s/%s', env('APP_URL'), $additionalParameters['id'], $size, $image);
-                            break;
-                        case 'series':
-                            $paths[$size] = 'https://' . sprintf('%s/storage/images/series/%d/%s/%s/%s', env('APP_URL'), $additionalParameters['id'], $additionalParameters['category'], $size, $image);
-                            break;
-                    }
+                    $paths[$size] = sprintf('%s/%s/%s', $baseUrl, $size, $image);
                 }
                 break;
             case 'poster':
                 foreach ($this->configuration->getPosterSizes() as $size) {
-                    switch ($additionalParameters['type']) {
-                        case 'movies':
-                            $paths[$size] = 'https://' . sprintf('%s/storage/images/movies/%d/%s/%s', env('APP_URL'), $additionalParameters['id'], $size, $image);
-                            break;
-                        case 'series':
-                            $paths[$size] = 'https://' . sprintf('%s/storage/images/series/%d/%s/%s/%s', env('APP_URL'), $additionalParameters['id'], $additionalParameters['category'], $size, $image);
-                            break;
-                    }
+                    $paths[$size] = sprintf('%s/%s/%s', $baseUrl, $size, $image);
                 }
                 break;
         }
