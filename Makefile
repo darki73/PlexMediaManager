@@ -157,6 +157,7 @@ install-up: ## Start containers for installation
 	$(docker_compose_bin) up -d --no-recreate app
 	$(docker_compose_bin) up -d --no-recreate php-fpm
 	$(docker_compose_bin) up -d --no-recreate nginx
+	$(docker_compose_bin) up -d --no-recreate elasticsearch
 
 install: install-up ## Install application dependencies into application container
 	$(docker_compose_bin) exec "$(APP_CONTAINER_NAME)" cp .env.example .env
