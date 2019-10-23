@@ -73,24 +73,26 @@
                 return this;
             },
             joinToPrivateEchoChannels() {
-                if (this.isAdministrator(this.user)) {
-                    this.$echo.private('account.admins').listen('.requests.new_request', (event) => {
-                        this.$bus.$emit('showNewNotification', this.$t('notification.request.created', {
+                const self = this;
+                if (self.isAdministrator(self.user)) {
+                    self.$echo.private('account.admins').listen('.requests.new_request', (event) => {
+                        // TODO: Check why error is thrown
+                        self.$bus.$emit('showNewNotification', self.$t('notification.request.created', {
                             username: event.request.user.username,
-                            type: this.$t('notification.request.' + event.request.request_type),
+                            type: self.$t('notification.request.' + event.request.request_type),
                             title: event.request.title,
                             year: event.request.year,
                             date: event.request.created_at
                         }));
                     });
                 }
-                this.$echo.private(`account.${this.user.id}`).listen('.requests.completed', ({ item }) => {
-                    this.$bus.$emit('showNewNotification', this.$t('notification.request.completed', {
+                self.$echo.private(`account.${self.user.id}`).listen('.requests.completed', ({ item }) => {
+                    self.$bus.$emit('showNewNotification', self.$t('notification.request.completed', {
                         title: item.title,
                         year: item.year
                     }));
                 });
-                return this;
+                return self;
             }
         }
     };

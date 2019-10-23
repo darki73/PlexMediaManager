@@ -11,7 +11,9 @@ return [
     'password'              =>  env('TORRENT_PASSWORD', null),
 
     'ignore_parts'          =>  [
-        'remux'
+        'remux',
+        'BDRip',
+        'bdrip'
     ]
 
 ];

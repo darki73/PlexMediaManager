@@ -21,28 +21,6 @@ class Internal extends AbstractClient {
     }
 
     /**
-     * Get users associated with Plex
-     * @return array
-     */
-    public function users() : array {
-        return $this->sendGetJsonRequest($this->buildPlexApiUrl('home/users'), function(array $response) {
-            $users = $response['users'];
-            $returnArray = [];
-            foreach ($users as $user) {
-                $tempArray = Arr::except($user, [
-                    'thumb',
-                    'hasPassword',
-                    'restricted',
-                    'protected'
-                ]);
-                $tempArray['avatar'] = $user['thumb'];
-                $returnArray[] = $tempArray;
-            }
-            return $returnArray;
-        });
-    }
-
-    /**
      * Get list of servers associated with the admin account
      * @param bool $returnRaw
      * @param bool $forceRefresh
@@ -65,6 +43,188 @@ class Internal extends AbstractClient {
             return $servers['data'];
         }
         return $servers;
+    }
+
+    public function allUsers(bool $returnRaw = false, bool $forceRefresh = false) : array {
+        $existingIDs = [];
+
+        $users = $this->users(true, $forceRefresh);
+        $friendsUsers = $this->friends(true, $forceRefresh);
+        $guestUsers = Arr::flatten($this->sharedWithUsers($forceRefresh), 1);
+
+        foreach ($users as $user) {
+            $existingIDs[] = $user['id'];
+        }
+
+        // Replace `main` user with `more` complete one from $friendsUsers
+        foreach ($friendsUsers as $second) {
+            foreach ($users as $index => $first) {
+                if ($first['id'] === $second['id']) {
+                    if (! $this->isFirstUserTheCanonicalOne($first, $second)) {
+                        $users[$index] = $second;
+                    }
+                }
+                if (! in_array($second['id'], $existingIDs)) {
+                    $existingIDs[] = $second['id'];
+                    $users[] = $second;
+                }
+            }
+        }
+
+
+        // Replace `main` user with `more` complete one from $guestsUsers
+        foreach ($guestUsers as $second) {
+            foreach ($users as $index => $first) {
+                if ($first['id'] === $second['id']) {
+                    if (! $this->isFirstUserTheCanonicalOne($first, $second)) {
+                        $users[$index] = $second;
+                        echo 'Have changed `main` user with index ' . $index . PHP_EOL;
+                    }
+                }
+                if (! in_array($second['id'], $existingIDs)) {
+                    $existingIDs[] = $second['id'];
+                    $users[] = $second;
+                }
+            }
+        }
+
+        if ($returnRaw) {
+            return $users;
+        }
+        return [
+            'success'       =>  true,
+            'status'        =>  200,
+            'message'       =>  'Successfully fetched data from the remote endpoint',
+            'data'          =>  $users
+        ];
+    }
+
+    /**
+     * Check if the first passed user is the canonical one
+     * @param array $first
+     * @param array $second
+     * @return bool
+     */
+    protected function isFirstUserTheCanonicalOne(array $first, array $second) : bool {
+        $nullsInFirst = 0;
+        $nullsInSecond = 0;
+        // TODO: can be better, will be like this for now
+        foreach ($first as $value) {
+            if ($value === null) {
+                $nullsInFirst++;
+            }
+        }
+
+        foreach ($second as $value) {
+            if ($value === null) {
+                $nullsInSecond++;
+            }
+        }
+
+        return $nullsInFirst <= $nullsInSecond;
+    }
+
+    /**
+     * Get users associated with Plex
+     * @param boolean $returnRaw
+     * @param boolean $forceRefresh
+     * @return array
+     */
+    public function users(bool $returnRaw = false, bool $forceRefresh = false) : array {
+        $data = $this->sendGetJsonRequest($this->buildPlexApiUrl('home/users'), function(array $response) {
+            $users = $response['users'];
+            $returnArray = [];
+            foreach ($users as $user) {
+                $tempArray = Arr::except($user, [
+                    'ttile',
+                    'email',
+                    'username',
+                    'thumb',
+                    'hasPassword',
+                    'restricted',
+                    'protected'
+                ]);
+                $tempArray['avatar'] = $user['thumb'];
+                $tempArray['friend'] = false;
+                $tempArray['email'] = strlen($user['email']) === 0 ? null : $user['email'];
+                $tempArray['title'] = strlen($user['title']) === 0 ? null : $user['title'];
+                $tempArray['username'] = strlen($user['username']) === 0 ? null : $user['username'];
+                ksort($tempArray);
+                $returnArray[] = $tempArray;
+            }
+            return $returnArray;
+        });
+        return $returnRaw ? $data['data'] : $data;
+    }
+
+    /**
+     * Fetch list of friend from the Plex API
+     * @param bool $returnRaw
+     * @param bool $forceRefresh
+     * @return array
+     */
+    public function friends(bool $returnRaw = false, bool $forceRefresh = false) : array {
+        $data = $this->sendGetXmlRequest($this->buildPlexApiUrl('friends/all', true), function(array $response) : array {
+            $usersArray = $response['User'];
+            $users = [];
+            foreach ($usersArray as $user) {
+                $user = $user['@attributes'];
+                $tempArray = [
+                    'id'            =>  (integer) $user['id'],
+                    'uuid'          =>  null,
+                    'title'         =>  strlen($user['title']) === 0 ? null : $user['title'],
+                    'username'      =>  strlen($user['username']) === 0 ? null : $user['username'],
+                    'email'         =>  strlen($user['email']) === 0 ? null : $user['email'],
+                    'avatar'        =>  $user['thumb'],
+                    'admin'         =>  false,
+                    'guest'         =>  false,
+                    'friend'        =>  true
+                ];
+                ksort($tempArray);
+                $users[] = $tempArray;
+            }
+            return $users;
+        });
+        return $returnRaw ? $data['data'] : $data;
+    }
+
+    /**
+     * Get users with whom we are sharing the libraries
+     * @param bool $forceRefresh
+     * @return array
+     */
+    public function sharedWithUsers(bool $forceRefresh = false) : array {
+        $mainServers = $this->servers(true, $forceRefresh);
+        $sharedWith = [];
+        foreach ($mainServers as $server) {
+            $serverID = $server['id'];
+            $data = $this->sendGetXmlRequest($this->buildPlexApiUrl(sprintf('servers/%s/shared_servers', $serverID), true), function(array $response) : array {
+                $sharedServers = $response['SharedServer'];
+                $sharedWith = [];
+                foreach ($sharedServers as $index => $user) {
+                    $user = $user['@attributes'];
+                    if (strlen($user['email']) === 0 || strlen($user['username']) === 0) {
+                        continue;
+                    }
+                    $tempArray = [
+                        'id'            =>  (integer) $user['userID'],
+                        'uuid'          =>  null,
+                        'title'         =>  strlen($user['username']) === 0 ? null : $user['username'],
+                        'username'      =>  strlen($user['username']) === 0 ? null : $user['username'],
+                        'email'         =>  strlen($user['email']) === 0 ? null : $user['email'],
+                        'avatar'        =>  null,
+                        'admin'         =>  false,
+                        'guest'         =>  true,
+                        'friend'        =>  false
+                    ];
+                    ksort($tempArray);
+                    $sharedWith[] = $tempArray;
+                }
+                return $sharedWith;
+            });
+            $sharedWith[$serverID] = $data['data'];
+        }
+        return $sharedWith;
     }
 
     /**
@@ -176,9 +336,13 @@ class Internal extends AbstractClient {
     /**
      * Build Plex "normal" API url
      * @param string $path
+     * @param boolean $excludeVersion
      * @return string
      */
-    public function buildPlexApiUrl(string $path) : string {
+    public function buildPlexApiUrl(string $path, bool $excludeVersion = false) : string {
+        if ($excludeVersion) {
+            return sprintf('%s/%s', str_replace('/v%s/', '', $this->apiUrl), $path);
+        }
         return sprintf('%s/%s', rtrim(sprintf($this->apiUrl, $this->apiVersion), '/'), $path);
     }
 

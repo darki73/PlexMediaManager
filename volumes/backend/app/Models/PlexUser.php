@@ -32,6 +32,7 @@ class PlexUser extends Model {
         'email',
         'admin',
         'guest',
+        'friend',
         'avatar',
     ];
 
@@ -47,6 +48,7 @@ class PlexUser extends Model {
         'email'         =>  'string',
         'admin'         =>  'boolean',
         'guest'         =>  'boolean',
+        'friend'        =>  'boolean',
         'avatar'        =>  'string',
     ];
 

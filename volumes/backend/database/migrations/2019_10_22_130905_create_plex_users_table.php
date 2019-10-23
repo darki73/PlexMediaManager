@@ -17,13 +17,14 @@ class CreatePlexUsersTable extends Migration {
     public function up() : void {
         Schema::create('plex_users', static function (Blueprint $table) {
             $table->unsignedBigInteger('id');
-            $table->string('uuid');
+            $table->string('uuid')->nullable();
             $table->string('title')->nullable();
             $table->string('username')->nullable();
             $table->string('email')->nullable();
             $table->boolean('admin')->default(false);
             $table->boolean('guest')->default(false);
-            $table->longText('avatar');
+            $table->boolean('friend')->default(false);
+            $table->longText('avatar')->nullable();
             $table->timestamps();
         });
     }

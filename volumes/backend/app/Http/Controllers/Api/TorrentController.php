@@ -42,11 +42,11 @@ class TorrentController extends APIController {
     }
 
     /**
-     * Get list of completed torrents with commands to move the files
+     * Get list of completed Series torrents with commands to move the files
      * @param Request $request
      * @return void
      */
-    public function listCompletedTorrents(Request $request) : void {
+    public function listCompletedSeriesTorrents(Request $request) : void {
         $manager = new DownloadManager;
         $files = [];
 
@@ -55,15 +55,31 @@ class TorrentController extends APIController {
             $files[] = $file;
         }
 
-        $manager->movies();
-        foreach ($manager->listDownloadedFiles() as $file) {
-            $files[] = $file;
-        }
-
         foreach ($files as $file) {
             if (isset($file['fix_audio']) && $file['fix_audio']) {
                 fix_lostfilm_audio_tracks($file['fix_path']);
             }
+        }
+
+        foreach ($files as $file) {
+            echo sprintf('mv "%s" "%s"', $file['downloads_path'], $file['local_path']) . PHP_EOL;
+        }
+
+        die();
+    }
+
+    /**
+     * Get list of completed Movies torrents with commands to move the files
+     * @param Request $request
+     * @return void
+     */
+    public function listCompletedMoviesTorrents(Request $request) : void {
+        $manager = new DownloadManager;
+        $files = [];
+
+        $manager->movies();
+        foreach ($manager->listDownloadedFiles() as $file) {
+            $files[] = $file;
         }
 
         foreach ($files as $file) {

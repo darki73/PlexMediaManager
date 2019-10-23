@@ -1,12 +1,12 @@
 <?php namespace App\Console\Commands\Movies;
 
-use App\Classes\Media\Processor\Processor;
+use Illuminate\Support\Arr;
+use Illuminate\Console\Command;
 use App\Classes\Media\Source\Source;
+use App\Classes\TheMovieDB\TheMovieDB;
+use App\Classes\Media\Processor\Processor;
 use App\Classes\TheMovieDB\Endpoint\Search;
 use App\Classes\TheMovieDB\Processor\Movie;
-use App\Classes\TheMovieDB\TheMovieDB;
-use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 
 /**
  * Class MoviesUpdate

@@ -1,5 +1,6 @@
 <?php namespace App\Classes\Jackett\Indexers;
 
+use App\Models\Request;
 use App\Models\Series;
 use App\Models\Episode;
 use Illuminate\Support\Arr;
@@ -7,7 +8,6 @@ use Illuminate\Support\Str;
 use App\Models\SeriesIndexer;
 use App\Classes\Torrent\Torrent;
 use App\Classes\Jackett\Enums\Quality;
-use App\Jobs\Torrent\MarkFilesUnwanted;
 use App\Models\SeriesIndexerTorrentLink;
 use App\Classes\Jackett\Components\Client;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,6 +29,18 @@ class RuTracker extends AbstractIndexer {
      * @var int
      */
     protected $type = self::SEARCH_SERIES;
+
+    /**
+     * Per request title
+     * @var string|null
+     */
+    protected ?string $requestTitle = null;
+
+    /**
+     * Per request year
+     * @var int|null
+     */
+    protected ?int $requestYear = null;
 
     /**
      * Search for series
@@ -215,7 +227,7 @@ class RuTracker extends AbstractIndexer {
                     $result = $self
                         ->series($title)
                         ->season($episode->season_number)
-                        ->quality(Quality::FHD)
+                        ->quality($quality)
                         ->fetch();
                     foreach ($result as $item) {
                         $commentString = str_replace('dl.php', 'viewtopic.php', $torrentLinkModel->torrent_file);
@@ -302,6 +314,43 @@ class RuTracker extends AbstractIndexer {
         return $downloadsCount > 0;
     }
 
+    public static function downloadRequests(int $quality = Quality::FHD) : void {
+        // TODO: Move method definition to the Interface
+        $self = (new self(new Client));
+        $torrent = new Torrent();
+        $requestsCollection = Request::where('request_type', '=', 1)->where('status', '=', 1)->get();
+        foreach ($requestsCollection as $request) {
+            $alreadyDownloading = false;
+            $self->requestTitle = $request->title;
+            $self->requestYear = $request->year;
+            $results = $self
+                ->movie(sprintf('%s %d', $request->title, $request->year))
+                ->quality($quality)
+                ->fetch();
+
+            $bestMatch = null;
+            $mostSeeders = 0;
+
+            foreach ($results as $result) {
+                if ($result['Seeders'] > $mostSeeders) {
+                    $mostSeeders = $result['Seeders'];
+                    $bestMatch = $result;
+                }
+            }
+
+            foreach ($torrent->listTorrents() as $item) {
+                $torrentName = $item['name'];
+                if (false !== stripos($torrentName, $self->requestTitle) && false !== strpos($torrentName, (string)$self->requestYear)) {
+                    $alreadyDownloading = true;
+                }
+            }
+
+            if (!$alreadyDownloading) {
+                $torrent->download($bestMatch['Link'], 'movies');
+            }
+        }
+    }
+
     /**
      * @inheritDoc
      * @param Series $series
@@ -331,13 +380,35 @@ class RuTracker extends AbstractIndexer {
             return []; // Just return empty array, no results found anyways
         }
         $results = $response['Results'];
-        $filteredSeries = array_filter($results, function(array $item) : bool {
-            return false !== stripos($item['CategoryDesc'], 'tv');
-        });
-        $series = array_filter($filteredSeries, function(array $item) : bool {
-            return Str::startsWith($item['Title'], $this->query);
-        });
-        return $series;
+        $data = [];
+
+        switch ($this->type) {
+            case self::SEARCH_SERIES:
+                $filteredSeries = array_filter($results, function(array $item) : bool {
+                    return false !== stripos($item['CategoryDesc'], 'tv');
+                });
+                $data = array_filter($filteredSeries, function(array $item) : bool {
+                    return Str::startsWith($item['Title'], $this->query);
+                });
+                break;
+            case self::SEARCH_MOVIES:
+                $filteredMovies = array_filter($results, function(array $item) : bool {
+                    return
+                        $item['CategoryDesc'] === 'Movies'
+                        || false !== stripos($item['CategoryDesc'], 'Movies/Foreign')
+                        || false !== stripos($item['CategoryDesc'], 'Movies/HD')
+                        || false !== stripos($item['CategoryDesc'], 'PC/Mac');
+                });
+                $data = array_filter($filteredMovies, function(array $item) : bool {
+                    return
+                        Str::startsWith($item['Title'], $this->requestTitle)
+                        && false !== strpos($item['Title'], (string) $this->requestYear)
+                        && false !== strpos($item['Title'], (string) $this->quality);
+                });
+                break;
+        }
+
+        return $data;
     }
 
 

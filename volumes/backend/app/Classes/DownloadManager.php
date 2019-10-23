@@ -126,7 +126,7 @@ class DownloadManager {
                         $movies[] = $this->extractMovieInformation($file, $fileName);
                     }
                 }
-                return $movies;
+                return array_filter($movies);
                 break;
             default:
                 return [];
@@ -406,6 +406,7 @@ class DownloadManager {
 
         $ignoreItems = config('torrent.ignore_parts');
 
+
         foreach ($titleParts as $index => $value) {
             foreach ($ignoreItems as $ignore) {
                 if (false !== stripos($value, $ignore)) {
@@ -413,9 +414,10 @@ class DownloadManager {
                 }
             }
         }
-
         $possibleTitle = implode(' ', array_filter($titleParts));
+
         $searchResponse = (new TheMovieDB)->search()->for(Search::SEARCH_MOVIE, $possibleTitle)->fetch();
+
         if (isset($searchResponse['id'])) {
             $releaseYear = Arr::first(explode('-', $searchResponse['release_date']));
             $title = str_replace([

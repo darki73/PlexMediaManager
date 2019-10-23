@@ -112,6 +112,8 @@ class SeriesController extends APIMediaController {
                     'id'        =>  $season->series_id,
                     'category'  =>  'seasons'
                 ]);
+            } else {
+                $returnArray['poster'] = $this->generateNotFoundImageLinks('poster');
             }
             return $returnArray;
         })->toArray();
@@ -251,6 +253,8 @@ class SeriesController extends APIMediaController {
                 'id'        =>  $series->id,
                 'category'  =>  'global'
             ]);
+        } else {
+            $data['backdrop'] = $this->generateNotFoundImageLinks('backdrop');
         }
         if ($series->poster !== null) {
             $data['poster'] = $this->buildImagePath($series->poster, 'poster', [
@@ -258,6 +262,8 @@ class SeriesController extends APIMediaController {
                 'id'        =>  $series->id,
                 'category'  =>  'global'
             ]);
+        } else {
+            $data['poster'] = $this->generateNotFoundImageLinks('poster');
         }
         $requestDetails = $this->checkIfRequested($data['title'], $data['release_date'], 0);
         $data['requested'] = $requestDetails['requested'];

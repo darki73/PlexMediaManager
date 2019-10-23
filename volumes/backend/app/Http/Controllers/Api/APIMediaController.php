@@ -31,11 +31,17 @@ class APIMediaController extends APIController {
     /**
      * Check if media element is already requested
      * @param string $title
-     * @param string $releaseDate
+     * @param string|null $releaseDate
      * @param int $type
      * @return array
      */
-    protected function checkIfRequested(string $title, string $releaseDate, int $type) : array {
+    protected function checkIfRequested(string $title, ?string $releaseDate = null, int $type) : array {
+        if ($releaseDate === null) {
+            return [
+                'requested'     =>  false,
+                'status'        =>  null
+            ];
+        }
         [$year, $month, $day] = explode('-', $releaseDate);
         $model = Request::where('title', '=', $title)->where('year', '=', (integer) $year)->where('request_type', '=', $type)->first();
         if ($model === null) {
@@ -48,6 +54,35 @@ class APIMediaController extends APIController {
             'requested'     =>  true,
             'status'        =>  $model->status
         ];
+    }
+
+    /**
+     * Generate links for `media not found` images
+     * @param string $type
+     * @return array
+     */
+    protected function generateNotFoundImageLinks(string $type) : array {
+        $images = [];
+        $poster = 'https://' . str_replace(['http://', 'https://'], '', env('APP_URL')) . '/storage/static/media-not-found-poster.png';
+        $posterSizes = ['w92', 'w154', 'w185', 'w342', 'w500', 'w780', 'original'];
+
+        $backdrop = 'https://' . str_replace(['http://', 'https://'], '', env('APP_URL')) . '/storage/static/media-not-found-backdrop.png';
+        $backdropSizes = ['w300', 'w780', 'w1280', 'original'];
+
+        switch ($type) {
+            case 'poster':
+                foreach ($posterSizes as $size) {
+                    $images[$size] = $poster;
+                }
+                break;
+            case 'backdrop':
+                foreach ($backdropSizes as $size) {
+                    $images[$size] = $backdrop;
+                }
+                break;
+        }
+
+        return $images;
     }
 
     /**

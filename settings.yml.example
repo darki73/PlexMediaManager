@@ -44,3 +44,4 @@ torrent:
   password: ""
   ignore_parts:
     - remux
+    - BDRip

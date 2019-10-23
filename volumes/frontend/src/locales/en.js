@@ -466,6 +466,7 @@ export default {
                     email: 'E-Mail',
                     admin: 'Is Administrator',
                     guest: 'Is Guest',
+                    friend: 'Is Friend',
                     avatar: 'Avatar',
                     actions: 'Actions',
                 }

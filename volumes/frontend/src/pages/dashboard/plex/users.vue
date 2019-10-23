@@ -93,6 +93,15 @@
                                     </td>
 
                                     <td align="center">
+                                        <v-icon color="green" v-if="item.friend">
+                                            check
+                                        </v-icon>
+                                        <v-icon color="red" v-else>
+                                            close
+                                        </v-icon>
+                                    </td>
+
+                                    <td align="center">
                                         <v-icon
                                             small
                                             @click="toggleDeleteUserDialog(item)"
@@ -161,6 +170,11 @@
                         text: this.$t('dashboard.plex.users.headers.guest'),
                         align: 'center',
                         value: 'guest',
+                    },
+                    {
+                        text: this.$t('dashboard.plex.users.headers.friend'),
+                        align: 'center',
+                        value: 'friend',
                     },
                     {
                         text: this.$t('dashboard.plex.users.headers.actions'),

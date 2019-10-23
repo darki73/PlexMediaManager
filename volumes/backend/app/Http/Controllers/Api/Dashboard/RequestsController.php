@@ -5,6 +5,7 @@ use App\Jobs\Download\SeriesImages;
 use App\Jobs\Update\Episodes;
 use App\Jobs\Update\SeriesIndexers;
 use App\Models\Genre;
+use App\Models\Movie;
 use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -89,34 +90,73 @@ class RequestsController extends APIController {
                 'id'    =>  $id
             ]);
         }
+        // request_type 0 - Series, 1 - Movie
 
-        $seriesModel = Series::where('title', '=', $requestModel->title)->orWhere('original_title', '=', $requestModel->title)->where('release_date', 'LIKE', $requestModel->year . '-%')->first();
+        $requestType = $requestModel->request_type;
+        $model = null;
 
-        if ($seriesModel !== null) {
+        if ($requestType === 1) { // Movie
+            $model = Movie::where('title', '=', $requestModel->title)->orWhere('original_title', '=', $requestModel->title)->where('release_date', 'LIKE', $requestModel->year . '-%')->first();
+        } else if ($requestType === 0) { // Series
+            $model = Series::where('title', '=', $requestModel->title)->orWhere('original_title', '=', $requestModel->title)->where('release_date', 'LIKE', $requestModel->year . '-%')->first();
+        } else if ($requestType === 3) { // Music
+            // Just do nothing, music is not yet supported
+        }
+
+        if ($model !== null) {
             if ($status === 1) {
-                $seriesModel->update([
-                    'local_title'       =>  sprintf('%s (%d)', $requestModel->title, $requestModel->year)
+                $model->update([
+                    'local_title'       =>  sprintf('%s (%d)', str_replace(':', '', $requestModel->title), $requestModel->year)
                 ]);
-                dispatch(new SeriesIndexers);
+                if ($requestType === 0) { // Update indexers for series
+                    dispatch(new SeriesIndexers);
+                }
             }
         } else {
             try {
                 $database = new TheMovieDB;
-                $search = $database->search()->for(Search::SEARCH_SERIES, $requestModel->title)->year($requestModel->year);
-                $results = $search->fetch();
-                $item = $database->series()->fetch($results['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
-                $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
-                \App\Classes\Media\Processor\Processor::series($parser);
+                $searchFor = null;
+                switch ($requestType) {
+                    case 0:
+                        $searchFor = Search::SEARCH_SERIES;
+                        break;
+                    case 1:
+                        $searchFor = Search::SEARCH_MOVIE;
+                        break;
+                    case 3:
+                    default:
+                        // Do nothing, music is not yet supported
+                        break;
+                }
+
+                $search = $database->search()->for($searchFor, $requestModel->title)->year($requestModel->year);
+                $result = $search->fetch();
+
+                switch ($requestType) {
+                    case 0:
+                        $item = $database->series()->fetch($result['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
+                        $parser = new \App\Classes\TheMovieDB\Processor\Series($item);
+                        \App\Classes\Media\Processor\Processor::series($parser);
+                        Episodes::withChain([
+                            new SeriesIndexers
+                        ])->dispatch();
+                        break;
+                    case 1:
+                        $item = $database->movies()->fetch($result['id'], sprintf('%s (%d)', $requestModel->title, $requestModel->year));
+                        $parser = new \App\Classes\TheMovieDB\Processor\Movie($item);
+                        \App\Classes\Media\Processor\Processor::movie($parser);
+                        break;
+                    case 3:
+                    default:
+                        // Do nothing, music is not yet supported
+                        break;
+                }
             } catch (\Exception $exception) {
                 return $this->sendError('Unable to load information from the Media API', [
                     'code'      =>  $exception->getCode(),
                     'message'   =>  $exception->getMessage()
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-            Episodes::withChain([
-                new SeriesIndexers
-            ])->dispatch();
         }
 
         $requestModel->update([
@@ -179,7 +219,8 @@ class RequestsController extends APIController {
                 ->year($year)
                 ->fetch();
             $results['poster'] = $configuration->getRemoteImagePath($results['poster_path'], 'poster');
-            unset($results['poster_path']);
+            $results['backdrop'] = $configuration->getRemoteImagePath($results['backdrop_path'], 'backdrop');
+            unset($results['poster_path'], $results['backdrop_path']);
             return $results;
         });
     }

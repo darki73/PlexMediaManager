@@ -149,6 +149,14 @@ class LostFilm extends AbstractIndexer {
         return false;
     }
 
+    /**
+     * @inheritDoc
+     * @param int $quality
+     * @return void
+     */
+    public static function downloadRequests(int $quality = Quality::FHD) : void {
+        return;
+    }
 
     /**
      * @inheritDoc

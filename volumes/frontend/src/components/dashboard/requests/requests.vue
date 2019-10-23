@@ -85,41 +85,53 @@
             persistent
         >
             <v-card v-if="showEditDialog">
-                <v-card-title class="headline">
-                    {{ workingItem.title }} ({{ workingItem.year }})
-                </v-card-title>
-
                 <v-card-text>
                     <v-layout row wrap>
-                        <v-flex xs12 text-center>
-                            <!-- TODO: Make image prettier (wrong height now) -->
-                            <v-img
-                                :src="workingItem.moviedb.poster.w92"
-                                :srcset="generateSrcSet(workingItem.moviedb.poster)"
-                                :height="150"
-                                class="grey darken-4"
-                            />
-                        </v-flex>
-                        <v-flex xs12 text-center class="pt-5">
-                            <v-chip
-                                class="ml-2"
-                                v-for="(genre, index) in workingItem.moviedb.genres"
-                                :key="`chip-for-request-with-id-${workingItem.id}-and-chip-index-${index}`"
-                            >
-                                {{ genre.name }}
-                            </v-chip>
-                        </v-flex>
-                        <v-flex xs12 text-center class="pt-5">
-                            {{ createCorrectOverview(workingItem.moviedb.overview) }}
-                        </v-flex>
-                        <v-flex xs12 class="pt-5">
-                            <v-select
-                                :label="$t('dashboard.requests.status_label')"
-                                v-model="workingItem.status"
-                                :items="availableStatuses"
-                                item-text="value"
-                                item-value="key"
-                            />
+                        <v-flex xs12>
+                            <v-layout row wrap>
+                                <!-- Media Image Overlay + Details Start -->
+                                <v-flex xs12>
+                                    <v-img
+                                        class="white--text align-end"
+                                        :src="workingItem.moviedb.backdrop.w300"
+                                        :srcset="generateSrcSet(workingItem.moviedb.backdrop)"
+                                        :height="200"
+                                        gradient="to top right, rgba(0, 0, 0, .4), rgba(0, 0, 0, .4)"
+                                    >
+                                        <v-container>
+                                            <v-layout row wrap class="pa-3">
+                                                <v-flex xs12 class="fs-24 shadow-10">
+                                                    {{ workingItem.title }} ({{ workingItem.year }})
+                                                </v-flex>
+                                                <v-flex xs12 class="pt-2">
+                                                    <v-chip
+                                                        v-for="(genre, index) in workingItem.moviedb.genres"
+                                                        :key="`chip-for-request-with-id-${workingItem.id}-and-chip-index-${index}`"
+                                                        small
+                                                        class="mr-2"
+                                                    >
+                                                        {{ genre.name }}
+                                                    </v-chip>
+                                                </v-flex>
+                                            </v-layout>
+                                        </v-container>
+                                    </v-img>
+                                </v-flex>
+                                <!-- Media Image Overlay + Details End  -->
+
+                                <v-flex xs12 text-center class="pa-4 pb-0">
+                                    {{ createCorrectOverview(workingItem.moviedb.overview) }}
+                                </v-flex>
+                                <v-flex xs12 class="pa-4 pb-0">
+                                    <v-select
+                                        :label="$t('dashboard.requests.status_label')"
+                                        v-model="workingItem.status"
+                                        :items="availableStatuses"
+                                        item-text="value"
+                                        item-value="key"
+                                    />
+                                </v-flex>
+                            </v-layout>
                         </v-flex>
                     </v-layout>
                 </v-card-text>

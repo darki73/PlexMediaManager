@@ -298,6 +298,13 @@ abstract class AbstractIndexer {
     abstract public static function download(Series $series, Episode $episode, int $quality = Quality::FHD) : bool;
 
     /**
+     * Download all pending MOVIES requests
+     * @param int $quality
+     * @return void
+     */
+    abstract public static function downloadRequests(int $quality = Quality::FHD) : void;
+
+    /**
      * Run indexer specific pre checks before executing query
      * @return void
      */

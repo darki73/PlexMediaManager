@@ -41,7 +41,7 @@ class PlexController extends APIController {
      * @return JsonResponse
      */
     public function syncUsers(Request $request) : JsonResponse {
-        $users = $this->plex->internal()->users()['data'];
+        $users = $this->plex->internal()->allUsers(true);
         foreach ($users as $user) {
             $id = $user['id'];
             $model = PlexUser::find($id);

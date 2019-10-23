@@ -135,7 +135,8 @@ Route::group([
     /**
      * Get list of completed torrents with respective commands to move the files
      */
-    Route::get('completed', 'TorrentController@listCompletedTorrents');
+    Route::get('completed/series', 'TorrentController@listCompletedSeriesTorrents');
+    Route::get('completed/movies', 'TorrentController@listCompletedMoviesTorrents');
 
 });
 

@@ -88,6 +88,8 @@ class MovieController extends APIMediaController {
                 'id'        =>  $movie->id,
                 'category'  =>  'global'
             ]);
+        } else {
+            $data['backdrop'] = $this->generateNotFoundImageLinks('backdrop');
         }
         if ($movie->poster !== null) {
             $data['poster'] = $this->buildImagePath($movie->poster, 'poster', [
@@ -95,6 +97,8 @@ class MovieController extends APIMediaController {
                 'id'        =>  $movie->id,
                 'category'  =>  'global'
             ]);
+        } else {
+            $data['poster'] = $this->generateNotFoundImageLinks('poster');
         }
 
         if (\count($only) > 0) {
