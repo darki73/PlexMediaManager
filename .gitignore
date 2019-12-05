@@ -2,7 +2,7 @@
 .idea
 
 # Ignore Contents In These Volumes
-volumes/elasticsearch/*
+volumes/elasticsearch/data/*
 volumes/jackett/config/*
 volumes/jackett/downloads/*
 volumes/kibana/*
@@ -16,7 +16,7 @@ volumes/traefik/rules/*
 volumes/traefik/traefik.yaml
 
 # Keep Certain Files In These Volumes
-!volumes/elasticsearch/.gitkeep
+!volumes/elasticsearch/data/.gitkeep
 !volumes/jackett/config/.gitkeep
 !volumes/jackett/downloads/.gitkeep
 !volumes/kibana/config.yml

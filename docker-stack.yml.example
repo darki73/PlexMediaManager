@@ -1,0 +1,270 @@
+version: '3.7'
+
+networks:
+  internal:
+  traefik_proxy:
+    external: true
+
+volumes:
+  home-dir:
+
+services:
+  &app-service app: &app-service-template
+    image: registry.freedomcore.ru/darki73/plexmediamanager/application:latest
+    restart: always
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    volumes:
+      - home-dir:/home/user
+      - ./volumes/backend:/app:rw
+      - ./.git:/app/.git:ro
+      - ./settings.yml:/app/storage/app/private/settings.yml:ro
+    hostname: *app-service
+    deploy:
+      labels:
+        traefik.enable: "false"
+    environment:
+      # Global Configuration
+      MAIN_DOMAIN: &main-domain "media.${HOSTNAME}"
+      API_DOMAIN: &api-domain "media-api.${HOSTNAME}"
+      SCHEDULE_PERIOD: 60
+
+      # PHP-FPM Configuration
+      FPM_PORT: &fpm-port 9000
+      FPM_USER: "${USER_ID:-1000}"
+      FPM_GROUP: "${GROUP_ID:-1000}"
+
+      # Application Configuration
+      APP_URL: *api-domain
+      FRONTEND_URL: *main-domain
+      APP_ENV: &app-env local
+      APP_DEBUG: &app-debug 'true'
+
+      # Storage Configuration
+      BROADCAST_DRIVER: websockets
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+
+      # Database Configuration
+      DB_HOST: database
+      DB_PORT: &db-port 3306
+      DB_DATABASE: &db-name app
+      DB_USERNAME: &db-username forge
+      DB_PASSWORD: &db-password secret
+
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: &redis-port 6379
+
+      ELASTIC_PORT: &elastic-port 9200
+      SCOUT_DRIVER: "Matchish\\ScoutElasticSearch\\Engines\\ElasticSearchEngine"
+      ELASTICSEARCH_HOST: "elasticsearch:9200"
+      KIBANA_PORT: &kibana-port 5601
+    command: /scripts/keep-alive.sh
+    depends_on:
+      - redis
+      - database
+    networks:
+      - internal
+      - traefik_proxy
+
+  &scheduler-service scheduler:
+    <<: *app-service-template
+    restart: always
+    hostname: *scheduler-service
+    command: /scripts/scheduler.sh "php /app/artisan schedule:run"
+    deploy:
+      labels:
+        traefik.enable: "false"
+
+  &queue-service queue:
+    <<: *app-service-template
+    restart: always
+    hostname: *queue-service
+    command: php /app/artisan horizon
+    deploy:
+      labels:
+        traefik.enable: "false"
+
+  &php-fmp-service php-fpm:
+    <<: *app-service-template
+    user: 'root:root'
+    restart: always
+    hostname: *php-fmp-service
+    deploy:
+      labels:
+        traefik.enable: "false"
+    ports:
+      - *fpm-port
+    entrypoint: /fpm-entrypoint.sh
+    command: php-fpm --nodaemonize -d "opcache.enable=0" -d "display_startup_errors=On" -d "display_errors=On" -d "error_reporting=E_ALL"
+    networks:
+      - internal
+
+  &websockets-service websockets:
+    <<: *app-service-template
+    restart: always
+    hostname: *websockets-service
+    command: php /app/artisan websockets:serve
+    deploy:
+      labels:
+        # Global Container Configuration
+        traefik.enable: "true"
+        traefik.docker.network: traefik_proxy
+        traefik.http.services.media-sockets.loadBalancer.server.port: 6001
+
+        # HTTP Endpoint Configuration
+        traefik.http.routers.media-sockets.rule: Host(`media-sockets.${HOSTNAME}`)
+        traefik.http.routers.media-sockets.entrypoints: web
+        traefik.http.routers.media-sockets.middlewares: redirect@file
+
+        # HTTPS Endpoint Configuration
+        traefik.http.routers.media-sockets-secure.rule: Host(`media-sockets.${HOSTNAME}`)
+        traefik.http.routers.media-sockets-secure.entrypoints: websecure
+        traefik.http.routers.media-sockets-secure.middlewares: secure@file, onlyFromLocal@file
+        traefik.http.routers.media-sockets-secure.tls: "true"
+        traefik.http.routers.media-sockets-secure.tls.certResolver: dnschallenge
+    networks:
+      - traefik_proxy
+      - internal
+
+  frontend:
+    image: registry.freedomcore.ru/darki73/plexmediamanager/frontend:latest
+    restart: always
+    environment:
+      API_URL: *api-domain
+      APP_URL: *main-domain
+      FORCE_HTTPS: "true"
+    volumes:
+      - ./volumes/frontend:/app:rw
+      - ./volumes/backend/.env:/.env:ro
+    deploy:
+      labels:
+        # Global Container Configuration
+        traefik.enable: "true"
+        traefik.docker.network: traefik_proxy
+        traefik.http.services.media-frontend.loadBalancer.server.port: 3000
+
+        # HTTP Endpoint Configuration
+        traefik.http.routers.media-frontend.rule: Host(`media.${HOSTNAME}`)
+        traefik.http.routers.media-frontend.entrypoints: web
+        traefik.http.routers.media-frontend.middlewares: redirect@file
+
+        # HTTPS Endpoint Configuration
+        traefik.http.routers.media-frontend-secure.rule: Host(`media.${HOSTNAME}`)
+        traefik.http.routers.media-frontend-secure.entrypoints: websecure
+        traefik.http.routers.media-frontend-secure.middlewares: secure@file, onlyFromLocal@file
+        traefik.http.routers.media-frontend-secure.tls: "true"
+        traefik.http.routers.media-frontend-secure.tls.certResolver: dnschallenge
+    networks:
+      - traefik_proxy
+
+  nginx:
+    image: registry.freedomcore.ru/darki73/plexmediamanager/nginx:latest
+    restart: always
+    working_dir: /usr/share/nginx/html
+    environment:
+      APP_BASE_URL: *main-domain
+      MAIN_DOMAIN: *main-domain
+      FPM_HOST: *php-fmp-service
+      FPM_PORT: *fpm-port
+      ROOT_DIR: '/app/public'
+    volumes:
+      - ./volumes/backend:/app:ro
+    depends_on:
+      - *php-fmp-service
+    deploy:
+      labels:
+        # Global Container Configuration
+        traefik.enable: "true"
+        traefik.docker.network: traefik_proxy
+        traefik.http.services.media-backend.loadBalancer.server.port: 80
+
+        # HTTP Endpoint Configuration
+        traefik.http.routers.media-backend.rule: Host(`media-api.${HOSTNAME}`)
+        traefik.http.routers.media-backend.entrypoints: web
+        traefik.http.routers.media-backend.middlewares: redirect@file
+
+        # HTTPS Endpoint Configuration
+        traefik.http.routers.media-backend-secure.rule: Host(`media-api.${HOSTNAME}`)
+        traefik.http.routers.media-backend-secure.entrypoints: websecure
+        traefik.http.routers.media-backend-secure.middlewares: secure@file, onlyFromLocal@file
+        traefik.http.routers.media-backend-secure.tls: "true"
+        traefik.http.routers.media-backend-secure.tls.certResolver: dnschallenge
+    networks:
+      - internal
+      - traefik_proxy
+
+  redis:
+    image: redis:alpine
+    restart: always
+    command: redis-server
+    deploy:
+      labels:
+        traefik.enable: "false"
+    volumes:
+      - ./volumes/redis:/data:rw
+    ports:
+      - *redis-port
+    networks:
+      - internal
+
+  database:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: *db-name
+      MYSQL_USER: *db-username
+      MYSQL_PASSWORD: *db-password
+      MYSQL_ROOT_PASSWORD: rootPassword
+    volumes:
+      - ./volumes/mariadb:/var/lib/mysql:rw
+    ports:
+      - *db-port
+    networks:
+      - internal
+
+  elasticsearch:
+    image: elasticsearch:6.8.5
+    restart: always
+    healthcheck:
+      test: curl -fs http://localhost:9200/_cat/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 4G
+    environment:
+      cluster.name: "docker-cluster"
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: -Xms4096m -Xmx4096m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./volumes/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./volumes/elasticsearch/config/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./volumes/elasticsearch/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
+    ports:
+      - *elastic-port
+    networks:
+      - internal
+
+  kibana:
+    image: kibana:6.8.5
+    restart: always
+    environment:
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+    ports:
+      - *kibana-port
+      - 5601:5601
+    networks:
+      - internal
+    depends_on:
+      - elasticsearch

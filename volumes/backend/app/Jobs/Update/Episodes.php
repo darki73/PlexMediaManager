@@ -33,15 +33,19 @@ class Episodes extends AbstractLongQueueJob {
      */
     public function handle() : void {
         foreach ($this->seriesCollection as $series) {
-            foreach ($series->seasons as $season) {
-                if (! $this->seasonIsFull($season)) {
-                    $api = new TheMovieDB;
-                    $search = $api->series()->season($season->series_id, $season->season_number);
-                    $episodes = $search->episodes();
-                    foreach ($episodes as $episode) {
-                        Processor::episode(
-                            new Episode($episode, $season->id)
-                        );
+            $episodesTotalCount = $series->episodesTotal();
+            $episodesLocalCount = $series->episodesCount();
+            if ($episodesLocalCount < $episodesTotalCount) {
+                foreach ($series->seasons as $season) {
+                    if (! $this->seasonIsFull($season)) {
+                        $database = new TheMovieDB;
+                        $search = $database->series()->season($season->series_id, $season->season_number);
+                        $episodes = $search->episodes();
+                        foreach ($episodes as $episode) {
+                            if ($episode['season_number'] !== null) {
+                                Processor::episode(new Episode($episode, $season->id));
+                            }
+                        }
                     }
                 }
             }

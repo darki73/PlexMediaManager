@@ -1,0 +1,9 @@
+-Xms4G
+-Xmx4G
+-XX:+UseConcMarkSweepGC
+-XX:CMSInitiatingOccupancyFraction=75
+-XX:+UseCMSInitiatingOccupancyOnly
+-XX:+AlwaysPreTouch
+-Xss1m
+-Djava.awt.headless=true
+-Dfile.encoding=UTF-8

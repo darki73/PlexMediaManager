@@ -345,7 +345,7 @@ class RuTracker extends AbstractIndexer {
                 }
             }
 
-            if (!$alreadyDownloading) {
+            if (!$alreadyDownloading && $bestMatch !== null) {
                 $torrent->download($bestMatch['Link'], 'movies');
             }
         }

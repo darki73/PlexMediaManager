@@ -94,6 +94,10 @@ class LostFilm extends AbstractIndexer {
         $torrent = new Torrent();
         $alreadyDownloading = false;
 
+        if ($series->local_title === null) {
+            return false;
+        }
+
         if (!$self->isSeriesApprovedForDownload($series)) {
             return false;
         }

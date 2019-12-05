@@ -13,7 +13,7 @@ class Movies extends AbstractLongQueueJob {
      */
     public function __construct() {
         $this->setAttempts(50);
-        $this->setTags('download', 'episodes');
+        $this->setTags('download', 'movies');
     }
 
     /**

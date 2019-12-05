@@ -67,9 +67,11 @@ class EpisodesUpdateCLI extends Command {
         if ($missingEpisodesCount > 0) {
             $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
         }
-        foreach ($this->series as $series) {
+        $seriesCount = $this->series->count();
+        foreach ($this->series as $index => $series) {
             $episodesTotalCount = $series->episodesTotal();
             $episodesLocalCount = $series->episodesCount();
+            $this->warn(sprintf('[%d/%d] Processing: %s', ($index + 1), $seriesCount, $series->local_title));
             if ($episodesLocalCount < $episodesTotalCount) {
                 $this->info('Missing ' . ($episodesTotalCount - $episodesLocalCount) . ' episodes for ' . $series->title);
                 foreach ($series->seasons as $season) {

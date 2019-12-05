@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use App\Classes\Media\Source\Source;
 use App\Classes\Media\Source\Type\Series;
 use Illuminate\Support\Arr;
+use App\Models\Series as SeriesModel;
 
 /**
  * Class SeriesUpdateCLI
@@ -107,24 +108,49 @@ class SeriesUpdateCLI extends Command {
                 $response = $database->search()->for(Search::SEARCH_SERIES, $series['name'])->year($series['year'])->fetch();
                 if (\count($response) !== 0) {
                     [$year, $month, $day] = explode('-', $response['first_air_date']);
-                    $seriesModel = Series::where('title', '=', $response['name'])->where('release_date', 'LIKE', $year . '-%')->first();
+                    $seriesModel = SeriesModel::where('title', '=', $response['name'])->where('release_date', 'LIKE', $year . '-%')->first();
                     if ($seriesModel !== null) {
                         $seriesModel->update([
                             'local_title'       =>  $series['original_name']
                         ]);
                     }
-                } else {
-                    app('log')->info('[SeriesUpdate::handle] We need to query API, Series `' . $series['name'] . '` was not found in the database');
                 }
             } else {
-                $databaseModel->update([
-                    'local_title'       =>  $series['original_name']
-                ]);
+                if ($databaseModel->local_title !== null) {
+                    // php artisan series:update-cli
+                    $data = (new \App\Classes\TheMovieDB\TheMovieDB)->series()->fetch($databaseModel->id);
+                    $parser = new \App\Classes\TheMovieDB\Processor\Series($data);
+                    \App\Classes\Media\Processor\Processor::series($parser);
+                    $seasonsInformation = (new \App\Classes\TheMovieDB\TheMovieDB)->series()->seasons($data['id'], $data['seasons']);
+
+                    foreach ($data['seasons'] as $season) {
+                        $seasonId = $season['id'];
+                        if (isset($season['season_number'])) {
+                            $seasonNumber = $season['season_number'];
+                            if ($seasonNumber > 0) {
+                                try {
+                                    if ($seasonNumber !== null) {
+                                        foreach($seasonsInformation->seasonEpisodes($seasonNumber) as $episode) {
+                                            \App\Classes\Media\Processor\Processor::episode(new \App\Classes\TheMovieDB\Processor\Episode($episode, $seasonId));
+                                        }
+                                    }
+                                } catch (\Exception $exception) {
+                                    app('log')->info('Encountered error processing ' . $databaseModel->id . ', Season ' . $seasonNumber . ' . Json Object: ' . json_encode($seasonsInformation->getAllSeasons()));
+                                    die();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    $databaseModel->update([
+                        'local_title'       =>  $series['original_name']
+                    ]);
+                }
             }
         } else {
             $this->info('');
             $now = Carbon::now();
-            $element = \App\Models\Series::where('local_title', '=', $series['original_name'])->first();
+            $element = SeriesModel::where('local_title', '=', $series['original_name'])->first();
             $canUpdateAgain = $element->updated_at->addDays(1)->setTime(0, 0, 0);
             $secondsDifference = $canUpdateAgain->diffInSeconds($now);
             $time = gmdate('H:i:s', $secondsDifference);

@@ -57,23 +57,49 @@ class Series extends AbstractLongQueueJob {
                                 'local_title'       =>  $item['original_name']
                             ]);
                         }
-                    } else {
-                        app('log')->info('[SeriesUpdate::handle] We need to query API, Series `' . $item['name'] . '` was not found in the database');
                     }
                 } else {
-                    $updatesMade++;
-                    $databaseModel->update([
-                        'local_title'       =>  $item['original_name']
-                    ]);
+                    if ($databaseModel->local_title !== null) {
+                        $updatesMade++;
+                        $data = (new \App\Classes\TheMovieDB\TheMovieDB)->series()->fetch($databaseModel->id);
+                        $parser = new \App\Classes\TheMovieDB\Processor\Series($data);
+                        \App\Classes\Media\Processor\Processor::series($parser);
+                        $seasonsInformation = (new \App\Classes\TheMovieDB\TheMovieDB)->series()->seasons($data['id'], $data['seasons']);
+
+                        foreach ($data['seasons'] as $season) {
+                            $seasonId = $season['id'];
+                            if (isset($season['season_number'])) {
+                                $seasonNumber = $season['season_number'];
+                                if ($seasonNumber > 0) {
+                                    try {
+                                        if ($seasonNumber !== null) {
+                                            foreach($seasonsInformation->seasonEpisodes($seasonNumber) as $episode) {
+                                                \App\Classes\Media\Processor\Processor::episode(new \App\Classes\TheMovieDB\Processor\Episode($episode, $seasonId));
+                                            }
+                                        }
+                                    } catch (\Exception $exception) {
+                                        app('log')->info('Encountered error processing ' . $databaseModel->id . ', Season ' . $seasonNumber . ' . Json Object: ' . json_encode($seasonsInformation->getAllSeasons()));
+                                        die();
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        $databaseModel->update([
+                            'local_title'       =>  $item['original_name']
+                        ]);
+                    }
                 }
             }
         }
+        dispatch(new Episodes);
 //        $newSeriesCount = SeriesModel::count();
         if($updatesMade > 0) {
             Cache::forget('series:list');
-            SeriesIndexers::withChain([
-                new Episodes
-            ])->dispatch();
+            dispatch(new SeriesIndexers);
+//            SeriesIndexers::withChain([
+//                new Episodes
+//            ])->dispatch();
         }
     }
 

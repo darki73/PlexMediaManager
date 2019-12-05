@@ -23,9 +23,9 @@ class Kernel extends ConsoleKernel
      * @return void
      */
     protected function schedule(Schedule $schedule) : void {
+        $schedule->job(new \App\Jobs\Update\RequestStatus)->everyFiveMinutes();
         $schedule->job(new \App\Jobs\Update\Series)->everyFifteenMinutes();
-        $schedule->job(new \App\Jobs\Update\RequestStatus)->everyTenMinutes();
-        $schedule->job(new \App\Jobs\Download\Movies)->everyTenMinutes();
+        $schedule->job(new \App\Jobs\Download\Movies)->everyThirtyMinutes();
         $schedule->job(new \App\Jobs\Download\Episodes)->everyThirtyMinutes();
         // $schedule->command('inspire')
         //          ->hourly();
