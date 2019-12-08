@@ -42,7 +42,7 @@ class QBitTorrent extends AbstractClient {
      * @inheritDoc
      * @var string
      */
-    protected $implementationVersion = '1.0.0';
+    protected $implementationVersion = '2.0.0';
 
     /**
      * QBitTorrent constructor.
@@ -54,20 +54,11 @@ class QBitTorrent extends AbstractClient {
 
     /**
      * Get APi Version Number
-     * @return int
+     * @return float
      * @throws GuzzleException
      */
-    public function apiVersion() : int {
-        return (int) $this->getClientResponse('/version/api');
-    }
-
-    /**
-     * Get lowest acceptable version for API
-     * @return int
-     * @throws GuzzleException
-     */
-    public function apiMinVersion() : int {
-        return (int) $this->getClientResponse('/version/api_min');
+    public function apiVersion() : float {
+        return (float) $this->getClientResponse('/api/v2/app/webapiVersion');
     }
 
     /**
@@ -76,7 +67,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function serverVersion() : string {
-        return $this->getClientResponse('/version/qbittorrent');
+        return $this->getClientResponse('/api/v2/app/version');
     }
 
     /**
@@ -85,7 +76,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function listTorrents() : array {
-        return json_decode($this->login()->getClientResponse('/query/torrents'), true);
+        return json_decode($this->login()->getClientResponse('/api/v2/torrents/info'), true);
     }
 
     /**
@@ -120,7 +111,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function torrentInfo(string $hash) : array {
-        return json_decode($this->login()->getClientResponse('/query/propertiesGeneral/' . $hash), true);
+        return json_decode($this->login()->getClientResponse('/api/v2/torrents/properties?hash=' . $hash), true);
     }
 
     /**
@@ -130,7 +121,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function torrentTrackers(string $hash) : array {
-        return json_decode($this->login()->getClientResponse('/query/propertiesTrackers/' . $hash), true);
+        return json_decode($this->login()->getClientResponse('/api/v2/torrents/trackers?hash=' . $hash), true);
     }
 
     /**
@@ -140,7 +131,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function torrentWebSeeds(string $hash) : array {
-        return json_decode($this->login()->getClientResponse('/query/propertiesWebSeeds/' . $hash), true);
+        return json_decode($this->login()->getClientResponse('/api/v2/torrents/webseeds?hash=' . $hash), true);
     }
 
     /**
@@ -150,7 +141,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function torrentFiles(string $hash) : array {
-        return json_decode($this->login()->getClientResponse('/query/propertiesFiles/' . $hash), true);
+        return json_decode($this->login()->getClientResponse('/api/v2/torrents/files?hash=' . $hash), true);
     }
 
     /**
@@ -169,8 +160,8 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function resumeTorrent(string $hash): void {
-        $this->login()->getClientResponse('/command/resume', 'POST', [
-            'hash'  =>  $hash
+        $this->login()->getClientResponse('/api/v2/torrents/resume', 'POST', [
+            'hashes'  =>  $hash
         ]);
         return;
     }
@@ -182,8 +173,8 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function pauseTorrent(string $hash): void {
-        $this->login()->getClientResponse('/command/pause', 'POST', [
-            'hash'  =>  $hash
+        $this->login()->getClientResponse('/api/v2/torrents/pause', 'POST', [
+            'hashes'  =>  $hash
         ]);
         return;
     }
@@ -197,7 +188,7 @@ class QBitTorrent extends AbstractClient {
      */
     public function doNotDownload(string $hash, int $fileID) : void {
         try {
-            $this->login()->getClientResponse('/command/setFilePrio', 'POST', [
+            $this->login()->getClientResponse('/api/v2/torrents/filePrio', 'POST', [
                 'hash'      =>  $hash,
                 'id'        =>  $fileID,
                 'priority'  =>  0
@@ -216,10 +207,8 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function deleteTorrent(string $hash, bool $force = false): void {
-        $query = $force ? '/command/deletePerm' : '/command/delete';
-        $this->login()->getClientResponse($query, 'POST', [
-            'hashes'    =>  $hash
-        ]);
+        $query = $force ? '/api/v2/torrents/delete?deleteFiles=true&hashes=' : '/api/v2/torrents/delete?hashes=';
+        $this->login()->getClientResponse($query . $hash);
     }
 
     /**
@@ -230,7 +219,7 @@ class QBitTorrent extends AbstractClient {
      */
     public function createCategory(string $categoryName) : void {
         try {
-            $this->login()->getClientResponse('/command/addCategory', 'POST', [
+            $this->login()->getClientResponse('/api/v2/torrents/createCategory', 'POST', [
                 'category'  =>  $categoryName
             ]);
         } catch (\Exception $exception) {
@@ -245,7 +234,7 @@ class QBitTorrent extends AbstractClient {
      * @throws GuzzleException
      */
     public function createTorrent(array $files): void {
-        $this->login()->getClientResponse('/command/upload', 'POST', [
+        $this->login()->getClientResponse('/api/v2/torrents/add', 'POST', [
             'multipart'     =>  $files
         ]);
         return;
@@ -259,7 +248,7 @@ class QBitTorrent extends AbstractClient {
      */
     public function download(string $url, string $category) : TorrentInterface {
         $this->login();
-        $this->client->post('/command/download', [
+        $this->client->post('/api/v2/torrents/add', [
             'form_params'   =>  [
                 'urls'      =>  $url,
                 'category'  =>  $category
@@ -327,9 +316,9 @@ class QBitTorrent extends AbstractClient {
      * Authenticate Request
      * @return QBitTorrent|static|self|$this
      */
-    protected function login() : self {
+    public function login() : self {
         if ($this->authenticationToken === null) {
-            $request = $this->client->post('/login', [
+            $request = $this->client->post('/api/v2/auth/login', [
                 'form_params'   =>  [
                     'username'  =>  config('torrent.username'),
                     'password'  =>  config('torrent.password')
