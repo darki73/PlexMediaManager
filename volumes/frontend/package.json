@@ -21,7 +21,7 @@
         "dotenv": "^8.1.0",
         "lodash": "^4.17.15",
         "material-design-icons-iconfont": "^5.0.1",
-        "moment-timezone": "^0.5.26",
+        "moment-timezone": "^0.5.35",
         "nuxt": "^2.0.0",
         "nuxt-i18n": "^6.2.1",
         "pusher-js": "^5.0.2",
